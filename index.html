@@ -1,0 +1,1507 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atendimento do Cliente - SO Automação</title>
+
+  <style>
+    :root{
+      --so-blue: #007BBE;
+      --so-blue-dark: #005E92;
+      --bg: #F5F7FA;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+
+      --green: #16A34A;
+      --yellow: #F59E0B;
+      --red: #DC2626;
+      --gray: #9CA3AF;
+
+      --shadow: 0 10px 25px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    button, input, select, textarea{ font-family: inherit; }
+    .hidden{ display: none !important; }
+
+    /* ============ LOGIN ============ */
+    .login-wrap{
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .login-card{
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .brand-logo{
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, var(--so-blue), var(--so-blue-dark));
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .brand-title{
+      display: flex;
+      flex-direction: column;
+      line-height: 1.05;
+    }
+    .brand-title strong{
+      font-size: 16px;
+    }
+    .brand-title span{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .login-title{
+      margin: 10px 0 16px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .field{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .field label{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .field input{
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 0 12px;
+      outline: none;
+      background: #fff;
+    }
+    .field input:focus{
+      border-color: var(--so-blue);
+      box-shadow: 0 0 0 3px rgba(0,123,190,0.15);
+    }
+
+    .btn{
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.15s ease;
+    }
+    .btn-primary{
+      background: var(--so-blue);
+      color: #fff;
+    }
+    .btn-primary:hover{
+      background: var(--so-blue-dark);
+    }
+    .btn-ghost{
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover{
+      border-color: var(--so-blue);
+      color: var(--so-blue-dark);
+    }
+    .btn-danger{
+      background: var(--red);
+      color: #fff;
+    }
+    .btn-danger:hover{
+      filter: brightness(0.92);
+    }
+
+    .login-footer{
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .login-footer small{
+      opacity: 0.9;
+    }
+
+    /* ============ APP SHELL ============ */
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+    .sidebar .brand{
+      margin-bottom: 10px;
+    }
+    .side-section-title{
+      margin-top: 16px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .nav{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav-item{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: 0.15s ease;
+      user-select: none;
+    }
+    .nav-item:hover{
+      background: #F3F7FB;
+      border-color: #E7F0F8;
+    }
+    .nav-item.active{
+      background: rgba(0,123,190,0.12);
+      border-color: rgba(0,123,190,0.25);
+      color: var(--so-blue-dark);
+      font-weight: 800;
+    }
+    .nav-item .left{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      background: var(--gray);
+    }
+    .dot.blue{ background: var(--so-blue); }
+    .dot.green{ background: var(--green); }
+    .dot.yellow{ background: var(--yellow); }
+
+    /* Main */
+    .main{
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* Header */
+    .header{
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-left{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .page-title{
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+      min-width: 0;
+    }
+    .page-title strong{
+      font-size: 15px;
+    }
+    .page-title span{
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 56vw;
+    }
+
+    .header-right{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pill-user{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .avatar{
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(145deg, var(--so-blue), var(--so-blue-dark));
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .pill-user small{
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Content */
+    .content{
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .grid-4{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 1100px){
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{ position: relative; height: auto; }
+      .grid-4{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 640px){
+      .grid-4{ grid-template-columns: 1fr; }
+      .header{ flex-direction: column; align-items: stretch; }
+      .header-left, .header-right{ justify-content: space-between; }
+      .page-title span{ max-width: 100%; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .kpi{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .kpi .meta{
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .kpi .meta small{
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .kpi .meta strong{
+      font-size: 20px;
+    }
+    .badge{
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: #fff;
+      white-space: nowrap;
+    }
+    .badge.green{ border-color: rgba(22,163,74,.25); background: rgba(22,163,74,.10); color: var(--green); }
+    .badge.yellow{ border-color: rgba(245,158,11,.30); background: rgba(245,158,11,.10); color: var(--yellow); }
+    .badge.red{ border-color: rgba(220,38,38,.30); background: rgba(220,38,38,.10); color: var(--red); }
+    .badge.gray{ border-color: rgba(156,163,175,.35); background: rgba(156,163,175,.10); color: #374151; }
+    .badge.blue{ border-color: rgba(0,123,190,.30); background: rgba(0,123,190,.10); color: var(--so-blue-dark); }
+
+    /* Toolbar */
+    .toolbar{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .toolbar-left, .toolbar-right{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .input{
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 0 12px;
+      outline: none;
+      min-width: 240px;
+      background: #fff;
+    }
+    .input:focus{
+      border-color: var(--so-blue);
+      box-shadow: 0 0 0 3px rgba(0,123,190,0.12);
+    }
+    .select{
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 0 12px;
+      background: #fff;
+      outline: none;
+    }
+
+    /* Table */
+    .table-wrap{
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+    thead th{
+      text-align: left;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      background: #FBFCFE;
+    }
+    tbody td{
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 14px;
+    }
+    tbody tr:hover{
+      background: #F8FBFF;
+    }
+
+    .actions{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-sm{
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* Expanded details (accordion row) */
+    .expand-row{
+      background: #FAFCFF;
+    }
+    .expand-box{
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 12px;
+    }
+    @media (max-width: 1100px){
+      .expand-box{ grid-template-columns: 1fr; }
+    }
+    .mini-title{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    .list{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .item{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+    }
+    .item-top{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .item-top strong{
+      font-size: 13px;
+    }
+    .item p{
+      margin: 6px 0 0;
+      color: #374151;
+      font-size: 13px;
+    }
+    .item small{
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    /* Modal */
+    .modal-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+    .modal-overlay.show{
+      display: flex;
+    }
+    .modal{
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .modal-header{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #FBFCFE;
+    }
+    .modal-header strong{
+      font-size: 14px;
+    }
+    .modal-body{
+      padding: 14px 16px;
+    }
+    .modal-footer{
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #FBFCFE;
+    }
+
+    /* Chat */
+    .chat-box{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 380px;
+    }
+    .chat-messages{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg{
+      max-width: 82%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      line-height: 1.25;
+      background: #fff;
+    }
+    .msg.me{
+      margin-left: auto;
+      border-color: rgba(0,123,190,.25);
+      background: rgba(0,123,190,.08);
+    }
+    .msg .meta{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .chat-input{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .chat-input input{
+      flex: 1;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 0 12px;
+      outline: none;
+    }
+    .chat-input input:focus{
+      border-color: var(--so-blue);
+      box-shadow: 0 0 0 3px rgba(0,123,190,0.12);
+    }
+
+    /* Forms */
+    .form-grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 900px){
+      .form-grid{ grid-template-columns: 1fr; }
+    }
+    .helper{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.25;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .note{
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(0,123,190,.35);
+      background: rgba(0,123,190,.07);
+      color: #0F3C55;
+      font-weight: 700;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+  <section id="screen-login" class="login-wrap">
+    <div class="login-card">
+      <div class="brand">
+        <div class="brand-logo">SO</div>
+        <div class="brand-title">
+          <strong>SO Automação</strong>
+          <span>Atendimento do Cliente</span>
+        </div>
+      </div>
+
+      <div class="login-title">Acesso ao sistema</div>
+
+      <div class="field">
+        <label>Usuário</label>
+        <input id="login-user" type="text" placeholder="ex: operador01" value="operador01" />
+      </div>
+
+      <div class="field">
+        <label>Senha</label>
+        <input id="login-pass" type="password" placeholder="••••••••" value="123" />
+      </div>
+
+      <button class="btn btn-primary" onclick="handleLogin()">
+        Entrar
+      </button>
+
+      <div class="login-footer">
+        <small>Ambiente: Interno</small>
+        <small>Versão: <b>0.1 (mockup)</b></small>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="screen-app" class="app hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">SO</div>
+        <div class="brand-title">
+          <strong>SO Automação</strong>
+          <span>Atendimento do Cliente</span>
+        </div>
+      </div>
+
+      <div class="side-section-title">Cobrança</div>
+      <nav class="nav">
+        <div class="nav-item active" data-screen="cobrancas" onclick="goTo('cobrancas')">
+          <div class="left">
+            <span class="dot blue"></span>
+            <span>Cobranças</span>
+          </div>
+          <span class="badge blue" id="badge-cobrancas">6</span>
+        </div>
+
+        <div class="nav-item" data-screen="nova" onclick="goTo('nova')">
+          <div class="left">
+            <span class="dot yellow"></span>
+            <span>Nova Cobrança</span>
+          </div>
+        </div>
+
+        <div class="nav-item" data-screen="relatorios" onclick="goTo('relatorios')">
+          <div class="left">
+            <span class="dot green"></span>
+            <span>Relatórios</span>
+          </div>
+        </div>
+      </nav>
+
+      <div class="side-section-title">Atalhos</div>
+      <div class="nav">
+        <div class="nav-item" onclick="openModal('modal-versao')">
+          <div class="left">
+            <span class="dot"></span>
+            <span>Versão do Cliente</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 16px; color: var(--muted); font-size: 12px; line-height: 1.25;">
+        <b>Dica:</b> isto é um mockup funcional.<br/>
+        Depois você liga com SQL/API.
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="page-title">
+            <strong id="page-title">Cobranças</strong>
+            <span id="page-subtitle">Painel para acompanhar cobranças geradas e ações do operador.</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-versao')">
+            Ver versão do cliente
+          </button>
+
+          <div class="pill-user">
+            <div class="avatar" id="avatar-initials">OP</div>
+            <div style="display:flex; flex-direction:column; line-height:1.05;">
+              <small>Operador</small>
+              <span style="font-weight:800; font-size:13px;" id="user-name">operador01</span>
+            </div>
+          </div>
+
+          <button class="btn btn-danger btn-sm" onclick="handleLogout()">Sair</button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- Screen: Cobranças -->
+        <section id="view-cobrancas">
+          <div class="grid-4">
+            <div class="card kpi">
+              <div class="meta">
+                <small>Em aberto</small>
+                <strong id="kpi-aberto">2</strong>
+              </div>
+              <span class="badge yellow">Pendente</span>
+            </div>
+
+            <div class="card kpi">
+              <div class="meta">
+                <small>Aguardando NF</small>
+                <strong id="kpi-nf">1</strong>
+              </div>
+              <span class="badge gray">Aguardando</span>
+            </div>
+
+            <div class="card kpi">
+              <div class="meta">
+                <small>Enviadas</small>
+                <strong id="kpi-enviadas">2</strong>
+              </div>
+              <span class="badge blue">Cliente</span>
+            </div>
+
+            <div class="card kpi">
+              <div class="meta">
+                <small>Pagas</small>
+                <strong id="kpi-pagas">1</strong>
+              </div>
+              <span class="badge green">OK</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button class="btn btn-primary btn-sm" onclick="goTo('nova')">+ Nova Cobrança</button>
+                <input class="input" id="search" placeholder="Buscar por cliente, NF, período..." oninput="renderCobrancas()" />
+              </div>
+
+              <div class="toolbar-right">
+                <select class="select" id="filter-status" onchange="renderCobrancas()">
+                  <option value="">Todos status</option>
+                  <option value="ABERTO">Em aberto</option>
+                  <option value="AGUARDANDO_NF">Aguardando NF</option>
+                  <option value="ENVIADA">Enviada</option>
+                  <option value="PAGA">Paga</option>
+                  <option value="CONTESTADA">Contestada</option>
+                  <option value="CANCELADA">Cancelada</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Período</th>
+                    <th>Atendimentos</th>
+                    <th>Total horas</th>
+                    <th>NF</th>
+                    <th>Status</th>
+                    <th>Última ação</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-cobrancas">
+                  <!-- render JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="helper" style="margin-top:10px;">
+              Clique em <b>Detalhes</b> para expandir e ver atendimentos + ações do operador.
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen: Nova Cobrança -->
+        <section id="view-nova" class="hidden">
+          <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:900; font-size:16px;">Nova Cobrança</div>
+                <div class="helper">Selecione cliente e período. Nesta versão é mockup (dados simulados).</div>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="goTo('cobrancas')">Voltar</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Cliente</label>
+                <input class="input" id="nc-cliente" placeholder="ex: Cooperativa X" />
+                <div class="helper">Sugestão: autopreencher via cadastro / sistema comercial.</div>
+              </div>
+
+              <div class="field">
+                <label>Status inicial</label>
+                <select class="select" id="nc-status">
+                  <option value="ABERTO">Em aberto</option>
+                  <option value="AGUARDANDO_NF">Aguardando NF</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Data inicial</label>
+                <input class="input" id="nc-data-ini" type="date" />
+              </div>
+
+              <div class="field">
+                <label>Data final</label>
+                <input class="input" id="nc-data-fim" type="date" />
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="note">
+              Próximo passo real: buscar atendimentos elegíveis no SQL Server e travar os itens na cobrança.
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:12px; flex-wrap:wrap;">
+              <button class="btn btn-ghost" onclick="fillExampleNovaCobranca()">Preencher exemplo</button>
+              <button class="btn btn-primary" onclick="criarCobranca()">Gerar cobrança</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen: Relatórios -->
+        <section id="view-relatorios" class="hidden">
+          <div class="card">
+            <div style="font-weight:900; font-size:16px;">Relatórios</div>
+            <div class="helper">Área reservada para relatórios por cliente/período/status.</div>
+
+            <div class="hr"></div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Cliente</label>
+                <input class="input" placeholder="ex: Cliente Y" />
+              </div>
+
+              <div class="field">
+                <label>Período</label>
+                <select class="select">
+                  <option>Últimos 3 meses</option>
+                  <option>Últimos 6 meses</option>
+                  <option>Último ano</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+              <button class="btn btn-primary btn-sm" onclick="fakeToast('Relatório gerado (mock).')">Gerar relatório</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-weight:900; font-size:14px; margin-bottom:8px;">Exportações</div>
+            <div class="helper">Aqui você pode exportar PDF/Excel quando integrar com a API.</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+              <button class="btn btn-ghost btn-sm" onclick="fakeToast('Exportação PDF (mock).')">Exportar PDF</button>
+              <button class="btn btn-ghost btn-sm" onclick="fakeToast('Exportação Excel (mock).')">Exportar Excel</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </section>
+
+  <!-- MODAL: Versão do cliente -->
+  <div id="modal-versao" class="modal-overlay" onclick="closeIfOverlay(event, 'modal-versao')">
+    <div class="modal">
+      <div class="modal-header">
+        <strong>Versão do Cliente</strong>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-versao')">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div class="card" style="box-shadow:none;">
+          <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="min-width:240px;">
+              <div class="mini-title">Cliente</div>
+              <div style="font-weight:900; font-size:16px;">SO Automação - Cliente Exemplo</div>
+              <div class="helper">Informações úteis para suporte e compatibilidade do sistema legado.</div>
+            </div>
+
+            <div style="flex:1; min-width:240px;">
+              <div class="mini-title">Ambiente</div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div><b>ERP/Legado:</b> Delphi + SQL Server</div>
+                <div><b>Servidor:</b> Windows Server</div>
+                <div><b>Banco:</b> SQL Server 2017+</div>
+                <div><b>Última atualização:</b> 2026-01-21</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div>
+              <div class="mini-title">Versão do módulo</div>
+              <div style="font-weight:900;">Atendimento do Cliente - <span style="color:var(--so-blue-dark)">0.1 (mock)</span></div>
+              <div class="helper">Botão do topo existe porque isso vira padrão de suporte.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="fakeToast('Copiado (mock).')">Copiar infos</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-versao')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Chat interno -->
+  <div id="modal-chat" class="modal-overlay" onclick="closeIfOverlay(event, 'modal-chat')">
+    <div class="modal">
+      <div class="modal-header">
+        <strong id="chat-title">Chat interno</strong>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-chat')">Fechar</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="chat-box">
+          <div class="chat-messages" id="chat-messages">
+            <!-- messages -->
+          </div>
+
+          <div class="chat-input">
+            <input id="chat-input" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter'){sendChatMessage();}" />
+            <button class="btn btn-primary btn-sm" onclick="sendChatMessage()">Enviar</button>
+          </div>
+
+          <div class="helper">
+            Este chat é interno da plataforma (mock). Na versão real, ele pode usar WebSocket ou polling.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-chat')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal genérico: ações -->
+  <div id="modal-acao" class="modal-overlay" onclick="closeIfOverlay(event, 'modal-acao')">
+    <div class="modal">
+      <div class="modal-header">
+        <strong id="modal-acao-title">Ação</strong>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-acao')">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-acao-body" class="helper" style="font-size:13px;">
+          Conteúdo
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-sm" onclick="closeModal('modal-acao')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======= Fake DB (mock) =======
+    const cobrancas = [
+      {
+        id: 1001,
+        cliente: "Cooperativa Alfa",
+        periodo: "01/10/2025 - 31/12/2025",
+        atendimentos: 12,
+        horas: "08h 40m",
+        nf: "",
+        status: "ABERTO",
+        ultimaAcao: "Criada pelo operador",
+        notificacao: true,
+        itens: [
+          { data: "02/10 10:14", solicitante: "Carlos", resumo: "Erro ao importar pedidos", solucao: "Ajustado parâmetro de integração", tempo: "40m" },
+          { data: "15/11 14:02", solicitante: "Ana", resumo: "Dúvida emissão relatório", solucao: "Orientado filtro correto", tempo: "25m" },
+          { data: "21/12 09:10", solicitante: "João", resumo: "Falha no terminal de pesagem", solucao: "Reinício + validação de drivers", tempo: "55m" }
+        ]
+      },
+      {
+        id: 1002,
+        cliente: "AgroFábrica Delta",
+        periodo: "01/10/2025 - 31/12/2025",
+        atendimentos: 8,
+        horas: "05h 15m",
+        nf: "",
+        status: "AGUARDANDO_NF",
+        ultimaAcao: "Aguardando emissão NF",
+        notificacao: false,
+        itens: [
+          { data: "08/10 16:30", solicitante: "Roberto", resumo: "Erro no cadastro produto", solucao: "Corrigido campo obrigatório", tempo: "35m" },
+          { data: "29/11 11:05", solicitante: "Bruna", resumo: "Lentidão no módulo", solucao: "Aplicado índice no SQL", tempo: "1h 10m" }
+        ]
+      },
+      {
+        id: 1003,
+        cliente: "Indústria Soja Brasil",
+        periodo: "01/07/2025 - 30/09/2025",
+        atendimentos: 15,
+        horas: "09h 05m",
+        nf: "NF 28910",
+        status: "ENVIADA",
+        ultimaAcao: "E-mail enviado ao cliente",
+        notificacao: true,
+        itens: [
+          { data: "10/07 08:40", solicitante: "Paulo", resumo: "Ajuste etiqueta impressora", solucao: "Configurado driver térmico", tempo: "45m" },
+          { data: "02/09 17:12", solicitante: "Maria", resumo: "Integração travando", solucao: "Refeito agendamento + log", tempo: "50m" }
+        ]
+      },
+      {
+        id: 1004,
+        cliente: "Fazenda Horizonte",
+        periodo: "01/07/2025 - 30/09/2025",
+        atendimentos: 6,
+        horas: "03h 20m",
+        nf: "NF 28501",
+        status: "PAGA",
+        ultimaAcao: "Pagamento confirmado",
+        notificacao: false,
+        itens: [
+          { data: "20/07 09:20", solicitante: "Rafa", resumo: "Dúvida sobre módulo X", solucao: "Treinamento rápido", tempo: "30m" }
+        ]
+      },
+      {
+        id: 1005,
+        cliente: "Cooperativa Alfa",
+        periodo: "01/01/2025 - 31/03/2025",
+        atendimentos: 5,
+        horas: "02h 10m",
+        nf: "NF 27002",
+        status: "CONTESTADA",
+        ultimaAcao: "Cliente questionou 2 atendimentos",
+        notificacao: true,
+        itens: [
+          { data: "03/02 15:00", solicitante: "Carlos", resumo: "Dúvida configuração", solucao: "Orientado por ligação", tempo: "25m" }
+        ]
+      },
+      {
+        id: 1006,
+        cliente: "AgroFábrica Delta",
+        periodo: "01/04/2025 - 30/06/2025",
+        atendimentos: 10,
+        horas: "06h 50m",
+        nf: "",
+        status: "CANCELADA",
+        ultimaAcao: "Cancelada pelo operador",
+        notificacao: false,
+        itens: [
+          { data: "05/04 10:00", solicitante: "Roberto", resumo: "Reconfiguração módulo", solucao: "Feito ajuste geral", tempo: "40m" }
+        ]
+      },
+    ];
+
+    const statusLabel = {
+      ABERTO: { text: "Em aberto", cls: "yellow" },
+      AGUARDANDO_NF: { text: "Aguardando NF", cls: "gray" },
+      ENVIADA: { text: "Enviada", cls: "blue" },
+      PAGA: { text: "Paga", cls: "green" },
+      CONTESTADA: { text: "Contestada", cls: "red" },
+      CANCELADA: { text: "Cancelada", cls: "gray" },
+    };
+
+    // ======= State =======
+    let expanded = new Set();
+    let currentScreen = "cobrancas";
+
+    // ======= Login/Logout =======
+    function handleLogin(){
+      const user = document.getElementById("login-user").value.trim() || "operador";
+      document.getElementById("user-name").textContent = user;
+      document.getElementById("avatar-initials").textContent = (user.slice(0,2)).toUpperCase();
+
+      document.getElementById("screen-login").classList.add("hidden");
+      document.getElementById("screen-app").classList.remove("hidden");
+
+      goTo("cobrancas");
+      renderCobrancas();
+      updateKPIs();
+    }
+
+    function handleLogout(){
+      document.getElementById("screen-app").classList.add("hidden");
+      document.getElementById("screen-login").classList.remove("hidden");
+      expanded = new Set();
+      currentScreen = "cobrancas";
+    }
+
+    // ======= Navigation =======
+    function setHeader(title, subtitle){
+      document.getElementById("page-title").textContent = title;
+      document.getElementById("page-subtitle").textContent = subtitle;
+    }
+
+    function goTo(screen){
+      currentScreen = screen;
+
+      // hide all views
+      document.getElementById("view-cobrancas").classList.add("hidden");
+      document.getElementById("view-nova").classList.add("hidden");
+      document.getElementById("view-relatorios").classList.add("hidden");
+
+      // show selected
+      if(screen === "cobrancas"){
+        document.getElementById("view-cobrancas").classList.remove("hidden");
+        setHeader("Cobranças", "Painel para acompanhar cobranças geradas e ações do operador.");
+        renderCobrancas();
+        updateKPIs();
+      }
+      if(screen === "nova"){
+        document.getElementById("view-nova").classList.remove("hidden");
+        setHeader("Nova Cobrança", "Gere uma cobrança por cliente e período (mockup).");
+      }
+      if(screen === "relatorios"){
+        document.getElementById("view-relatorios").classList.remove("hidden");
+        setHeader("Relatórios", "Relatórios e exportações do módulo (mockup).");
+      }
+
+      // update active nav
+      document.querySelectorAll(".nav-item[data-screen]").forEach(el => {
+        el.classList.toggle("active", el.getAttribute("data-screen") === screen);
+      });
+    }
+
+    // ======= Render Cobranças =======
+    function renderCobrancas(){
+      const tbody = document.getElementById("tbody-cobrancas");
+      const search = (document.getElementById("search")?.value || "").toLowerCase();
+      const filterStatus = document.getElementById("filter-status")?.value || "";
+
+      let list = cobrancas.slice();
+
+      if(filterStatus){
+        list = list.filter(c => c.status === filterStatus);
+      }
+
+      if(search){
+        list = list.filter(c => {
+          return (
+            c.cliente.toLowerCase().includes(search) ||
+            c.periodo.toLowerCase().includes(search) ||
+            (c.nf || "").toLowerCase().includes(search) ||
+            String(c.id).includes(search)
+          );
+        });
+      }
+
+      document.getElementById("badge-cobrancas").textContent = list.length;
+
+      tbody.innerHTML = "";
+
+      list.forEach(c => {
+        const st = statusLabel[c.status] || { text: c.status, cls: "gray" };
+        const notif = c.notificacao ? `<span class="badge red">Notificação</span>` : "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>#${c.id}</b><br/><span style="color:var(--muted); font-weight:700;">${c.cliente}</span></td>
+          <td>${c.periodo}</td>
+          <td><b>${c.atendimentos}</b></td>
+          <td><b>${c.horas}</b></td>
+          <td>${c.nf ? `<b>${c.nf}</b>` : `<span style="color:var(--muted); font-weight:700;">—</span>`}</td>
+          <td>
+            <span class="badge ${st.cls}">${st.text}</span>
+            ${notif}
+          </td>
+          <td style="color:var(--muted); font-weight:700;">${c.ultimaAcao}</td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-ghost btn-sm" onclick="toggleDetails(${c.id})">Detalhes</button>
+              <button class="btn btn-primary btn-sm" onclick="openChat(${c.id})">Falar com atendente</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Expanded row
+        if(expanded.has(c.id)){
+          const tr2 = document.createElement("tr");
+          tr2.className = "expand-row";
+          tr2.innerHTML = `
+            <td colspan="8">
+              <div class="expand-box">
+                <div>
+                  <div class="mini-title">Atendimentos incluídos</div>
+                  <div class="list">
+                    ${c.itens.map(i => `
+                      <div class="item">
+                        <div class="item-top">
+                          <div>
+                            <strong>${i.data} • ${i.solicitante}</strong><br/>
+                            <small>Tempo: ${i.tempo}</small>
+                          </div>
+                          <span class="badge gray">Cobrar: SIM</span>
+                        </div>
+                        <p><b>Problema:</b> ${i.resumo}</p>
+                        <p><b>Solução:</b> ${i.solucao}</p>
+                      </div>
+                    `).join("")}
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mini-title">Ações do operador</div>
+
+                  <div class="card" style="box-shadow:none; padding:12px;">
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                      <button class="btn btn-ghost btn-sm" onclick="openAction('Editar cobrança', 'Abriria uma tela/aba para editar período, observações e itens (mock).')">Editar</button>
+                      <button class="btn btn-ghost btn-sm" onclick="openAction('Gerar PDF atendimentos', 'Aqui seria gerado e anexado o PDF com os atendimentos desta cobrança (mock).')">Gerar PDF atendimentos</button>
+                      <button class="btn btn-ghost btn-sm" onclick="openAction('Anexar NF', 'Aqui seria feito upload do PDF da NF e vínculo do número da NF (mock).')">Anexar NF</button>
+                      <button class="btn btn-primary btn-sm" onclick="openAction('Enviar para cliente', 'Aqui entraria a automação de e-mail + anexos (mock).')">Enviar para cliente</button>
+                      <button class="btn btn-ghost btn-sm" onclick="openAction('Marcar como pago', 'Aqui mudaria o status para PAGA e registraria data/hora (mock).')">Marcar como pago</button>
+                    </div>
+
+                    <div class="helper" style="margin-top:10px;">
+                      Sugestão real: cada botão vira uma rota da API e gera log de auditoria.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr2);
+        }
+      });
+    }
+
+    function toggleDetails(id){
+      if(expanded.has(id)) expanded.delete(id);
+      else expanded.add(id);
+      renderCobrancas();
+    }
+
+    function updateKPIs(){
+      const aberto = cobrancas.filter(c => c.status === "ABERTO").length;
+      const nf = cobrancas.filter(c => c.status === "AGUARDANDO_NF").length;
+      const enviadas = cobrancas.filter(c => c.status === "ENVIADA").length;
+      const pagas = cobrancas.filter(c => c.status === "PAGA").length;
+
+      document.getElementById("kpi-aberto").textContent = aberto;
+      document.getElementById("kpi-nf").textContent = nf;
+      document.getElementById("kpi-enviadas").textContent = enviadas;
+      document.getElementById("kpi-pagas").textContent = pagas;
+    }
+
+    // ======= Nova cobrança =======
+    function fillExampleNovaCobranca(){
+      document.getElementById("nc-cliente").value = "Cooperativa Alfa";
+      document.getElementById("nc-data-ini").value = "2025-10-01";
+      document.getElementById("nc-data-fim").value = "2025-12-31";
+      document.getElementById("nc-status").value = "ABERTO";
+      fakeToast("Exemplo preenchido.");
+    }
+
+    function criarCobranca(){
+      const cliente = document.getElementById("nc-cliente").value.trim();
+      const di = document.getElementById("nc-data-ini").value;
+      const df = document.getElementById("nc-data-fim").value;
+      const st = document.getElementById("nc-status").value;
+
+      if(!cliente || !di || !df){
+        openAction("Validação", "Preencha Cliente, Data inicial e Data final.");
+        return;
+      }
+
+      // create new fake record
+      const newId = Math.max(...cobrancas.map(c => c.id)) + 1;
+      cobrancas.unshift({
+        id: newId,
+        cliente,
+        periodo: formatBR(di) + " - " + formatBR(df),
+        atendimentos: 0,
+        horas: "00h 00m",
+        nf: "",
+        status: st,
+        ultimaAcao: "Criada (mock) - aguardando vincular atendimentos",
+        notificacao: false,
+        itens: []
+      });
+
+      fakeToast("Cobrança gerada (mock).");
+      goTo("cobrancas");
+      renderCobrancas();
+      updateKPIs();
+    }
+
+    function formatBR(dateStr){
+      // yyyy-mm-dd -> dd/mm/yyyy
+      const [y,m,d] = dateStr.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    // ======= Modals =======
+    function openModal(id){
+      document.getElementById(id).classList.add("show");
+    }
+    function closeModal(id){
+      document.getElementById(id).classList.remove("show");
+    }
+    function closeIfOverlay(ev, id){
+      if(ev.target.id === id){
+        closeModal(id);
+      }
+    }
+
+    function openAction(title, body){
+      document.getElementById("modal-acao-title").textContent = title;
+      document.getElementById("modal-acao-body").textContent = body;
+      openModal("modal-acao");
+    }
+
+    // ======= Chat =======
+    let chatContextId = null;
+
+    function openChat(cobrancaId){
+      chatContextId = cobrancaId;
+      const c = cobrancas.find(x => x.id === cobrancaId);
+      document.getElementById("chat-title").textContent = `Chat interno • Cobrança #${cobrancaId} • ${c?.cliente || ""}`;
+
+      const chat = document.getElementById("chat-messages");
+      chat.innerHTML = "";
+
+      // mensagens iniciais mock
+      appendMsg("Sistema", "Chat interno iniciado. Registre aqui as interações com o atendente.", false);
+      appendMsg("Atendente", "Pode me passar o que o cliente questionou nessa cobrança?", false);
+      appendMsg("Operador", "O cliente comentou sobre 2 atendimentos e pediu detalhamento.", true);
+
+      openModal("modal-chat");
+      setTimeout(() => {
+        chat.scrollTop = chat.scrollHeight;
+        document.getElementById("chat-input").focus();
+      }, 50);
+    }
+
+    function appendMsg(author, text, isMe){
+      const wrap = document.createElement("div");
+      wrap.className = "msg" + (isMe ? " me" : "");
+      const ts = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+
+      wrap.innerHTML = `
+        <div class="meta">
+          <span>${author}</span>
+          <span>${ts}</span>
+        </div>
+        <div>${escapeHTML(text)}</div>
+      `;
+      document.getElementById("chat-messages").appendChild(wrap);
+    }
+
+    function sendChatMessage(){
+      const input = document.getElementById("chat-input");
+      const value = (input.value || "").trim();
+      if(!value) return;
+
+      appendMsg("Operador", value, true);
+      input.value = "";
+      const chat = document.getElementById("chat-messages");
+      chat.scrollTop = chat.scrollHeight;
+
+      // resposta mock
+      setTimeout(() => {
+        appendMsg("Atendente", "Ok. Vou revisar os atendimentos e te retorno com o resumo para enviar ao cliente.", false);
+        chat.scrollTop = chat.scrollHeight;
+      }, 700);
+    }
+
+    function escapeHTML(str){
+      return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    // ======= Toast simples =======
+    let toastTimer = null;
+    function fakeToast(text){
+      // cria toast dinâmico (sem libs)
+      let toast = document.getElementById("toast");
+      if(!toast){
+        toast = document.createElement("div");
+        toast.id = "toast";
+        toast.style.position = "fixed";
+        toast.style.bottom = "18px";
+        toast.style.right = "18px";
+        toast.style.zIndex = "2000";
+        toast.style.background = "rgba(17,24,39,0.92)";
+        toast.style.color = "#fff";
+        toast.style.padding = "10px 12px";
+        toast.style.borderRadius = "12px";
+        toast.style.fontWeight = "800";
+        toast.style.fontSize = "13px";
+        toast.style.boxShadow = "0 12px 28px rgba(0,0,0,0.25)";
+        document.body.appendChild(toast);
+      }
+      toast.textContent = text;
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.remove();
+      }, 1800);
+    }
+
+    // ======= Init default dates on "Nova Cobrança" =======
+    (function init(){
+      // prefill dates
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth()+1).padStart(2,"0");
+      const d = String(now.getDate()).padStart(2,"0");
+      const today = `${y}-${m}-${d}`;
+
+      const di = document.getElementById("nc-data-ini");
+      const df = document.getElementById("nc-data-fim");
+      if(di) di.value = today;
+      if(df) df.value = today;
+
+      renderCobrancas();
+      updateKPIs();
+    })();
+  </script>
+</body>
+</html>
