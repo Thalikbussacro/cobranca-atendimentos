@@ -1,7 +1,10 @@
-'use client'
-
+import type { Metadata } from 'next'
 import './globals.css'
-import { HeroUIProvider } from '@heroui/react'
+
+export const metadata: Metadata = {
+  title: 'Atendimento do Cliente - SO Automação',
+  description: 'Sistema de gestão de cobranças de atendimentos técnicos',
+}
 
 export default function RootLayout({
   children,
@@ -10,14 +13,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <head>
-        <title>Atendimento do Cliente - SO Automação</title>
-        <meta name="description" content="Sistema de Cobrança de Atendimentos" />
-      </head>
-      <body>
-        <HeroUIProvider>
-          {children}
-        </HeroUIProvider>
+      <body className="min-h-screen bg-background antialiased">
+        {children}
       </body>
     </html>
   )

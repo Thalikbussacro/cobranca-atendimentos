@@ -1,165 +1,168 @@
+'use client'
+
 import { Cobranca } from '@/domain/entities/Cobranca'
-import { Badge } from '@/components/ui/Badge'
-import { Button, Card, CardBody } from '@heroui/react'
-import { Edit, FileText, Paperclip, Send, CheckCircle, Mail, RefreshCw, MessageCircle } from 'lucide-react'
-import { CobrancaEmailInfo } from './CobrancaEmailInfo'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { 
+  Edit, 
+  FileText, 
+  Paperclip, 
+  Send, 
+  CheckCircle, 
+  Mail, 
+  RefreshCw, 
+  MessageCircle,
+  Clock
+} from 'lucide-react'
 
 interface CobrancaDetailsProps {
   cobranca: Cobranca
-  onAction: (action: string, description: string) => void
-  onChatOpen: (cobrancaId: number) => void
+  onAction: (action: string, cobrancaId: number) => void
 }
 
-export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDetailsProps) {
-  // Mock de e-mails enviados
-  const emailsMock = cobranca.emailsEnviados
-    ? cobranca.emailsEnviados.map((email) => ({
-        destinatario: email,
-        dataEnvio: '20/01/2026 14:30',
-        status: 'enviado' as const,
-      }))
-    : []
-
+export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
   return (
-    <div className="bg-default-50 p-6 border-t-2 border-default-200">
-      <div className="grid grid-cols-[1fr_1fr_0.8fr] gap-4 max-xl:grid-cols-[1.5fr_1fr] max-lg:grid-cols-1">
-        <div>
-          <div className="text-xs font-bold text-default-500 uppercase tracking-wider mb-2">
-            Atendimentos incluídos
-          </div>
-          <div className="flex flex-col gap-2">
-            {cobranca.itens.map((item, idx) => (
-              <Card key={idx} shadow="none" className="border border-default-200">
-                <CardBody>
-                  <div className="flex items-center justify-between gap-2.5 flex-wrap mb-2">
-                    <div>
-                      <strong className="text-sm">
-                        {item.data} • {item.solicitante}
-                      </strong>
-                      <br />
-                      <small className="text-xs text-default-500 font-semibold">Tempo: {item.tempo}</small>
-                    </div>
-                    <Badge variant="gray">Cobrar</Badge>
+    <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Atendimentos */}
+      <div className="lg:col-span-2">
+        <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+          Atendimentos Incluídos
+        </h4>
+        <div className="space-y-2">
+          {cobranca.itens.map((item, idx) => (
+            <Card key={idx} className="border-l-4 border-l-so-blue">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <div className="font-medium">{item.data} - {item.solicitante}</div>
+                    <div className="text-sm text-muted-foreground">Tempo: {item.tempo}</div>
                   </div>
-                  <p className="text-sm text-default-700 mb-1">
-                    <b>Problema:</b> {item.resumo}
+                  <Badge variant="outline">Cobrar</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Problema:</strong> {item.resumo}
+                </p>
+                {item.solucao && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    <strong>Solução:</strong> {item.solucao}
                   </p>
-                  <p className="text-sm text-default-700">
-                    <b>Solução:</b> {item.solucao}
-                  </p>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      </div>
 
-        <div>
-          <CobrancaEmailInfo
-            emails={emailsMock}
-            ultimaInteracao={cobranca.ultimaInteracaoCliente}
-          />
-        </div>
+      {/* Ações */}
+      <div>
+        <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+          Ações do Operador
+        </h4>
+        <Card>
+          <CardContent className="p-3 space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('editar', cobranca.id)}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Editar
+            </Button>
 
-        <div>
-          <div className="text-xs font-bold text-default-600 uppercase tracking-wider mb-3">
-            Ações do Operador
-          </div>
-          <div className="app-card-inner p-3 space-y-2">
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<Edit className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Editar cobrança', 'Editar período, observações e itens da cobrança.')
-                }
-              >
-                Editar
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('gerar-pdf', cobranca.id)}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Gerar PDF
+            </Button>
 
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<FileText className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Gerar PDF', 'Gerar documento com detalhamento dos atendimentos.')
-                }
-              >
-                Gerar PDF
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('anexar-nf', cobranca.id)}
+            >
+              <Paperclip className="h-4 w-4 mr-2" />
+              Anexar NF
+            </Button>
 
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<Paperclip className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Anexar NF', 'Fazer upload do PDF da nota fiscal.')
-                }
-              >
-                Anexar NF
-              </Button>
+            <Separator className="my-2" />
 
-              <Button
-                color="primary"
-                size="sm"
-                className="w-full justify-start font-bold"
-                startContent={<Send className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Enviar para cliente', 'Enviar cobrança e documentos por e-mail.')
-                }
-              >
-                Enviar para cliente
-              </Button>
+            <Button
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('enviar', cobranca.id)}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Enviar para cliente
+            </Button>
 
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<RefreshCw className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Reenviar e-mail', 'Reenviar documentos para o cliente.')
-                }
-              >
-                Reenviar e-mail
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('reenviar', cobranca.id)}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Reenviar e-mail
+            </Button>
 
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<Mail className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Alterar e-mail', 'Modificar destinatário do e-mail.')
-                }
-              >
-                Alterar e-mail
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('alterar-email', cobranca.id)}
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              Alterar e-mail
+            </Button>
 
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<MessageCircle className="h-4 w-4" />}
-                onClick={() => onChatOpen(cobranca.id)}
-              >
-                Conversar com cliente
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('chat', cobranca.id)}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Conversar com cliente
+            </Button>
 
-              <Button
-                variant="flat"
-                size="sm"
-                className="w-full justify-start"
-                startContent={<CheckCircle className="h-4 w-4" />}
-                onClick={() =>
-                  onAction('Marcar como pago', 'Registrar pagamento da cobrança.')
-                }
-              >
-                Marcar como pago
-              </Button>
-            </div>
-        </div>
+            <Separator className="my-2" />
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start text-green-600 hover:text-green-700"
+              onClick={() => onAction('pagar', cobranca.id)}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Marcar como pago
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Info de e-mails */}
+        {cobranca.emailsEnviados && cobranca.emailsEnviados.length > 0 && (
+          <Card className="mt-4">
+            <CardHeader className="py-3">
+              <CardTitle className="text-sm">E-mails Enviados</CardTitle>
+            </CardHeader>
+            <CardContent className="py-0 pb-3">
+              {cobranca.emailsEnviados.map((email, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground py-1">
+                  <Mail className="h-3 w-3" />
+                  <span>{email}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

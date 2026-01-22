@@ -3,28 +3,69 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply box-border;
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 199 100% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 199 100% 36%;
+    --radius: 0.5rem;
+    
+    /* Cores customizadas SO Automacao */
+    --so-primary: #007db7;
+    --so-primary-dark: #005a87;
+    --so-sidebar: #003d5c;
   }
 
-  html,
-  body {
-    @apply m-0 p-0;
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  }
-
-  a {
-    @apply text-inherit no-underline;
-  }
-
-  button,
-  input,
-  select,
-  textarea {
-    font-family: inherit;
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 199 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 199 100% 50%;
   }
 }
 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+}
+
+/* Scrollbar customizada */
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -33,14 +74,5 @@
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  }
-
-  /* Design Flat - Override sombras */
-  .shadow-none {
-    box-shadow: none !important;
-  }
-
-  .flat-card {
-    @apply border border-default-200 bg-white shadow-none;
   }
 }

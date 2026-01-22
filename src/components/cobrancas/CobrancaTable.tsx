@@ -1,55 +1,114 @@
+'use client'
+
+import { useState } from 'react'
 import { Cobranca } from '@/domain/entities/Cobranca'
-import { CobrancaRow } from './CobrancaRow'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { CobrancaDetails } from './CobrancaDetails'
 
 interface CobrancaTableProps {
   cobrancas: Cobranca[]
-  onChatOpen: (cobrancaId: number) => void
-  onAction: (action: string, description: string) => void
+  onAction: (action: string, cobrancaId: number) => void
 }
 
-export function CobrancaTable({ cobrancas, onChatOpen, onAction }: CobrancaTableProps) {
+const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' }> = {
+  ABERTO: { label: 'Em aberto', variant: 'warning' },
+  AGUARDANDO_NF: { label: 'Aguardando NF', variant: 'secondary' },
+  ENVIADA: { label: 'Enviada', variant: 'info' },
+  PAGA: { label: 'Paga', variant: 'success' },
+  FECHADA: { label: 'Fechada', variant: 'success' },
+  CONTESTADA: { label: 'Contestada', variant: 'destructive' },
+  CANCELADA: { label: 'Cancelada', variant: 'secondary' },
+}
+
+export function CobrancaTable({ cobrancas, onAction }: CobrancaTableProps) {
+  const [expandedId, setExpandedId] = useState<number | null>(null)
+
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id)
+  }
+
   return (
-    <div className="table-responsive mt-6 border-1.5 border-default-200 rounded-xl overflow-hidden">
-      <table className="w-full min-w-[900px]">
-        <thead>
-          <tr className="bg-default-50 border-b-2 border-default-200">
-            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
-              ID / Cliente
-            </th>
-            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
-              Período
-            </th>
-            <th className="px-4 py-3.5 text-center text-xs font-bold text-default-700 uppercase tracking-wider">
-              Atend.
-            </th>
-            <th className="px-4 py-3.5 text-center text-xs font-bold text-default-700 uppercase tracking-wider">
-              Horas
-            </th>
-            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
-              NF
-            </th>
-            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
-              Última Ação
-            </th>
-            <th className="px-4 py-3.5 text-right text-xs font-bold text-default-700 uppercase tracking-wider">
-              Ações
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white">
-          {cobrancas.map((cobranca) => (
-            <CobrancaRow
-              key={cobranca.id}
-              cobranca={cobranca}
-              onChatOpen={onChatOpen}
-              onAction={onAction}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className="border rounded-lg">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="w-[80px]">Nº</TableHead>
+            <TableHead>Clients</TableHead>
+            <TableHead>Período</TableHead>
+            <TableHead className="text-center">Atendimentos</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {cobrancas.map((cobranca) => {
+            const isExpanded = expandedId === cobranca.id
+            const status = statusConfig[cobranca.status] || statusConfig.ABERTO
+
+            return (
+              <>
+                <TableRow key={cobranca.id} className="hover:bg-muted/30">
+                  <TableCell className="font-medium text-so-blue">
+                    {cobranca.id}
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium text-so-blue">{cobranca.cliente}</div>
+                      <div className="text-xs text-muted-foreground">Versão do operador</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {cobranca.periodo}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {cobranca.atendimentos}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={status.variant}>
+                      {status.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-so-blue"
+                      onClick={() => toggleExpand(cobranca.id)}
+                    >
+                      Detalhes
+                      {isExpanded ? (
+                        <ChevronUp className="ml-1 h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="ml-1 h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+                {isExpanded && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="p-0 bg-muted/20">
+                      <CobrancaDetails 
+                        cobranca={cobranca} 
+                        onAction={onAction}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
+            )
+          })}
+        </TableBody>
+      </Table>
     </div>
   )
 }

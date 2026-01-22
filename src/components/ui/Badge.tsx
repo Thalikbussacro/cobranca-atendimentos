@@ -1,33 +1,35 @@
-// Wrapper customizado para Badge usando Chip do HeroUI
-import { Chip, type ChipProps } from '@heroui/react'
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
-type BadgeVariant = 'green' | 'yellow' | 'red' | 'blue' | 'gray'
+const badgeVariants = cva(
+  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  {
+    variants: {
+      variant: {
+        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+        secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
+        outline: 'text-foreground',
+        success: 'border-transparent bg-green-500 text-white',
+        warning: 'border-transparent bg-yellow-500 text-white',
+        info: 'border-transparent bg-blue-500 text-white',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+)
 
-interface BadgeProps extends Omit<ChipProps, 'color' | 'variant'> {
-  variant?: BadgeVariant
-}
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
 
-const variantMap: Record<BadgeVariant, ChipProps['color']> = {
-  green: 'success',
-  yellow: 'warning',
-  red: 'danger',
-  blue: 'primary',
-  gray: 'default',
-}
-
-export function Badge({ variant = 'gray', children, ...props }: BadgeProps) {
+function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <Chip
-      color={variantMap[variant]}
-      variant="flat"
-      size="sm"
-      classNames={{
-        base: 'border-none shadow-none',
-        content: 'font-bold text-xs',
-      }}
-      {...props}
-    >
-      {children}
-    </Chip>
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
   )
 }
+
+export { Badge, badgeVariants }

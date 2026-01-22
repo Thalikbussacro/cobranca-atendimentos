@@ -1,53 +1,66 @@
 import type { Config } from 'tailwindcss'
-const { heroui } = require('@heroui/react')
 
 const config: Config = {
+  darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       colors: {
+        // Cores SO Automacao
         'so-blue': {
-          DEFAULT: '#007BBE',
-          dark: '#005E92',
-          light: '#E7F0F8',
+          DEFAULT: '#007db7',
+          dark: '#005a87',
+          light: '#e8f4f9',
+          hover: '#0095d9',
         },
+        sidebar: '#003d5c',
+        // Shadcn/ui colors
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
     },
   },
-  darkMode: 'class',
-  plugins: [
-    heroui({
-      themes: {
-        light: {
-          colors: {
-            background: '#F5F7FA',
-            foreground: '#1F2937',
-            primary: {
-              DEFAULT: '#007BBE',
-              foreground: '#FFFFFF',
-            },
-            success: {
-              DEFAULT: '#16A34A',
-              foreground: '#FFFFFF',
-            },
-            warning: {
-              DEFAULT: '#F59E0B',
-              foreground: '#FFFFFF',
-            },
-            danger: {
-              DEFAULT: '#DC2626',
-              foreground: '#FFFFFF',
-            },
-          },
-        },
-      },
-    }),
-  ],
+  plugins: [require('tailwindcss-animate')],
 }
 
 export default config

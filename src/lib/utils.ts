@@ -5,17 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatBR(dateStr: string): string {
-  // yyyy-mm-dd -> dd/mm/yyyy
-  const [y, m, d] = dateStr.split('-')
-  return `${d}/${m}/${y}`
+export function formatBR(dateString: string) {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('pt-BR')
 }
 
-export function getInitials(name: string): string {
+export function getInitials(name: string) {
+  if (!name) return ''
   return name
     .split(' ')
-    .slice(0, 2)
     .map((n) => n[0])
     .join('')
     .toUpperCase()
+    .slice(0, 2)
 }

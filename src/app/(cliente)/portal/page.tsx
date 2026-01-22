@@ -3,205 +3,226 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCobrancas } from '@/hooks/useCobrancas'
-import { Card, CardBody, Button } from '@heroui/react'
-import { Badge } from '@/components/ui/Badge'
-import { statusLabel } from '@/presentation/constants/status'
-import { ChevronDown, ChevronUp, FileText, Download, MessageCircle, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Calendar, ChevronDown, ChevronUp, MessageCircle, FileText, Download } from 'lucide-react'
+
+const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' }> = {
+  ABERTO: { label: 'Em aberto', variant: 'warning' },
+  ENVIADA: { label: 'Enviada', variant: 'info' },
+  PAGA: { label: 'Paga', variant: 'success' },
+  FECHADA: { label: 'Fechada', variant: 'success' },
+}
 
 export default function PortalClientePage() {
   const { user } = useAuth()
   const { cobrancas, loading } = useCobrancas()
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [filters, setFilters] = useState({
+    dataInicial: '',
+    dataFinal: '',
+    cliente: 'all',
+    status: 'all',
+  })
 
   // Filtrar cobranças do cliente
   const clienteCobrancas = cobrancas.filter((c) => {
-    // Mock: filtrar por clienteId se tiver, senão por nome
     if (user?.clienteId) {
       return c.clienteId === user.clienteId
     }
-    return c.cliente.toLowerCase().includes('cooperativa') || c.cliente.toLowerCase().includes('alfa')
+    return true // Admin vendo todos
   })
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-muted font-semibold">Carregando suas cobranças...</div>
+        <div className="text-muted-foreground">Carregando cobranças...</div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-extrabold text-text mb-1">Minhas Cobranças</h1>
-        <p className="text-sm text-muted">
-          Visualize e acompanhe as cobranças de atendimentos técnicos da SO Automação
-        </p>
+    <div>
+      {/* Header da página */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold">Cobranças</h2>
       </div>
 
-      {clienteCobrancas.length === 0 ? (
-        <Card shadow="none" className="border border-default-200">
-          <CardBody>
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 mx-auto text-default-400 mb-3" />
-              <div className="text-default-600 font-semibold mb-2">Nenhuma cobrança encontrada</div>
-              <div className="text-sm text-default-500">
-                Você não possui cobranças no momento.
-              </div>
+      {/* Filtros */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Input
+                type="date"
+                value={filters.dataInicial}
+                onChange={(e) => setFilters({ ...filters, dataInicial: e.target.value })}
+                className="w-[150px]"
+              />
+              <span className="text-muted-foreground">até</span>
+              <Input
+                type="date"
+                value={filters.dataFinal}
+                onChange={(e) => setFilters({ ...filters, dataFinal: e.target.value })}
+                className="w-[150px]"
+              />
             </div>
-          </CardBody>
-        </Card>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {clienteCobrancas.map((cobranca) => {
-            const st = statusLabel[cobranca.status]
-            const isExpanded = expandedId === cobranca.id
 
-            return (
-              <Card key={cobranca.id} shadow="none" className="border border-default-200">
-                <CardBody className="gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-base">Cobrança #{cobranca.id}</h3>
-                        <Badge variant={st.variant}>{st.text}</Badge>
-                        {cobranca.notificacao && (
-                          <Badge variant="red">Nova mensagem</Badge>
-                        )}
-                      </div>
-                      <div className="text-sm text-default-500">
-                        Período: <b>{cobranca.periodo}</b>
-                      </div>
-                    </div>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => setFilters({ ...filters, status: value })}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="ABERTO">Em aberto</SelectItem>
+                <SelectItem value="ENVIADA">Enviada</SelectItem>
+                <SelectItem value="PAGA">Paga</SelectItem>
+              </SelectContent>
+            </Select>
 
-                    <div className="text-right">
-                      <div className="text-sm text-default-500 mb-1">Total de Atendimentos</div>
-                      <div className="text-2xl font-bold text-primary">{cobranca.atendimentos}</div>
-                      <div className="text-xs text-default-500 font-semibold">{cobranca.horas}</div>
-                    </div>
-                  </div>
+            <Button variant="outline" size="sm">
+              Buscar novas operados
+            </Button>
 
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div className="text-sm flex-1">
-                      <span className="text-default-500">Última atualização:</span>{' '}
-                      <b>{cobranca.ultimaAcao}</b>
-                    </div>
-                    {cobranca.nf && (
-                      <div className="text-sm">
-                        <span className="text-default-500">NF:</span> <b>{cobranca.nf}</b>
-                      </div>
-                    )}
-                  </div>
+            <Button variant="outline" size="sm">
+              Reenviar e-mail
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-                <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
-                  <Button
-                    variant="flat"
-                    size="sm"
-                    fullWidth
-                    startContent={isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    onClick={() => setExpandedId(isExpanded ? null : cobranca.id)}
-                  >
-                    {isExpanded ? 'Ocultar Detalhes' : 'Ver Detalhes'}
-                  </Button>
+      {/* Tabela */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead>Nº</TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Período</TableHead>
+                <TableHead className="text-center">Atendimentos</TableHead>
+                <TableHead>Horas</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {clienteCobrancas.map((cobranca) => {
+                const isExpanded = expandedId === cobranca.id
+                const status = statusConfig[cobranca.status] || statusConfig.ABERTO
 
-                  <Button
-                    color="primary"
-                    size="sm"
-                    fullWidth
-                    startContent={<MessageCircle className="h-4 w-4" />}
-                    onClick={() => alert('Abrir chat com atendente')}
-                    className="font-bold"
-                  >
-                    Falar com Atendente
-                  </Button>
-
-                  <Button
-                    variant="flat"
-                    size="sm"
-                    fullWidth
-                    startContent={<FileText className="h-4 w-4" />}
-                    onClick={() => alert('Solicitar guia de pagamento')}
-                  >
-                    Solicitar Guia
-                  </Button>
-
-                  {cobranca.status === 'ENVIADA' && (
-                    <Button
-                      variant="flat"
-                      size="sm"
-                      fullWidth
-                      color="warning"
-                      startContent={<AlertCircle className="h-4 w-4" />}
-                      onClick={() => alert('Questionar cobrança')}
-                    >
-                      Questionar Cobrança
-                    </Button>
-                  )}
-
-                  {cobranca.nf && (
-                    <Button
-                      variant="flat"
-                      size="sm"
-                      fullWidth
-                      startContent={<Download className="h-4 w-4" />}
-                      onClick={() => alert('Download NF')}
-                    >
-                      Baixar NF
-                    </Button>
-                  )}
-
-                  <Button
-                    variant="flat"
-                    size="sm"
-                    fullWidth
-                    startContent={<FileText className="h-4 w-4" />}
-                    onClick={() => alert('Download relatório')}
-                  >
-                    Relatório PDF
-                  </Button>
-                </div>
-
-                  {isExpanded && (
-                    <>
-                      <div className="h-px bg-default-200" />
-                      <div>
-                        <div className="text-xs font-bold text-default-500 uppercase tracking-wider mb-2">
-                          Atendimentos Incluídos
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          {cobranca.itens.map((item, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-default-50 border border-default-200 rounded-lg p-3"
-                            >
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <div className="font-bold text-sm">
-                                    {item.data} • {item.solicitante}
-                                  </div>
-                                  <div className="text-xs text-default-500 font-semibold">
-                                    Tempo: {item.tempo}
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-sm mb-1">
-                                <b>Solicitação:</b> {item.resumo}
-                              </div>
-                              <div className="text-sm text-default-700">
-                                <b>Solução:</b> {item.solucao}
+                return (
+                  <>
+                    <TableRow key={cobranca.id}>
+                      <TableCell className="font-medium text-so-blue">
+                        {cobranca.id}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium text-so-blue">{cobranca.cliente}</div>
+                        <div className="text-xs text-muted-foreground">Versão do operador</div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {cobranca.periodo}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {cobranca.atendimentos}
+                      </TableCell>
+                      <TableCell>{cobranca.horas}</TableCell>
+                      <TableCell>
+                        <Badge variant={status.variant}>
+                          {status.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-so-blue"
+                          onClick={() => setExpandedId(isExpanded ? null : cobranca.id)}
+                        >
+                          Detalhes
+                          {isExpanded ? (
+                            <ChevronUp className="ml-1 h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="ml-1 h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    {isExpanded && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="bg-muted/20 p-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Atendimentos */}
+                            <div>
+                              <h4 className="font-semibold mb-3">Atendimentos</h4>
+                              <div className="space-y-2">
+                                {cobranca.itens.map((item, idx) => (
+                                  <Card key={idx}>
+                                    <CardContent className="p-3">
+                                      <div className="text-sm">
+                                        <div className="font-medium">{item.data} - {item.solicitante}</div>
+                                        <div className="text-muted-foreground">{item.resumo}</div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          Tempo: {item.tempo}
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </CardBody>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+
+                            {/* Ações */}
+                            <div>
+                              <h4 className="font-semibold mb-3">Ações</h4>
+                              <div className="space-y-2">
+                                <Button variant="outline" className="w-full justify-start">
+                                  <MessageCircle className="h-4 w-4 mr-2" />
+                                  Falar com Atendente
+                                </Button>
+                                <Button variant="outline" className="w-full justify-start">
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Solicitar Guia
+                                </Button>
+                                <Button variant="outline" className="w-full justify-start">
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Baixar Relatório
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }

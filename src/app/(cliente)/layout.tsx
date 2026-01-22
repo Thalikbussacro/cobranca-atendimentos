@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
 import { Brand } from '@/components/layout/Brand'
-import { LogOut, ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { LogOut, ChevronDown } from 'lucide-react'
+import { getInitials } from '@/lib/utils'
 
 interface ClienteLayoutProps {
   children: React.ReactNode
@@ -14,71 +15,61 @@ interface ClienteLayoutProps {
 export default function ClienteLayout({ children }: ClienteLayoutProps) {
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
 
   useEffect(() => {
-    // Verifica se está em modo preview (admin visualizando como cliente)
-    const previewMode = sessionStorage.getItem('preview_mode') === 'true'
-    setIsPreviewMode(previewMode)
-
-    // Se não está em preview mode e não é cliente, redireciona
-    if (!previewMode && (!isAuthenticated || user?.role !== 'cliente')) {
+    if (!isAuthenticated) {
       router.push('/login')
     }
-  }, [isAuthenticated, user, router])
+  }, [isAuthenticated, router])
 
   const handleLogout = () => {
-    sessionStorage.removeItem('preview_mode')
     logout()
     router.push('/login')
   }
 
   const handleVoltarAdmin = () => {
-    sessionStorage.removeItem('preview_mode')
     router.push('/cobrancas')
+  }
+
+  if (!isAuthenticated || !user) {
+    return null
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-white border-b border-border px-4 py-3.5 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
+      {/* Header */}
+      <header className="h-16 bg-white border-b flex items-center justify-between px-6">
+        <div className="flex items-center gap-4">
           <Brand />
-          
-          {isPreviewMode && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-so-blue/10 border border-so-blue/30 rounded-lg text-xs font-bold text-so-blue-dark">
-              <Eye className="h-3.5 w-3.5" />
-              Modo de Visualização (Admin)
-            </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Voltar ao Admin (se for admin visualizando como cliente) */}
+          {user.role === 'admin' && (
+            <Button variant="outline" size="sm" onClick={handleVoltarAdmin}>
+              Voltar ao Admin
+            </Button>
           )}
-          
-          <div className="flex items-center gap-3">
-            {isPreviewMode ? (
-              <Button variant="light" size="sm" onClick={handleVoltarAdmin}>
-                <ArrowLeft className="h-4 w-4" />
-                Voltar ao Admin
-              </Button>
-            ) : (
-              <>
-                <div className="text-sm max-sm:hidden">
-                  <span className="text-muted font-semibold">Bem-vindo,</span>{' '}
-                  <span className="font-extrabold text-so-blue-dark">{user?.name}</span>
-                </div>
-                <Button variant="light" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </Button>
-              </>
-            )}
+
+          {/* User badge */}
+          <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full text-sm">
+            <div className="w-6 h-6 bg-so-blue rounded-full flex items-center justify-center text-white text-xs">
+              {getInitials(user.name)}
+            </div>
+            <span className="font-medium">{user.name}</span>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </div>
+
+          <Button variant="ghost" size="icon" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4">
+      {/* Content */}
+      <main className="p-6">
         {children}
       </main>
     </div>
   )
 }
-
-// Import necessário
-import { Eye } from 'lucide-react'

@@ -1,6 +1,15 @@
-import { Plus, Send } from 'lucide-react'
-import { Button, Input, Select, SelectItem } from '@heroui/react'
-import { EnviarTodosButton } from './EnviarTodosButton'
+'use client'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Plus, Send, LayoutGrid, List, Search } from 'lucide-react'
 
 interface ToolbarProps {
   search: string
@@ -8,8 +17,7 @@ interface ToolbarProps {
   status: string
   onStatusChange: (value: string) => void
   onNewCobranca: () => void
-  totalCobrancas: number
-  onEnviarTodas: () => Promise<void>
+  onEnviarTodas: () => void
 }
 
 export function Toolbar({
@@ -18,66 +26,55 @@ export function Toolbar({
   status,
   onStatusChange,
   onNewCobranca,
-  totalCobrancas,
   onEnviarTodas,
 }: ToolbarProps) {
-  const statusOptions = [
-    { key: '', label: 'Todos status' },
-    { key: 'ABERTO', label: 'Em aberto' },
-    { key: 'AGUARDANDO_NF', label: 'Aguardando NF' },
-    { key: 'ENVIADA', label: 'Enviada' },
-    { key: 'PAGA', label: 'Paga' },
-    { key: 'CONTESTADA', label: 'Contestada' },
-    { key: 'CANCELADA', label: 'Cancelada' },
-  ]
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 flex-wrap">
-        <Button 
-          color="primary" 
-          size="md" 
-          onClick={onNewCobranca}
-          startContent={<Plus className="h-4 w-4" />}
-          className="font-bold px-6"
-        >
-          Nova Cobrança
+    <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
+      <div className="flex items-center gap-3">
+        <Button onClick={onNewCobranca}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nova Cobranças
         </Button>
 
-        <EnviarTodosButton totalCobrancas={totalCobrancas} onConfirm={onEnviarTodas} />
+        <Button variant="outline" onClick={onEnviarTodas}>
+          <Send className="h-4 w-4 mr-2" />
+          Enviar todos e-mails
+        </Button>
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
-        <Input
-          placeholder="Buscar por cliente, NF, período..."
-          value={search}
-          onValueChange={onSearchChange}
-          className="flex-1 min-w-[280px]"
-          variant="bordered"
-          size="md"
-          classNames={{
-            input: "text-sm",
-            inputWrapper: "border-1.5 border-default-300"
-          }}
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar verafa"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-9 w-[200px]"
+          />
+        </div>
 
-        <Select
-          selectedKeys={status ? [status] : []}
-          onSelectionChange={(keys) => {
-            const value = Array.from(keys)[0]?.toString() || ''
-            onStatusChange(value)
-          }}
-          variant="bordered"
-          size="md"
-          placeholder="Filtrar por status"
-          className="min-w-[220px]"
-          items={statusOptions}
-          classNames={{
-            trigger: "border-1.5 border-default-300"
-          }}
-        >
-          {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
+        <Select value={status} onValueChange={onStatusChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Todos os status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os status</SelectItem>
+            <SelectItem value="ABERTO">Em aberto</SelectItem>
+            <SelectItem value="AGUARDANDO_NF">Aguardando NF</SelectItem>
+            <SelectItem value="ENVIADA">Enviada</SelectItem>
+            <SelectItem value="PAGA">Paga</SelectItem>
+            <SelectItem value="CONTESTADA">Contestada</SelectItem>
+          </SelectContent>
         </Select>
+
+        <div className="flex border rounded-md">
+          <Button variant="ghost" size="icon" className="rounded-r-none">
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="rounded-l-none border-l">
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )

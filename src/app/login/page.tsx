@@ -2,147 +2,121 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Brand } from '@/components/layout/Brand'
-import { Button, Input, Card, CardBody, Tabs, Tab } from '@heroui/react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
-import { Shield, User } from 'lucide-react'
+import { Brand } from '@/components/layout/Brand'
+import { Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({
+    codigo: '',
+    senha: '',
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [loginType, setLoginType] = useState<'admin' | 'cliente'>('admin')
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const success = await login(username, password)
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          username: formData.codigo, 
+          password: formData.senha 
+        }),
+      })
 
-    if (success) {
-      // Redirecionar baseado no tipo de usuário
-      const { user } = useAuth.getState()
-      if (user?.role === 'admin') {
-        router.push('/cobrancas')
-      } else if (user?.role === 'cliente') {
-        router.push('/portal')
+      const data = await response.json()
+
+      if (data.success) {
+        login(data.user, data.token)
+        
+        if (data.user.role === 'cliente') {
+          router.push('/portal')
+        } else {
+          router.push('/cobrancas')
+        }
+      } else {
+        setError(data.message || 'Credenciais inválidas')
       }
-    } else {
-      setError('Usuário ou senha inválidos')
+    } catch {
+      setError('Erro ao fazer login')
+    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen grid place-items-center p-6 bg-default-50">
-      <Card className="w-full max-w-[460px] shadow-none border border-default-200">
-        <CardBody className="gap-4 p-6">
-          <Brand className="mb-2" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30 p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-8 pb-6 px-8">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <Brand />
+          </div>
 
-          <Tabs
-            selectedKey={loginType}
-            onSelectionChange={(key) => setLoginType(key as 'admin' | 'cliente')}
-            variant="underlined"
-            classNames={{
-              tabList: 'w-full',
-              tab: 'font-semibold',
-            }}
-          >
-            <Tab
-              key="admin"
-              title={
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Administrativo
-                </div>
-              }
-            />
-            <Tab
-              key="cliente"
-              title={
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Portal do Cliente
-                </div>
-              }
-            />
-          </Tabs>
+          {/* Título */}
+          <p className="text-center text-muted-foreground mb-6">
+            Acesse o portal de atendimentos com o código e senha fornecidos.
+          </p>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-4 mt-2">
-            {loginType === 'admin' ? (
-              <>
-                <Input
-                  label="Usuário"
-                  placeholder="Digite seu usuário"
-                  value={username}
-                  onValueChange={setUsername}
-                  isDisabled={loading}
-                  variant="bordered"
-                  description="Ex: admin, operador01"
-                />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="codigo">Código de Acesso</Label>
+              <Input
+                id="codigo"
+                placeholder="100 $4512.784"
+                value={formData.codigo}
+                onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                disabled={loading}
+              />
+            </div>
 
-                <Input
-                  label="Senha"
-                  type="password"
-                  placeholder="Digite sua senha"
-                  value={password}
-                  onValueChange={setPassword}
-                  isDisabled={loading}
-                  variant="bordered"
-                />
-              </>
-            ) : (
-              <>
-                <Input
-                  label="Código de Acesso"
-                  placeholder="Ex: COB1001"
-                  value={username}
-                  onValueChange={setUsername}
-                  isDisabled={loading}
-                  variant="bordered"
-                  description="Código recebido por e-mail"
-                />
-
-                <Input
-                  label="Senha"
-                  type="password"
-                  placeholder="Senha recebida por e-mail"
-                  value={password}
-                  onValueChange={setPassword}
-                  isDisabled={loading}
-                  variant="bordered"
-                />
-              </>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="senha">Senha</Label>
+              <Input
+                id="senha"
+                type="password"
+                placeholder="••••••••"
+                value={formData.senha}
+                onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
+                disabled={loading}
+              />
+            </div>
 
             {error && (
-              <div className="text-sm text-danger font-semibold bg-danger-50 border border-danger-200 rounded-lg px-3 py-2">
+              <div className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                 {error}
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              color="primary" 
-              isLoading={loading} 
-              isDisabled={loading}
-              className="w-full font-bold"
-            >
-              Entrar
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Entrando...
+                </>
+              ) : (
+                'Entrar'
+              )}
             </Button>
           </form>
 
-          <div className="flex justify-between items-center gap-2.5 text-xs text-default-500 flex-wrap">
-            <small>Ambiente: Interno</small>
-            <small>
-              Versão: <b>1.0.0</b>
-            </small>
-          </div>
-        </CardBody>
+          {/* Rodapé */}
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            Dica: Use "admin" ou "cliente1" para testar.
+          </p>
+        </CardContent>
       </Card>
     </div>
   )

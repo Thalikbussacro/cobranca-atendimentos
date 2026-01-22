@@ -4,9 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
-import { VersionModal } from '@/components/modals/VersionModal'
 import { useAuth } from '@/hooks/useAuth'
-import { useCobrancas } from '@/hooks/useCobrancas'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -14,8 +21,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
-  const { user, isAuthenticated, logout } = useAuth()
-  const { cobrancas } = useCobrancas()
+  const { user, isAuthenticated } = useAuth()
   const [showVersionModal, setShowVersionModal] = useState(false)
 
   useEffect(() => {
@@ -24,27 +30,42 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [isAuthenticated, router])
 
-  const handleLogout = () => {
-    logout()
-    router.push('/login')
-  }
-
   if (!isAuthenticated || !user) {
     return null
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
+    <div className="flex h-screen bg-background">
       <Sidebar />
+      
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onVersionClick={() => setShowVersionModal(true)} />
-        <main className="flex-1 overflow-y-auto p-6 max-sm:p-4">{children}</main>
+        
+        <main className="flex-1 overflow-auto p-6">
+          {children}
+        </main>
       </div>
 
-      <VersionModal
-        isOpen={showVersionModal}
-        onClose={() => setShowVersionModal(false)}
-      />
+      {/* Modal Ver como Cliente */}
+      <Dialog open={showVersionModal} onOpenChange={setShowVersionModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Visualizar como Cliente</DialogTitle>
+            <DialogDescription>
+              Você será redirecionado para o portal do cliente para visualizar
+              como seus clientes veem as cobranças.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowVersionModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => router.push('/portal')}>
+              Ir para Portal do Cliente
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
