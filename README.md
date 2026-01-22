@@ -1,59 +1,52 @@
-# Sistema de Cobrança de Atendimentos - SO Automação
+# Sistema de Cobrança de Atendimentos
 
-Sistema moderno para gestão e cobrança de atendimentos técnicos, desenvolvido com Next.js 15, TypeScript e Tailwind CSS.
+Sistema para gestão e cobrança de atendimentos técnicos da SO Automação.
 
-## 🚀 Tecnologias
+Desenvolvido com Next.js 15, TypeScript, HeroUI e Clean Architecture.
 
-- **Next.js 15** - Framework React com App Router
-- **TypeScript** - Tipagem estática
-- **Tailwind CSS** - Estilização utility-first
-- **Zustand** - Gerenciamento de estado
-- **Lucide React** - Ícones modernos
+## Stack Tecnológico
 
-## 📋 Funcionalidades
+- Next.js 15 (App Router)
+- TypeScript 5.7
+- HeroUI (Sistema de componentes)
+- Tailwind CSS
+- Zustand (Estado global)
+- Lucide React (Ícones)
 
-### MVP - Mockup Funcional
+## Funcionalidades
 
-✅ **Autenticação**
-- Login com credenciais mockadas
-- Persistência de sessão no localStorage
+### Painel Administrativo
 
-✅ **Dashboard de Cobranças**
-- KPIs visuais (Em aberto, Aguardando NF, Enviadas, Pagas)
+- Autenticação com controle de acesso
+- Dashboard com KPIs (Em aberto, Aguardando NF, Enviadas, Pagas)
 - Listagem de cobranças com busca e filtros
-- Accordion para visualizar detalhes dos atendimentos
-- Ações do operador (Editar, Gerar PDF, Anexar NF, Enviar, Marcar como pago)
+- Detalhamento de atendimentos por cobrança
+- Ações: Editar, Gerar PDF, Anexar NF, Enviar, Marcar como pago
+- Chat interno entre operador e atendente
+- Formulário de nova cobrança com seleção de clientes
+- Relatórios customizados
+- Visualização como cliente
 
-✅ **Chat Interno**
-- Comunicação entre operador e atendente
-- Contexto por cobrança
-- Mensagens mockadas
+### Portal do Cliente
 
-✅ **Nova Cobrança**
-- Formulário para criar cobranças
-- Validação de campos obrigatórios
-- Mock de integração com atendimentos
+- Login dedicado para clientes
+- Visualização das cobranças do cliente
+- Download de documentos (NF e relatórios)
+- Comunicação com suporte
+- Interface simplificada e objetiva
 
-✅ **Relatórios**
-- Estrutura básica para exportações futuras
-- Filtros por cliente e período
+## Design
 
-✅ **Responsividade**
-- Layout adaptativo para desktop, tablet e mobile
-- Menu lateral retrátil
-- Tabelas com scroll horizontal
+### Identidade Visual SO Automação
 
-## 🎨 Identidade Visual
+- Cor primária: `#007BBE`
+- Cor secundária: `#005E92`
+- Design flat (sem sombras)
+- Bordas: 1px sólidas
+- Raio de borda: 8-12px
+- Tipografia: System fonts
 
-O sistema segue a identidade visual da **SO Automação**:
-
-- **Cor primária**: `#007BBE` (Azul SO)
-- **Cor secundária**: `#005E92` (Azul SO Escuro)
-- **Cor de fundo**: `#F5F7FA` (Cinza claro)
-- **Bordas arredondadas**: 12-14px
-- **Sombras sutis**: Elevação sutil nos cards
-
-## 📦 Instalação
+## Instalação e Execução
 
 ```bash
 # Instalar dependências
@@ -71,14 +64,15 @@ npm start
 
 O sistema estará disponível em [http://localhost:3000](http://localhost:3000)
 
-## 🔐 Credenciais de Teste
+## Credenciais de Teste
 
-```
-Usuário: operador01
-Senha: 123
-```
+**Administrador:**
+- Usuário: `admin`
+- Senha: qualquer
 
-(Aceita qualquer usuário/senha não vazia)
+**Cliente:**
+- Usuário: `cliente1`
+- Senha: qualquer
 
 ## 📁 Estrutura do Projeto
 

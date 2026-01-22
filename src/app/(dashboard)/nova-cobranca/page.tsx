@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardBody } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Select, SelectItem } from '@/components/ui/Select'
 import { useCobrancas } from '@/hooks/useCobrancas'
 import { formatBR } from '@/lib/utils'
-import { clientesMock } from '@/lib/mock-clientes'
+import { clientesMock } from '@/infrastructure/data/mock-clientes'
 
 export default function NovaCobrancaPage() {
   const router = useRouter()
@@ -20,6 +20,19 @@ export default function NovaCobrancaPage() {
     dataInicial: new Date().toISOString().split('T')[0],
     dataFinal: new Date().toISOString().split('T')[0],
   })
+
+  const clientes = useMemo(() => {
+    const items: Array<{ key: string; label: string }> = [
+      { key: 'todos', label: 'Todos os Clientes' },
+    ]
+    clientesMock.forEach((cliente) => {
+      items.push({
+        key: cliente.id.toString(),
+        label: cliente.nome,
+      })
+    })
+    return items
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,9 +81,9 @@ export default function NovaCobrancaPage() {
       <CardBody className="gap-4">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <div className="font-extrabold text-base">Nova Cobrança</div>
+            <div className="font-bold text-base">Nova Cobrança</div>
             <div className="text-xs text-default-500 mt-0.5">
-              Selecione cliente e período. Nesta versão é mockup (dados simulados).
+              Selecione cliente e período para gerar a cobrança de atendimentos.
             </div>
           </div>
           <Button variant="light" size="sm" onClick={() => router.push('/cobrancas')}>
@@ -90,15 +103,9 @@ export default function NovaCobrancaPage() {
             disabled={loading}
             variant="bordered"
             description="Selecione 'Todos os Clientes' para gerar cobrança consolidada ou um cliente específico."
+            items={clientes}
           >
-            <SelectItem key="todos" value="todos">
-              🌐 Todos os Clientes
-            </SelectItem>
-            {clientesMock.map((cliente) => (
-              <SelectItem key={cliente.id.toString()} value={cliente.id.toString()}>
-                {cliente.nome}
-              </SelectItem>
-            ))}
+            {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
           </Select>
 
           <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
@@ -121,9 +128,8 @@ export default function NovaCobrancaPage() {
             />
           </div>
 
-          <div className="px-4 py-3 rounded-lg border border-dashed border-primary-200 bg-primary-50 text-primary-700 font-semibold text-sm">
-            Próximo passo real: buscar atendimentos elegíveis no SQL Server e travar os itens na
-            cobrança.
+          <div className="px-4 py-3 rounded-lg border border-dashed border-default-300 bg-default-50 text-default-700 font-medium text-sm">
+            Os atendimentos serão vinculados automaticamente após a criação da cobrança.
           </div>
 
           <div className="flex justify-end gap-2.5 flex-wrap">
