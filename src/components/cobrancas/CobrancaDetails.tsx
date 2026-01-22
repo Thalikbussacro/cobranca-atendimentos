@@ -1,6 +1,6 @@
 'use client'
 
-import { Cobranca } from '@/domain/entities/Cobranca'
+import { Cobranca, AtendimentoItem } from '@/domain/entities/Cobranca'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,16 +14,18 @@ import {
   Mail, 
   RefreshCw, 
   MessageCircle,
-  XCircle
+  XCircle,
+  ExternalLink
 } from 'lucide-react'
 
 interface CobrancaDetailsProps {
   cobranca: Cobranca
   onAction: (action: string, cobrancaId: number) => void
   onChatOpen?: () => void
+  onAtendimentoClick?: (atendimento: AtendimentoItem) => void
 }
 
-export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDetailsProps) {
+export function CobrancaDetails({ cobranca, onAction, onChatOpen, onAtendimentoClick }: CobrancaDetailsProps) {
   return (
     <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Atendimentos */}
@@ -33,20 +35,29 @@ export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDeta
         </h4>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {cobranca.itens.map((item, idx) => (
-            <Card key={idx} className="border-l-4 border-l-so-blue">
+            <Card 
+              key={idx} 
+              className="border-l-4 border-l-so-blue cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => onAtendimentoClick?.(item)}
+            >
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <div className="font-medium">{item.data} - {item.solicitante}</div>
                     <div className="text-sm text-muted-foreground">Tempo: {item.tempo}</div>
                   </div>
-                  <Badge variant="outline">Cobrar</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">Cobrar</Badge>
+                    {onAtendimentoClick && (
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground line-clamp-2">
                   <strong>Problema:</strong> {item.resumo}
                 </p>
                 {item.solucao && (
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
                     <strong>Solução:</strong> {item.solucao}
                   </p>
                 )}

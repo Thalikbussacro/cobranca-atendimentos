@@ -21,12 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Calendar, ChevronDown, ChevronUp, MessageCircle, CheckCircle, XCircle, HelpCircle, Download } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronUp, MessageCircle, CheckCircle, XCircle, HelpCircle, Download, ExternalLink } from 'lucide-react'
 import { StatusBadge } from '@/components/cobrancas/StatusBadge'
 import { ChatModal } from '@/components/chat/ChatModal'
 import { ActionConfirmModal, actionConfigs } from '@/components/modals/ActionConfirmModal'
+import { AtendimentoDetailModal } from '@/components/modals/AtendimentoDetailModal'
 import { statusConfig } from '@/presentation/constants/status'
-import { Cobranca, StatusCobranca } from '@/domain/entities/Cobranca'
+import { Cobranca, AtendimentoItem } from '@/domain/entities/Cobranca'
 
 type ActionType = 'aceitar' | 'recusar' | 'questionar' | 'contato' | 'pagamento' | null
 
@@ -39,6 +40,15 @@ export default function PortalClientePage() {
   const [actionModal, setActionModal] = useState<{ open: boolean; type: ActionType; cobranca: Cobranca | null }>({
     open: false,
     type: null,
+    cobranca: null,
+  })
+  const [atendimentoModal, setAtendimentoModal] = useState<{
+    open: boolean
+    atendimento: AtendimentoItem | null
+    cobranca: Cobranca | null
+  }>({
+    open: false,
+    atendimento: null,
     cobranca: null,
   })
 
@@ -88,6 +98,10 @@ export default function PortalClientePage() {
     setExpandedId(expandedId === cobranca.id ? null : cobranca.id)
     // Registrar interação do cliente
     console.log(`Cliente visualizou detalhes da cobrança ${cobranca.id}`)
+  }
+
+  const handleAtendimentoClick = (atendimento: AtendimentoItem, cobranca: Cobranca) => {
+    setAtendimentoModal({ open: true, atendimento, cobranca })
   }
 
   const getActionConfig = () => {
@@ -224,21 +238,26 @@ export default function PortalClientePage() {
                               {/* Atendimentos */}
                               <div>
                                 <h4 className="font-semibold mb-3">Atendimentos Incluídos</h4>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  Clique em um atendimento para ver mais detalhes
+                                </p>
                                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                                   {cobranca.itens.map((item, idx) => (
-                                    <Card key={idx}>
+                                    <Card 
+                                      key={idx}
+                                      className="cursor-pointer hover:shadow-md transition-shadow"
+                                      onClick={() => handleAtendimentoClick(item, cobranca)}
+                                    >
                                       <CardContent className="p-3">
-                                        <div className="text-sm">
-                                          <div className="font-medium">{item.data} - {item.solicitante}</div>
-                                          <div className="text-muted-foreground">{item.resumo}</div>
-                                          {item.solucao && (
+                                        <div className="flex justify-between items-start">
+                                          <div className="text-sm flex-1">
+                                            <div className="font-medium">{item.data} - {item.solicitante}</div>
+                                            <div className="text-muted-foreground line-clamp-2">{item.resumo}</div>
                                             <div className="text-xs text-muted-foreground mt-1">
-                                              Solução: {item.solucao}
+                                              Tempo: {item.tempo}
                                             </div>
-                                          )}
-                                          <div className="text-xs text-muted-foreground mt-1">
-                                            Tempo: {item.tempo}
                                           </div>
+                                          <ExternalLink className="h-3.5 w-3.5 text-muted-foreground ml-2 flex-shrink-0" />
                                         </div>
                                       </CardContent>
                                     </Card>
@@ -334,6 +353,15 @@ export default function PortalClientePage() {
           onConfirm={handleConfirmAction}
         />
       )}
+
+      {/* Modal de Detalhes do Atendimento */}
+      <AtendimentoDetailModal
+        open={atendimentoModal.open}
+        onOpenChange={(open) => setAtendimentoModal({ ...atendimentoModal, open })}
+        atendimento={atendimentoModal.atendimento}
+        clienteNome={atendimentoModal.cobranca?.cliente}
+        cobrancaId={atendimentoModal.cobranca?.id}
+      />
     </div>
   )
 }

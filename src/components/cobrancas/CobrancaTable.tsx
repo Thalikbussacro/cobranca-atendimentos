@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Cobranca } from '@/domain/entities/Cobranca'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,12 +14,22 @@ import {
 import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react'
 import { CobrancaDetails } from './CobrancaDetails'
 import { StatusBadge } from './StatusBadge'
+import { SortableHeader, SortDirection } from './SortableHeader'
 import { cn } from '@/lib/utils'
+import { AtendimentoItem } from '@/domain/entities/Cobranca'
 
 interface CobrancaTableProps {
   cobrancas: Cobranca[]
   onAction: (action: string, cobrancaId: number) => void
   onChat: (cobranca: Cobranca) => void
+  onAtendimentoClick?: (atendimento: AtendimentoItem, cobranca: Cobranca) => void
+}
+
+type SortField = 'id' | 'cliente' | 'periodo' | 'atendimentos' | 'status' | 'ultimaInteracao'
+
+interface SortState {
+  field: SortField | null
+  direction: SortDirection
 }
 
 // Calcula os dias desde a última interação
@@ -57,8 +67,63 @@ function formatLastInteraction(ultimaInteracao?: string): string {
   return formattedDate
 }
 
-export function CobrancaTable({ cobrancas, onAction, onChat }: CobrancaTableProps) {
+// Função de ordenação
+function sortCobrancas(cobrancas: Cobranca[], sortState: SortState): Cobranca[] {
+  if (!sortState.field || !sortState.direction) return cobrancas
+
+  return [...cobrancas].sort((a, b) => {
+    let comparison = 0
+
+    switch (sortState.field) {
+      case 'id':
+        comparison = a.id - b.id
+        break
+      case 'cliente':
+        comparison = a.cliente.localeCompare(b.cliente)
+        break
+      case 'periodo':
+        comparison = a.periodo.localeCompare(b.periodo)
+        break
+      case 'atendimentos':
+        comparison = a.atendimentos - b.atendimentos
+        break
+      case 'status':
+        comparison = a.status.localeCompare(b.status)
+        break
+      case 'ultimaInteracao':
+        const dateA = a.ultimaInteracaoCliente ? new Date(a.ultimaInteracaoCliente).getTime() : 0
+        const dateB = b.ultimaInteracaoCliente ? new Date(b.ultimaInteracaoCliente).getTime() : 0
+        comparison = dateA - dateB
+        break
+    }
+
+    return sortState.direction === 'asc' ? comparison : -comparison
+  })
+}
+
+export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick }: CobrancaTableProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [sortState, setSortState] = useState<SortState>({ field: null, direction: null })
+
+  const handleSort = (field: string) => {
+    setSortState((prev) => {
+      if (prev.field === field) {
+        // Alternar entre asc -> desc -> null
+        if (prev.direction === 'asc') {
+          return { field: field as SortField, direction: 'desc' }
+        } else if (prev.direction === 'desc') {
+          return { field: null, direction: null }
+        }
+      }
+      // Novo campo, começar com asc
+      return { field: field as SortField, direction: 'asc' }
+    })
+  }
+
+  const sortedCobrancas = useMemo(
+    () => sortCobrancas(cobrancas, sortState),
+    [cobrancas, sortState]
+  )
 
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id)
@@ -69,24 +134,68 @@ export function CobrancaTable({ cobrancas, onAction, onChat }: CobrancaTableProp
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="w-[80px]">Nº</TableHead>
-            <TableHead>Cliente</TableHead>
-            <TableHead>Período</TableHead>
-            <TableHead className="text-center">Atend.</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Última Interação</TableHead>
+            <SortableHeader
+              field="id"
+              currentField={sortState.field}
+              currentDirection={sortState.direction}
+              onSort={handleSort}
+              className="w-[80px]"
+            >
+              Nº
+            </SortableHeader>
+            <SortableHeader
+              field="cliente"
+              currentField={sortState.field}
+              currentDirection={sortState.direction}
+              onSort={handleSort}
+            >
+              Cliente
+            </SortableHeader>
+            <SortableHeader
+              field="periodo"
+              currentField={sortState.field}
+              currentDirection={sortState.direction}
+              onSort={handleSort}
+            >
+              Período
+            </SortableHeader>
+            <SortableHeader
+              field="atendimentos"
+              currentField={sortState.field}
+              currentDirection={sortState.direction}
+              onSort={handleSort}
+              className="text-center"
+            >
+              Atend.
+            </SortableHeader>
+            <SortableHeader
+              field="status"
+              currentField={sortState.field}
+              currentDirection={sortState.direction}
+              onSort={handleSort}
+            >
+              Status
+            </SortableHeader>
+            <SortableHeader
+              field="ultimaInteracao"
+              currentField={sortState.field}
+              currentDirection={sortState.direction}
+              onSort={handleSort}
+            >
+              Última Interação
+            </SortableHeader>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {cobrancas.length === 0 ? (
+          {sortedCobrancas.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                 Nenhuma cobrança encontrada.
               </TableCell>
             </TableRow>
           ) : (
-            cobrancas.map((cobranca) => {
+            sortedCobrancas.map((cobranca) => {
               const isExpanded = expandedId === cobranca.id
               const daysSinceInteraction = getDaysSinceInteraction(cobranca.ultimaInteracaoCliente)
               const inactivityClass = getInactivityClass(daysSinceInteraction)
@@ -167,6 +276,7 @@ export function CobrancaTable({ cobrancas, onAction, onChat }: CobrancaTableProp
                           cobranca={cobranca} 
                           onAction={onAction}
                           onChatOpen={() => onChat(cobranca)}
+                          onAtendimentoClick={onAtendimentoClick ? (atendimento) => onAtendimentoClick(atendimento, cobranca) : undefined}
                         />
                       </TableCell>
                     </TableRow>

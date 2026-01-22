@@ -8,7 +8,8 @@ import { CobrancaTable } from '@/components/cobrancas/CobrancaTable'
 import { AlertBar } from '@/components/layout/AlertBar'
 import { ChatModal } from '@/components/chat/ChatModal'
 import { ActionConfirmModal, actionConfigs } from '@/components/modals/ActionConfirmModal'
-import { Cobranca } from '@/domain/entities/Cobranca'
+import { AtendimentoDetailModal } from '@/components/modals/AtendimentoDetailModal'
+import { Cobranca, AtendimentoItem } from '@/domain/entities/Cobranca'
 
 type AdminAction = 'enviar' | 'enviar-todos' | 'gerar-fatura' | 'pagar' | 'finalizar' | null
 
@@ -21,6 +22,15 @@ export default function CobrancasPage() {
   const [actionModal, setActionModal] = useState<{ open: boolean; type: AdminAction; cobranca: Cobranca | null }>({
     open: false,
     type: null,
+    cobranca: null,
+  })
+  const [atendimentoModal, setAtendimentoModal] = useState<{
+    open: boolean
+    atendimento: AtendimentoItem | null
+    cobranca: Cobranca | null
+  }>({
+    open: false,
+    atendimento: null,
     cobranca: null,
   })
 
@@ -63,6 +73,10 @@ export default function CobrancasPage() {
     
     setActionModal({ open: false, type: null, cobranca: null })
     setShowSuccessAlert(true)
+  }
+
+  const handleAtendimentoClick = (atendimento: AtendimentoItem, cobranca: Cobranca) => {
+    setAtendimentoModal({ open: true, atendimento, cobranca })
   }
 
   const getActionConfig = () => {
@@ -125,6 +139,7 @@ export default function CobrancasPage() {
         cobrancas={cobrancas} 
         onAction={handleAction}
         onChat={handleOpenChat}
+        onAtendimentoClick={handleAtendimentoClick}
       />
 
       {/* Modal de Chat */}
@@ -147,6 +162,15 @@ export default function CobrancasPage() {
           onConfirm={handleConfirmAction}
         />
       )}
+
+      {/* Modal de Detalhes do Atendimento */}
+      <AtendimentoDetailModal
+        open={atendimentoModal.open}
+        onOpenChange={(open) => setAtendimentoModal({ ...atendimentoModal, open })}
+        atendimento={atendimentoModal.atendimento}
+        clienteNome={atendimentoModal.cobranca?.cliente}
+        cobrancaId={atendimentoModal.cobranca?.id}
+      />
     </div>
   )
 }
