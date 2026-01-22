@@ -21,8 +21,8 @@ export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDeta
     : []
 
   return (
-    <div className="bg-default-50 p-3">
-      <div className="grid grid-cols-[1fr_1fr_0.8fr] gap-3 max-xl:grid-cols-[1.5fr_1fr] max-lg:grid-cols-1">
+    <div className="bg-default-50 p-6 border-t-2 border-default-200">
+      <div className="grid grid-cols-[1fr_1fr_0.8fr] gap-4 max-xl:grid-cols-[1.5fr_1fr] max-lg:grid-cols-1">
         <div>
           <div className="text-xs font-bold text-default-500 uppercase tracking-wider mb-2">
             Atendimentos incluídos
@@ -61,11 +61,10 @@ export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDeta
         </div>
 
         <div>
-          <div className="text-xs font-bold text-default-500 uppercase tracking-wider mb-2">
-            Ações do operador
+          <div className="text-xs font-bold text-default-600 uppercase tracking-wider mb-3">
+            Ações do Operador
           </div>
-          <Card shadow="none" className="border border-default-200">
-            <CardBody className="gap-2">
+          <div className="app-card-inner p-3 space-y-2">
               <Button
                 variant="flat"
                 size="sm"
@@ -159,8 +158,7 @@ export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDeta
               >
                 Marcar como pago
               </Button>
-            </CardBody>
-          </Card>
+            </div>
         </div>
       </div>
     </div>

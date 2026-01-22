@@ -1,115 +1,53 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import Link from 'next/link'
 import { Brand } from './Brand'
-import { FileText, Plus, BarChart3, Info } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { FileText, Plus, BarChart } from 'lucide-react'
 
-interface NavItem {
-  label: string
-  href: string
-  icon: React.ReactNode
-  badge?: number
-  color: 'blue' | 'yellow' | 'green' | 'gray'
-}
-
-const navItems: NavItem[] = [
-  {
-    label: 'Cobranças',
-    href: '/cobrancas',
-    icon: <FileText className="h-4 w-4" />,
-    color: 'blue',
-  },
-  {
-    label: 'Nova Cobrança',
-    href: '/nova-cobranca',
-    icon: <Plus className="h-4 w-4" />,
-    color: 'yellow',
-  },
-  {
-    label: 'Relatórios',
-    href: '/relatorios',
-    icon: <BarChart3 className="h-4 w-4" />,
-    color: 'green',
-  },
-]
-
-interface SidebarProps {
-  cobrancasCount?: number
-  onVersionClick: () => void
-}
-
-export function Sidebar({ cobrancasCount = 0, onVersionClick }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname()
 
-  return (
-    <aside className="w-[270px] bg-white border-r border-border p-4 sticky top-0 h-screen overflow-auto max-lg:relative max-lg:h-auto">
-      <Brand className="mb-2.5" />
+  const menuItems = [
+    { href: '/cobrancas', label: 'Cobranças', icon: FileText },
+    { href: '/nova-cobranca', label: 'Nova Cobrança', icon: Plus },
+    { href: '/relatorios', label: 'Relatórios', icon: BarChart },
+  ]
 
-      <div className="mt-4 mb-2 text-xs font-extrabold text-muted uppercase tracking-wider">
-        Cobrança
+  return (
+    <aside className="w-64 bg-white border-r-2 border-default-200 flex flex-col overflow-hidden max-lg:hidden">
+      <div className="p-5 border-b-2 border-default-200">
+        <Brand />
       </div>
 
-      <nav className="flex flex-col gap-1.5">
-        {navItems.map((item) => {
+      <nav className="flex-1 p-4 overflow-y-auto">
+        {menuItems.map((item) => {
           const isActive = pathname === item.href
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center justify-between px-3 py-2.5 rounded-xl border transition-all select-none',
-                'hover:bg-slate-50 hover:border-slate-200',
-                {
-                  'bg-so-blue/12 border-so-blue/25 text-so-blue-dark font-extrabold': isActive,
-                  'bg-transparent border-transparent': !isActive,
-                }
-              )}
-            >
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={cn('w-2.5 h-2.5 rounded-full', {
-                    'bg-so-blue': item.color === 'blue',
-                    'bg-warning': item.color === 'yellow',
-                    'bg-success': item.color === 'green',
-                    'bg-muted': item.color === 'gray',
-                  })}
-                />
-                {item.icon}
-                <span>{item.label}</span>
+            <Link key={item.href} href={item.href}>
+              <div
+                className={cn(
+                  'flex items-center gap-3 px-4 py-3 rounded-xl mb-2 transition-all',
+                  isActive
+                    ? 'bg-primary text-white font-bold shadow-sm'
+                    : 'text-default-600 hover:bg-default-100 font-medium'
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="text-sm">{item.label}</span>
               </div>
-              {item.href === '/cobrancas' && cobrancasCount > 0 && (
-                <span className="px-2 py-0.5 bg-so-blue/10 border border-so-blue/30 text-so-blue-dark text-xs font-extrabold rounded-full">
-                  {cobrancasCount}
-                </span>
-              )}
             </Link>
           )
         })}
       </nav>
 
-      <div className="mt-4 mb-2 text-xs font-extrabold text-muted uppercase tracking-wider">
-        Atalhos
-      </div>
-
-      <nav className="flex flex-col gap-1.5">
-        <button
-          onClick={onVersionClick}
-          className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:bg-slate-50 hover:border-slate-200 transition-all select-none text-left"
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-muted" />
-            <Info className="h-4 w-4" />
-            <span>Ver como Cliente</span>
-          </div>
-        </button>
-      </nav>
-
-      <div className="mt-4 text-xs text-muted leading-relaxed">
-        <strong>Dica:</strong> isto é um mockup funcional.
-        <br />
-        Depois você liga com SQL/API.
+      <div className="p-4 border-t-2 border-default-200 text-xs text-default-500 bg-default-50">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+          <span className="font-bold">Sistema Ativo</span>
+        </div>
+        <div className="font-medium">Versão 1.0.0</div>
       </div>
     </aside>
   )

@@ -34,23 +34,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-[270px_1fr] max-lg:grid-cols-1">
-      <Sidebar
-        cobrancasCount={cobrancas.length}
-        onVersionClick={() => setShowVersionModal(true)}
-      />
-
-      <main className="flex flex-col min-w-0">
-        <Header
-          title="Cobranças"
-          subtitle="Painel para acompanhar cobranças geradas e ações do operador."
-          userName={user.name}
-          onVersionClick={() => setShowVersionModal(true)}
-          onLogout={handleLogout}
-        />
-
-        <div className="p-4 flex flex-col gap-3.5">{children}</div>
-      </main>
+    <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header onVersionClick={() => setShowVersionModal(true)} />
+        <main className="flex-1 overflow-y-auto p-6 max-sm:p-4">{children}</main>
+      </div>
 
       <VersionModal
         isOpen={showVersionModal}

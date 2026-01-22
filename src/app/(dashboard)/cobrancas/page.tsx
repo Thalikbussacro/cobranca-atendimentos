@@ -60,7 +60,7 @@ export default function CobrancasPage() {
   }
 
   return (
-    <>
+    <div className="space-y-6">
       <KPICards
         aberto={kpis.aberto}
         aguardandoNF={kpis.aguardandoNF}
@@ -68,9 +68,8 @@ export default function CobrancasPage() {
         pagas={kpis.pagas}
       />
 
-      <Card shadow="none" className="border border-default-200">
-        <CardBody className="gap-3">
-          <Toolbar
+      <div className="app-card p-6">
+        <Toolbar
             search={filters.search}
             onSearchChange={(value) => setFilters({ ...filters, search: value })}
             status={filters.status}
@@ -85,26 +84,21 @@ export default function CobrancasPage() {
             onChatOpen={handleChatOpen}
             onAction={handleAction}
           />
+        </div>
 
-          <div className="text-xs text-default-500">
-            Clique em <b>Detalhes</b> para expandir e ver atendimentos e ações disponíveis.
-          </div>
-        </CardBody>
-      </Card>
+        <ChatModal
+          isOpen={chatCobrancaId !== null}
+          onClose={() => setChatCobrancaId(null)}
+          cobrancaId={chatCobrancaId}
+          clienteNome={chatCobranca?.cliente || ''}
+        />
 
-      <ChatModal
-        isOpen={chatCobrancaId !== null}
-        onClose={() => setChatCobrancaId(null)}
-        cobrancaId={chatCobrancaId}
-        clienteNome={chatCobranca?.cliente || ''}
-      />
-
-      <ActionModal
-        isOpen={actionModal.isOpen}
-        onClose={() => setActionModal({ isOpen: false, title: '', description: '' })}
-        title={actionModal.title}
-        description={actionModal.description}
-      />
-    </>
-  )
-}
+        <ActionModal
+          isOpen={actionModal.isOpen}
+          onClose={() => setActionModal({ isOpen: false, title: '', description: '' })}
+          title={actionModal.title}
+          description={actionModal.description}
+        />
+      </div>
+    )
+  }

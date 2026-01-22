@@ -9,37 +9,37 @@ interface CobrancaTableProps {
 
 export function CobrancaTable({ cobrancas, onChatOpen, onAction }: CobrancaTableProps) {
   return (
-    <div className="overflow-auto border border-default-200 rounded-lg bg-white">
-      <table className="w-full border-collapse min-w-[980px]">
+    <div className="table-responsive mt-6 border-1.5 border-default-200 rounded-xl overflow-hidden">
+      <table className="w-full min-w-[900px]">
         <thead>
-          <tr className="bg-default-50">
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
-              Cliente
+          <tr className="bg-default-50 border-b-2 border-default-200">
+            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
+              ID / Cliente
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
+            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
               Período
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
-              Atendimentos
+            <th className="px-4 py-3.5 text-center text-xs font-bold text-default-700 uppercase tracking-wider">
+              Atend.
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
-              Total horas
+            <th className="px-4 py-3.5 text-center text-xs font-bold text-default-700 uppercase tracking-wider">
+              Horas
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
+            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
               NF
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
+            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
               Status
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
-              Última ação
+            <th className="px-4 py-3.5 text-left text-xs font-bold text-default-700 uppercase tracking-wider">
+              Última Ação
             </th>
-            <th className="text-left px-3 py-3 text-xs font-bold text-default-500 uppercase tracking-wider border-b border-default-200">
+            <th className="px-4 py-3.5 text-right text-xs font-bold text-default-700 uppercase tracking-wider">
               Ações
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white">
           {cobrancas.map((cobranca) => (
             <CobrancaRow
               key={cobranca.id}

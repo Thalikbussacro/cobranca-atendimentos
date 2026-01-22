@@ -1,5 +1,3 @@
-import { Card, CardBody } from '@heroui/react'
-import { Badge } from '@/components/ui/Badge'
 import { Clock, FileText, Send, CheckCircle } from 'lucide-react'
 
 interface KPICardsProps {
@@ -11,54 +9,54 @@ interface KPICardsProps {
 
 export function KPICards({ aberto, aguardandoNF, enviadas, pagas }: KPICardsProps) {
   return (
-    <div className="grid grid-cols-4 gap-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
-      <Card shadow="none" className="border border-default-200">
-        <CardBody>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-col gap-1 min-w-0">
-              <small className="text-default-500 font-semibold text-xs">Em aberto</small>
-              <strong className="text-2xl font-bold">{aberto}</strong>
-            </div>
-            <Clock className="h-5 w-5 text-warning" />
+    <div className="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1 mb-6">
+      <div className="app-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-default-500 uppercase tracking-wide mb-2">Em Aberto</div>
+            <div className="text-3xl font-bold text-warning">{aberto}</div>
           </div>
-        </CardBody>
-      </Card>
+          <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
+            <Clock className="h-6 w-6 text-warning" />
+          </div>
+        </div>
+      </div>
 
-      <Card shadow="none" className="border border-default-200">
-        <CardBody>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-col gap-1 min-w-0">
-              <small className="text-default-500 font-semibold text-xs">Aguardando NF</small>
-              <strong className="text-2xl font-bold">{aguardandoNF}</strong>
-            </div>
-            <FileText className="h-5 w-5 text-default-400" />
+      <div className="app-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-default-500 uppercase tracking-wide mb-2">Aguardando NF</div>
+            <div className="text-3xl font-bold text-default-600">{aguardandoNF}</div>
           </div>
-        </CardBody>
-      </Card>
+          <div className="w-12 h-12 rounded-xl bg-default-100 flex items-center justify-center">
+            <FileText className="h-6 w-6 text-default-500" />
+          </div>
+        </div>
+      </div>
 
-      <Card shadow="none" className="border border-default-200">
-        <CardBody>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-col gap-1 min-w-0">
-              <small className="text-default-500 font-semibold text-xs">Enviadas</small>
-              <strong className="text-2xl font-bold">{enviadas}</strong>
-            </div>
-            <Send className="h-5 w-5 text-primary" />
+      <div className="app-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-default-500 uppercase tracking-wide mb-2">Enviadas</div>
+            <div className="text-3xl font-bold text-primary">{enviadas}</div>
           </div>
-        </CardBody>
-      </Card>
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Send className="h-6 w-6 text-primary" />
+          </div>
+        </div>
+      </div>
 
-      <Card shadow="none" className="border border-default-200">
-        <CardBody>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-col gap-1 min-w-0">
-              <small className="text-default-500 font-semibold text-xs">Pagas</small>
-              <strong className="text-2xl font-bold">{pagas}</strong>
-            </div>
-            <CheckCircle className="h-5 w-5 text-success" />
+      <div className="app-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-default-500 uppercase tracking-wide mb-2">Pagas</div>
+            <div className="text-3xl font-bold text-success">{pagas}</div>
           </div>
-        </CardBody>
-      </Card>
+          <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+            <CheckCircle className="h-6 w-6 text-success" />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

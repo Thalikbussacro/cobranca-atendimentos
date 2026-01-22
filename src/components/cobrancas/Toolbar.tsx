@@ -32,27 +32,33 @@ export function Toolbar({
   ]
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2.5 flex-wrap">
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 flex-wrap">
         <Button 
           color="primary" 
-          size="sm" 
+          size="md" 
           onClick={onNewCobranca}
           startContent={<Plus className="h-4 w-4" />}
-          className="font-bold"
+          className="font-bold px-6"
         >
           Nova Cobrança
         </Button>
 
         <EnviarTodosButton totalCobrancas={totalCobrancas} onConfirm={onEnviarTodas} />
+      </div>
 
+      <div className="flex items-center gap-3 flex-wrap">
         <Input
           placeholder="Buscar por cliente, NF, período..."
           value={search}
           onValueChange={onSearchChange}
-          className="min-w-[280px]"
+          className="flex-1 min-w-[280px]"
           variant="bordered"
-          size="sm"
+          size="md"
+          classNames={{
+            input: "text-sm",
+            inputWrapper: "border-1.5 border-default-300"
+          }}
         />
 
         <Select
@@ -62,10 +68,13 @@ export function Toolbar({
             onStatusChange(value)
           }}
           variant="bordered"
-          size="sm"
+          size="md"
           placeholder="Filtrar por status"
-          className="min-w-[200px]"
+          className="min-w-[220px]"
           items={statusOptions}
+          classNames={{
+            trigger: "border-1.5 border-default-300"
+          }}
         >
           {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
         </Select>
