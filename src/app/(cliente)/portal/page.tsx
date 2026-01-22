@@ -1,13 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCobrancas } from '@/hooks/useCobrancas'
-import { Card, CardBody } from '@heroui/react'
+import { Card, CardBody, Button } from '@heroui/react'
 import { Badge } from '@/components/ui/Badge'
 import { statusLabel } from '@/presentation/constants/status'
-import { useState } from 'react'
-import { ChevronDown, ChevronUp, FileText, Download, MessageCircle } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { ChevronDown, ChevronUp, FileText, Download, MessageCircle, AlertCircle } from 'lucide-react'
 
 export default function PortalClientePage() {
   const { user } = useAuth()
@@ -16,8 +15,11 @@ export default function PortalClientePage() {
 
   // Filtrar cobranças do cliente
   const clienteCobrancas = cobrancas.filter((c) => {
-    // Mock: se o nome do cliente contém parte do username
-    return c.cliente.toLowerCase().includes('alfa') || c.cliente.toLowerCase().includes('cooperativa')
+    // Mock: filtrar por clienteId se tiver, senão por nome
+    if (user?.clienteId) {
+      return c.clienteId === user.clienteId
+    }
+    return c.cliente.toLowerCase().includes('cooperativa') || c.cliente.toLowerCase().includes('alfa')
   })
 
   if (loading) {
@@ -91,40 +93,71 @@ export default function PortalClientePage() {
                     )}
                   </div>
 
-                <div className="flex gap-2 flex-wrap">
+                <div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
                   <Button
                     variant="flat"
                     size="sm"
+                    fullWidth
+                    startContent={isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     onClick={() => setExpandedId(isExpanded ? null : cobranca.id)}
                   >
-                    {isExpanded ? (
-                      <>
-                        <ChevronUp className="h-4 w-4" />
-                        Ocultar Detalhes
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="h-4 w-4" />
-                        Ver Detalhes
-                      </>
-                    )}
+                    {isExpanded ? 'Ocultar Detalhes' : 'Ver Detalhes'}
                   </Button>
 
+                  <Button
+                    color="primary"
+                    size="sm"
+                    fullWidth
+                    startContent={<MessageCircle className="h-4 w-4" />}
+                    onClick={() => alert('Abrir chat com atendente')}
+                    className="font-bold"
+                  >
+                    Falar com Atendente
+                  </Button>
+
+                  <Button
+                    variant="flat"
+                    size="sm"
+                    fullWidth
+                    startContent={<FileText className="h-4 w-4" />}
+                    onClick={() => alert('Solicitar guia de pagamento')}
+                  >
+                    Solicitar Guia
+                  </Button>
+
+                  {cobranca.status === 'ENVIADA' && (
+                    <Button
+                      variant="flat"
+                      size="sm"
+                      fullWidth
+                      color="warning"
+                      startContent={<AlertCircle className="h-4 w-4" />}
+                      onClick={() => alert('Questionar cobrança')}
+                    >
+                      Questionar Cobrança
+                    </Button>
+                  )}
+
                   {cobranca.nf && (
-                    <Button variant="flat" size="sm" onClick={() => alert('Download NF (mock)')}>
-                      <Download className="h-4 w-4" />
+                    <Button
+                      variant="flat"
+                      size="sm"
+                      fullWidth
+                      startContent={<Download className="h-4 w-4" />}
+                      onClick={() => alert('Download NF')}
+                    >
                       Baixar NF
                     </Button>
                   )}
 
-                  <Button variant="flat" size="sm" onClick={() => alert('Download relatório (mock)')}>
-                    <FileText className="h-4 w-4" />
-                    Relatório de Atendimentos
-                  </Button>
-
-                  <Button size="sm" onClick={() => alert('Chat com suporte (mock)')}>
-                    <MessageCircle className="h-4 w-4" />
-                    Falar com Suporte
+                  <Button
+                    variant="flat"
+                    size="sm"
+                    fullWidth
+                    startContent={<FileText className="h-4 w-4" />}
+                    onClick={() => alert('Download relatório')}
+                  >
+                    Relatório PDF
                   </Button>
                 </div>
 

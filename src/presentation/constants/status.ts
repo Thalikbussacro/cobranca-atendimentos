@@ -8,10 +8,11 @@ export interface StatusConfig {
 export type StatusLabel = Record<StatusCobranca, StatusConfig>
 
 export const statusLabel: StatusLabel = {
-  ABERTO: { text: 'Em aberto', variant: 'yellow' },
+  ABERTO: { text: 'Aberta', variant: 'yellow' },
   AGUARDANDO_NF: { text: 'Aguardando NF', variant: 'gray' },
   ENVIADA: { text: 'Enviada', variant: 'blue' },
   PAGA: { text: 'Paga', variant: 'green' },
+  FECHADA: { text: 'Fechada', variant: 'green' },
   CONTESTADA: { text: 'Contestada', variant: 'red' },
   CANCELADA: { text: 'Cancelada', variant: 'gray' },
 }

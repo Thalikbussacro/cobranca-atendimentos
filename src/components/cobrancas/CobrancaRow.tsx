@@ -74,8 +74,8 @@ export function CobrancaRow({ cobranca, onChatOpen, onAction }: CobrancaRowProps
 
       {isExpanded && (
         <tr>
-          <td colSpan={8} className="p-0 border-b border-border">
-            <CobrancaDetails cobranca={cobranca} onAction={onAction} />
+          <td colSpan={8} className="p-0 border-b border-default-200">
+            <CobrancaDetails cobranca={cobranca} onAction={onAction} onChatOpen={onChatOpen} />
           </td>
         </tr>
       )}

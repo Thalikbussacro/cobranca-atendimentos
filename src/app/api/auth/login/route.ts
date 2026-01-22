@@ -12,27 +12,40 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Mock: admin ou cliente
-    // admin123 = admin
-    // cliente1, cliente2, etc = cliente
     let user
 
-    if (username === 'admin' || username === 'admin123' || username === 'operador01') {
+    // Login admin
+    if (username === 'admin' || username === 'admin123' || username === 'operador01' || username.startsWith('op')) {
       user = {
         id: '1',
         name: username,
         email: `${username}@soautomacao.com.br`,
         role: 'admin' as const,
       }
-    } else {
-      // Mock cliente - extrai número do username (ex: cliente1 -> clienteId 1)
+    } 
+    // Login cliente via código (COB1001, etc)
+    else if (username.startsWith('COB')) {
+      // Extrai ID da cobrança do código (COB1001 -> 1001)
+      const cobrancaId = parseInt(username.substring(3))
+      const clienteId = cobrancaId % 10 || 1 // Mock simples
+      
+      user = {
+        id: `cliente_${clienteId}`,
+        name: `Cliente ${clienteId}`,
+        email: `cliente${clienteId}@exemplo.com.br`,
+        role: 'cliente' as const,
+        clienteId,
+      }
+    }
+    // Login cliente direto (cliente1, cliente2, etc)
+    else {
       const clienteMatch = username.match(/cliente(\d+)/)
       const clienteId = clienteMatch ? parseInt(clienteMatch[1]) : 1
 
       user = {
         id: `cliente_${clienteId}`,
-        name: username,
-        email: `${username}@exemplo.com.br`,
+        name: `Cliente ${clienteId}`,
+        email: `cliente${clienteId}@exemplo.com.br`,
         role: 'cliente' as const,
         clienteId,
       }

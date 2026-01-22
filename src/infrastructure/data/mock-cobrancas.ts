@@ -4,6 +4,7 @@ export const cobrancasMock: Cobranca[] = [
   {
     id: 1001,
     cliente: 'Cooperativa Alfa',
+    clienteId: 1,
     periodo: '01/10/2025 - 31/12/2025',
     atendimentos: 12,
     horas: '08h 40m',
@@ -11,6 +12,8 @@ export const cobrancasMock: Cobranca[] = [
     status: 'ABERTO',
     ultimaAcao: 'Criada pelo operador',
     notificacao: true,
+    emailsEnviados: [],
+    codigoAcesso: 'COB1001',
     itens: [
       {
         data: '02/10 10:14',
@@ -65,6 +68,7 @@ export const cobrancasMock: Cobranca[] = [
   {
     id: 1003,
     cliente: 'Indústria Soja Brasil',
+    clienteId: 3,
     periodo: '01/07/2025 - 30/09/2025',
     atendimentos: 15,
     horas: '09h 05m',
@@ -72,6 +76,9 @@ export const cobrancasMock: Cobranca[] = [
     status: 'ENVIADA',
     ultimaAcao: 'E-mail enviado ao cliente',
     notificacao: true,
+    emailsEnviados: ['cobranca@sojabrasil.com.br', 'financeiro@sojabrasil.com.br'],
+    ultimaInteracaoCliente: 'Cliente solicitou segunda via da nota fiscal em 19/01/2026',
+    codigoAcesso: 'COB1003',
     itens: [
       {
         data: '10/07 08:40',

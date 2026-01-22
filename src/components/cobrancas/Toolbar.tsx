@@ -1,5 +1,6 @@
-import { Plus } from 'lucide-react'
+import { Plus, Send } from 'lucide-react'
 import { Button, Input, Select, SelectItem } from '@heroui/react'
+import { EnviarTodosButton } from './EnviarTodosButton'
 
 interface ToolbarProps {
   search: string
@@ -7,6 +8,8 @@ interface ToolbarProps {
   status: string
   onStatusChange: (value: string) => void
   onNewCobranca: () => void
+  totalCobrancas: number
+  onEnviarTodas: () => Promise<void>
 }
 
 export function Toolbar({
@@ -15,6 +18,8 @@ export function Toolbar({
   status,
   onStatusChange,
   onNewCobranca,
+  totalCobrancas,
+  onEnviarTodas,
 }: ToolbarProps) {
   const statusOptions = [
     { key: '', label: 'Todos status' },
@@ -27,7 +32,7 @@ export function Toolbar({
   ]
 
   return (
-    <div className="flex items-center gap-2.5 flex-wrap justify-between">
+    <div className="space-y-3">
       <div className="flex items-center gap-2.5 flex-wrap">
         <Button 
           color="primary" 
@@ -38,6 +43,9 @@ export function Toolbar({
         >
           Nova Cobrança
         </Button>
+
+        <EnviarTodosButton totalCobrancas={totalCobrancas} onConfirm={onEnviarTodas} />
+
         <Input
           placeholder="Buscar por cliente, NF, período..."
           value={search}
@@ -46,22 +54,22 @@ export function Toolbar({
           variant="bordered"
           size="sm"
         />
-      </div>
 
-      <Select
-        selectedKeys={status ? [status] : []}
-        onSelectionChange={(keys) => {
-          const value = Array.from(keys)[0]?.toString() || ''
-          onStatusChange(value)
-        }}
-        variant="bordered"
-        size="sm"
-        placeholder="Filtrar por status"
-        className="min-w-[200px]"
-        items={statusOptions}
-      >
-        {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
-      </Select>
+        <Select
+          selectedKeys={status ? [status] : []}
+          onSelectionChange={(keys) => {
+            const value = Array.from(keys)[0]?.toString() || ''
+            onStatusChange(value)
+          }}
+          variant="bordered"
+          size="sm"
+          placeholder="Filtrar por status"
+          className="min-w-[200px]"
+          items={statusOptions}
+        >
+          {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
+        </Select>
+      </div>
     </div>
   )
 }

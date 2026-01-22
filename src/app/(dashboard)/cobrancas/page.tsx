@@ -12,7 +12,7 @@ import { Card, CardBody } from '@heroui/react'
 
 export default function CobrancasPage() {
   const router = useRouter()
-  const { cobrancas, loading, filters, setFilters, getKPIs } = useCobrancas()
+  const { cobrancas, loading, filters, setFilters, getKPIs, refresh } = useCobrancas()
   const [chatCobrancaId, setChatCobrancaId] = useState<number | null>(null)
   const [actionModal, setActionModal] = useState({ isOpen: false, title: '', description: '' })
 
@@ -24,6 +24,12 @@ export default function CobrancasPage() {
 
   const handleAction = (action: string, description: string) => {
     setActionModal({ isOpen: true, title: action, description })
+  }
+
+  const handleEnviarTodas = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    alert(`${cobrancas.length} e-mail(s) enviado(s) com sucesso!`)
+    refresh()
   }
 
   const chatCobranca = cobrancas.find((c) => c.id === chatCobrancaId)
@@ -70,6 +76,8 @@ export default function CobrancasPage() {
             status={filters.status}
             onStatusChange={(value) => setFilters({ ...filters, status: value })}
             onNewCobranca={() => router.push('/nova-cobranca')}
+            totalCobrancas={cobrancas.length}
+            onEnviarTodas={handleEnviarTodas}
           />
 
           <CobrancaTable

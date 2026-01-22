@@ -42,30 +42,14 @@ export default function NovaCobrancaPage() {
       return
     }
 
-    setLoading(true)
+    // Redirecionar para tela de confirmação
+    const params = new URLSearchParams({
+      clienteId: formData.clienteId,
+      dataInicial: formData.dataInicial,
+      dataFinal: formData.dataFinal,
+    })
 
-    // Determina cliente(s)
-    const clienteNome = formData.clienteId === 'todos' 
-      ? 'Todos os Clientes' 
-      : clientesMock.find(c => c.id === parseInt(formData.clienteId))?.nome || 'Cliente'
-
-    // Formata datas para exibição
-    const dataObj = {
-      cliente: clienteNome,
-      dataInicial: formatBR(formData.dataInicial),
-      dataFinal: formatBR(formData.dataFinal),
-      status: 'ABERTO' as const,
-    }
-
-    const success = await createCobranca(dataObj)
-
-    if (success) {
-      alert('Cobrança criada com sucesso!')
-      router.push('/cobrancas')
-    } else {
-      alert('Erro ao criar cobrança.')
-      setLoading(false)
-    }
+    router.push(`/nova-cobranca/confirmar?${params.toString()}`)
   }
 
   const handleFillExample = () => {

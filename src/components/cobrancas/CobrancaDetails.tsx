@@ -1,17 +1,28 @@
 import { Cobranca } from '@/domain/entities/Cobranca'
 import { Badge } from '@/components/ui/Badge'
 import { Button, Card, CardBody } from '@heroui/react'
-import { Edit, FileText, Paperclip, Send, CheckCircle } from 'lucide-react'
+import { Edit, FileText, Paperclip, Send, CheckCircle, Mail, RefreshCw, MessageCircle } from 'lucide-react'
+import { CobrancaEmailInfo } from './CobrancaEmailInfo'
 
 interface CobrancaDetailsProps {
   cobranca: Cobranca
   onAction: (action: string, description: string) => void
+  onChatOpen: (cobrancaId: number) => void
 }
 
-export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
+export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDetailsProps) {
+  // Mock de e-mails enviados
+  const emailsMock = cobranca.emailsEnviados
+    ? cobranca.emailsEnviados.map((email) => ({
+        destinatario: email,
+        dataEnvio: '20/01/2026 14:30',
+        status: 'enviado' as const,
+      }))
+    : []
+
   return (
     <div className="bg-default-50 p-3">
-      <div className="grid grid-cols-[1.2fr_0.8fr] gap-3 max-lg:grid-cols-1">
+      <div className="grid grid-cols-[1fr_1fr_0.8fr] gap-3 max-xl:grid-cols-[1.5fr_1fr] max-lg:grid-cols-1">
         <div>
           <div className="text-xs font-bold text-default-500 uppercase tracking-wider mb-2">
             Atendimentos incluídos
@@ -40,6 +51,13 @@ export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
               </Card>
             ))}
           </div>
+        </div>
+
+        <div>
+          <CobrancaEmailInfo
+            emails={emailsMock}
+            ultimaInteracao={cobranca.ultimaInteracaoCliente}
+          />
         </div>
 
         <div>
@@ -94,6 +112,40 @@ export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
                 }
               >
                 Enviar para cliente
+              </Button>
+
+              <Button
+                variant="flat"
+                size="sm"
+                className="w-full justify-start"
+                startContent={<RefreshCw className="h-4 w-4" />}
+                onClick={() =>
+                  onAction('Reenviar e-mail', 'Reenviar documentos para o cliente.')
+                }
+              >
+                Reenviar e-mail
+              </Button>
+
+              <Button
+                variant="flat"
+                size="sm"
+                className="w-full justify-start"
+                startContent={<Mail className="h-4 w-4" />}
+                onClick={() =>
+                  onAction('Alterar e-mail', 'Modificar destinatário do e-mail.')
+                }
+              >
+                Alterar e-mail
+              </Button>
+
+              <Button
+                variant="flat"
+                size="sm"
+                className="w-full justify-start"
+                startContent={<MessageCircle className="h-4 w-4" />}
+                onClick={() => onChatOpen(cobranca.id)}
+              >
+                Conversar com cliente
               </Button>
 
               <Button
