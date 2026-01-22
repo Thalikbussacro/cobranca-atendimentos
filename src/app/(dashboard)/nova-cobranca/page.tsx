@@ -45,27 +45,27 @@ export default function NovaCobrancaPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">Gerar cobranças</h2>
-        <p className="text-muted-foreground">
+      <div className="mb-4 md:mb-6">
+        <h2 className="text-xl md:text-2xl font-bold">Gerar cobranças</h2>
+        <p className="text-muted-foreground text-sm md:text-base">
           Selecione o cliente e o período para gerar as cobranças.
         </p>
       </div>
 
       <Card>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <CardContent className="pt-4 md:pt-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* Cliente */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-so-blue" />
-                <Label className="text-base font-medium">Todos os clientes</Label>
+                <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-so-blue" />
+                <Label className="text-sm md:text-base font-medium">Todos os clientes</Label>
               </div>
               <Select
                 value={formData.clienteId}
                 onValueChange={(value) => setFormData({ ...formData, clienteId: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 md:h-10 text-sm">
                   <SelectValue placeholder="Selecione o cliente" />
                 </SelectTrigger>
                 <SelectContent>
@@ -80,7 +80,7 @@ export default function NovaCobrancaPage() {
             </div>
 
             {/* Período */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dataInicial">Data Inicial</Label>
                 <div className="relative">
@@ -111,17 +111,17 @@ export default function NovaCobrancaPage() {
             </div>
 
             {/* Texto informativo */}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               Será criada uma cobrança para todos os clientes, considerando apenas atendimentos
               ainda não enviados para cobrança.
             </p>
 
             {/* Botões */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => router.back()} className="h-9 md:h-10 text-sm">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="h-9 md:h-10 text-sm">
                 Gerar Cobranças
               </Button>
             </div>

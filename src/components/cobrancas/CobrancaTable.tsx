@@ -130,8 +130,8 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
   }
 
   return (
-    <div className="border rounded-lg">
-      <Table>
+    <div className="border rounded-lg overflow-x-auto">
+      <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow className="bg-muted/50">
             <SortableHeader
@@ -139,7 +139,7 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
               currentField={sortState.field}
               currentDirection={sortState.direction}
               onSort={handleSort}
-              className="w-[80px]"
+              className="w-[60px] md:w-[80px]"
             >
               Nº
             </SortableHeader>
@@ -156,6 +156,7 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
               currentField={sortState.field}
               currentDirection={sortState.direction}
               onSort={handleSort}
+              className="hidden md:table-cell"
             >
               Período
             </SortableHeader>
@@ -181,6 +182,7 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
               currentField={sortState.field}
               currentDirection={sortState.direction}
               onSort={handleSort}
+              className="hidden lg:table-cell"
             >
               Última Interação
             </SortableHeader>
@@ -190,7 +192,7 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
         <TableBody>
           {sortedCobrancas.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={7} className="text-center py-6 md:py-8 text-muted-foreground text-sm">
                 Nenhuma cobrança encontrada.
               </TableCell>
             </TableRow>
@@ -206,27 +208,31 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
                     key={cobranca.id} 
                     className={cn('transition-colors', inactivityClass || 'hover:bg-muted/30')}
                   >
-                    <TableCell className="font-medium text-so-blue">
+                    <TableCell className="font-medium text-so-blue text-xs md:text-sm">
                       #{cobranca.id}
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium text-so-blue">{cobranca.cliente}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="font-medium text-so-blue text-sm">{cobranca.cliente}</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">
                           Código: {cobranca.codigoAcesso || '-'}
+                        </div>
+                        {/* Show periodo on mobile since column is hidden */}
+                        <div className="text-xs text-muted-foreground md:hidden mt-0.5">
+                          {cobranca.periodo}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground hidden md:table-cell">
                       {cobranca.periodo}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center text-sm">
                       {cobranca.atendimentos}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={cobranca.status} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <div className="flex flex-col">
                         <span className={cn(
                           'text-sm',
@@ -243,11 +249,11 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="h-7 w-7 md:h-8 md:w-8"
                           onClick={() => onChat(cobranca)}
                           title="Abrir chat"
                         >
@@ -256,14 +262,15 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
                         <Button
                           variant="link"
                           size="sm"
-                          className="text-so-blue"
+                          className="text-so-blue text-xs md:text-sm px-1 md:px-2"
                           onClick={() => toggleExpand(cobranca.id)}
                         >
-                          Detalhes
+                          <span className="hidden sm:inline">Detalhes</span>
+                          <span className="sm:hidden">Ver</span>
                           {isExpanded ? (
-                            <ChevronUp className="ml-1 h-4 w-4" />
+                            <ChevronUp className="ml-0.5 md:ml-1 h-4 w-4" />
                           ) : (
-                            <ChevronDown className="ml-1 h-4 w-4" />
+                            <ChevronDown className="ml-0.5 md:ml-1 h-4 w-4" />
                           )}
                         </Button>
                       </div>

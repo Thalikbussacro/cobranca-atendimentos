@@ -86,49 +86,49 @@ export default function ConfirmarCobrancaPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">Confirmar Cobranças</h2>
-        <p className="text-muted-foreground">
+      <div className="mb-4 md:mb-6">
+        <h2 className="text-xl md:text-2xl font-bold">Confirmar Cobranças</h2>
+        <p className="text-muted-foreground text-sm md:text-base">
           Revise os dados antes de confirmar a criação das cobranças.
         </p>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Cobranças a serem geradas</CardTitle>
+        <CardHeader className="pb-2 md:pb-4">
+          <CardTitle className="text-base md:text-lg">Cobranças a serem geradas</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
+        <CardContent className="overflow-x-auto">
+          <Table className="min-w-[300px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead className="text-center">Atendimentos</TableHead>
-                <TableHead className="text-right">Tempo Total</TableHead>
+                <TableHead className="text-sm">Cliente</TableHead>
+                <TableHead className="text-center text-sm">Atend.</TableHead>
+                <TableHead className="text-right text-sm">Tempo</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {preview.map((item) => (
                 <TableRow key={item.clienteId}>
-                  <TableCell className="font-medium">{item.clienteNome}</TableCell>
-                  <TableCell className="text-center">{item.atendimentos}</TableCell>
-                  <TableCell className="text-right">{item.tempo}</TableCell>
+                  <TableCell className="font-medium text-sm">{item.clienteNome}</TableCell>
+                  <TableCell className="text-center text-sm">{item.atendimentos}</TableCell>
+                  <TableCell className="text-right text-sm">{item.tempo}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell className="font-bold">Total</TableCell>
-                <TableCell className="text-center font-bold">{totalAtendimentos}</TableCell>
-                <TableCell className="text-right font-bold">-</TableCell>
+                <TableCell className="font-bold text-sm">Total</TableCell>
+                <TableCell className="text-center font-bold text-sm">{totalAtendimentos}</TableCell>
+                <TableCell className="text-right font-bold text-sm">-</TableCell>
               </TableRow>
             </TableFooter>
           </Table>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <Button variant="outline" onClick={() => router.back()} disabled={confirmando}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-4 md:mt-6 pt-4 border-t">
+            <Button variant="outline" onClick={() => router.back()} disabled={confirmando} className="h-9 md:h-10 text-sm">
               Cancelar
             </Button>
-            <Button onClick={handleConfirmar} disabled={confirmando}>
+            <Button onClick={handleConfirmar} disabled={confirmando} className="h-9 md:h-10 text-sm">
               {confirmando ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

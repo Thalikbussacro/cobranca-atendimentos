@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { FileText, Plus, BarChart3, Receipt } from 'lucide-react'
+import { FileText, Plus, BarChart3, Receipt, X } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 const menuItems = [
@@ -31,19 +31,39 @@ const menuItems = [
   },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  mobile?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ mobile = false, onClose }: SidebarProps) {
   const pathname = usePathname()
 
   return (
-    <aside className="w-[220px] bg-sidebar flex flex-col h-screen max-lg:hidden">
+    <aside className={cn(
+      "bg-sidebar flex flex-col h-screen",
+      mobile 
+        ? "w-[280px] fixed inset-y-0 left-0 z-50" 
+        : "w-[220px] max-lg:hidden"
+    )}>
       {/* Logo */}
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
-          <span className="text-sidebar font-bold text-lg">SO</span>
+      <div className="p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <span className="text-sidebar font-bold text-lg">SO</span>
+          </div>
+          <span className="text-white font-semibold text-sm">
+            AUTOMAÇÃO
+          </span>
         </div>
-        <span className="text-white font-semibold text-sm">
-          AUTOMAÇÃO
-        </span>
+        {mobile && onClose && (
+          <button 
+            onClick={onClose}
+            className="text-white/70 hover:text-white p-1"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Menu */}
@@ -54,7 +74,7 @@ export function Sidebar() {
             const Icon = item.icon
 
             return (
-              <Link key={index} href={item.href}>
+              <Link key={index} href={item.href} onClick={mobile ? onClose : undefined}>
                 <div
                   className={cn(
                     'flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-sm',

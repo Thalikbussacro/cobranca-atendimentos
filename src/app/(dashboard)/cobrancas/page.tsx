@@ -107,9 +107,9 @@ export default function CobrancasPage() {
   return (
     <div>
       {/* Título da página */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">Cobranças</h2>
-        <p className="text-muted-foreground">
+      <div className="mb-4 md:mb-6">
+        <h2 className="text-xl md:text-2xl font-bold">Cobranças</h2>
+        <p className="text-muted-foreground text-sm md:text-base">
           Gerencie cobranças por período e envie automaticamente aos clientes.
         </p>
       </div>

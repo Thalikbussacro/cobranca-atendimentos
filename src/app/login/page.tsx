@@ -56,21 +56,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30 p-3 md:p-4">
       <Card className="w-full max-w-md">
-        <CardContent className="pt-8 pb-6 px-8">
+        <CardContent className="pt-6 md:pt-8 pb-4 md:pb-6 px-4 md:px-8">
           {/* Logo */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6 md:mb-8">
             <Brand />
           </div>
 
           {/* Título */}
-          <p className="text-center text-muted-foreground mb-6">
+          <p className="text-center text-muted-foreground mb-4 md:mb-6 text-sm md:text-base">
             Acesse o portal de atendimentos com o código e senha fornecidos.
           </p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
             <div className="space-y-2">
               <Label htmlFor="codigo">Código de Acesso</Label>
               <Input

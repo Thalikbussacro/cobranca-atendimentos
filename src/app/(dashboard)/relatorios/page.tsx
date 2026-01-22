@@ -28,29 +28,29 @@ export default function RelatoriosPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">Relatórios</h2>
-        <p className="text-muted-foreground">
+      <div className="mb-4 md:mb-6">
+        <h2 className="text-xl md:text-2xl font-bold">Relatórios</h2>
+        <p className="text-muted-foreground text-sm md:text-base">
           Exporte relatórios de cobranças e atendimentos.
         </p>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+        <CardHeader className="pb-2 md:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+            <FileText className="h-4 w-4 md:h-5 md:w-5" />
             Gerar Relatório
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 md:space-y-6">
           {/* Tipo de Relatório */}
           <div className="space-y-2">
-            <Label>Tipo de Relatório</Label>
+            <Label className="text-sm">Tipo de Relatório</Label>
             <Select
               value={formData.tipo}
               onValueChange={(value) => setFormData({ ...formData, tipo: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-9 md:h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -63,9 +63,9 @@ export default function RelatoriosPage() {
           </div>
 
           {/* Período */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dataInicial">Data Inicial</Label>
+              <Label htmlFor="dataInicial" className="text-sm">Data Inicial</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -73,13 +73,13 @@ export default function RelatoriosPage() {
                   type="date"
                   value={formData.dataInicial}
                   onChange={(e) => setFormData({ ...formData, dataInicial: e.target.value })}
-                  className="pl-10"
+                  className="pl-10 h-9 md:h-10 text-sm"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dataFinal">Data Final</Label>
+              <Label htmlFor="dataFinal" className="text-sm">Data Final</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -87,7 +87,7 @@ export default function RelatoriosPage() {
                   type="date"
                   value={formData.dataFinal}
                   onChange={(e) => setFormData({ ...formData, dataFinal: e.target.value })}
-                  className="pl-10"
+                  className="pl-10 h-9 md:h-10 text-sm"
                 />
               </div>
             </div>
@@ -95,12 +95,12 @@ export default function RelatoriosPage() {
 
           {/* Formato */}
           <div className="space-y-2">
-            <Label>Formato de Exportação</Label>
+            <Label className="text-sm">Formato de Exportação</Label>
             <Select
               value={formData.formato}
               onValueChange={(value) => setFormData({ ...formData, formato: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-9 md:h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -113,7 +113,7 @@ export default function RelatoriosPage() {
 
           {/* Botão */}
           <div className="pt-4">
-            <Button onClick={handleExportar} className="w-full">
+            <Button onClick={handleExportar} className="w-full h-9 md:h-10 text-sm">
               <Download className="h-4 w-4 mr-2" />
               Exportar Relatório
             </Button>
