@@ -14,15 +14,16 @@ import {
   Mail, 
   RefreshCw, 
   MessageCircle,
-  Clock
+  XCircle
 } from 'lucide-react'
 
 interface CobrancaDetailsProps {
   cobranca: Cobranca
   onAction: (action: string, cobrancaId: number) => void
+  onChatOpen?: () => void
 }
 
-export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
+export function CobrancaDetails({ cobranca, onAction, onChatOpen }: CobrancaDetailsProps) {
   return (
     <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Atendimentos */}
@@ -30,7 +31,7 @@ export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
         <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
           Atendimentos Incluídos
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {cobranca.itens.map((item, idx) => (
             <Card key={idx} className="border-l-4 border-l-so-blue">
               <CardContent className="p-4">
@@ -107,6 +108,16 @@ export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
               variant="outline"
               size="sm"
               className="w-full justify-start"
+              onClick={() => onAction('gerar-fatura', cobranca.id)}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Gerar e Enviar Fatura
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
               onClick={() => onAction('reenviar', cobranca.id)}
             >
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -127,7 +138,7 @@ export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
               variant="outline"
               size="sm"
               className="w-full justify-start"
-              onClick={() => onAction('chat', cobranca.id)}
+              onClick={onChatOpen}
             >
               <MessageCircle className="h-4 w-4 mr-2" />
               Conversar com cliente
@@ -143,6 +154,16 @@ export function CobrancaDetails({ cobranca, onAction }: CobrancaDetailsProps) {
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Marcar como pago
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => onAction('finalizar', cobranca.id)}
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Finalizar cobrança
             </Button>
           </CardContent>
         </Card>

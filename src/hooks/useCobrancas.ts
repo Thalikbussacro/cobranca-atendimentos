@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Cobranca, StatusCobranca, CreateCobrancaDTO } from '@/domain/entities/Cobranca'
+import { Cobranca, StatusCobranca } from '@/domain/entities/Cobranca'
 
 interface Filters {
   search: string
@@ -19,7 +19,7 @@ export function useCobrancas() {
       setLoading(true)
       const params = new URLSearchParams()
       if (filters.search) params.append('search', filters.search)
-      if (filters.status) params.append('status', filters.status)
+      if (filters.status && filters.status !== 'all') params.append('status', filters.status)
 
       const response = await fetch(`/api/cobrancas?${params}`)
       const data = await response.json()
@@ -41,6 +41,7 @@ export function useCobrancas() {
 
   const createCobranca = async (data: {
     cliente: string
+    clienteId: number
     dataInicial: string
     dataFinal: string
     status: StatusCobranca
@@ -68,10 +69,15 @@ export function useCobrancas() {
 
   const getKPIs = () => {
     return {
-      aberto: cobrancas.filter((c) => c.status === 'ABERTO').length,
-      aguardandoNF: cobrancas.filter((c) => c.status === 'AGUARDANDO_NF').length,
+      geradas: cobrancas.filter((c) => c.status === 'GERADA').length,
       enviadas: cobrancas.filter((c) => c.status === 'ENVIADA').length,
+      aceitas: cobrancas.filter((c) => c.status === 'ACEITA').length,
+      faturaEnviada: cobrancas.filter((c) => c.status === 'FATURA_ENVIADA').length,
       pagas: cobrancas.filter((c) => c.status === 'PAGA').length,
+      contestadas: cobrancas.filter((c) => c.status === 'CONTESTADA').length,
+      contatoSolicitado: cobrancas.filter((c) => c.status === 'CONTATO_SOLICITADO').length,
+      recusadas: cobrancas.filter((c) => c.status === 'RECUSADA').length,
+      finalizadas: cobrancas.filter((c) => c.status === 'FINALIZADA').length,
     }
   }
 

@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCobrancas } from '@/hooks/useCobrancas'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -22,33 +21,91 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Calendar, ChevronDown, ChevronUp, MessageCircle, FileText, Download } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronUp, MessageCircle, CheckCircle, XCircle, HelpCircle, Download } from 'lucide-react'
+import { StatusBadge } from '@/components/cobrancas/StatusBadge'
+import { ChatModal } from '@/components/chat/ChatModal'
+import { ActionConfirmModal, actionConfigs } from '@/components/modals/ActionConfirmModal'
+import { statusConfig } from '@/presentation/constants/status'
+import { Cobranca, StatusCobranca } from '@/domain/entities/Cobranca'
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' }> = {
-  ABERTO: { label: 'Em aberto', variant: 'warning' },
-  ENVIADA: { label: 'Enviada', variant: 'info' },
-  PAGA: { label: 'Paga', variant: 'success' },
-  FECHADA: { label: 'Fechada', variant: 'success' },
-}
+type ActionType = 'aceitar' | 'recusar' | 'questionar' | 'contato' | 'pagamento' | null
 
 export default function PortalClientePage() {
   const { user } = useAuth()
-  const { cobrancas, loading } = useCobrancas()
+  const { cobrancas, loading, filters, setFilters } = useCobrancas()
   const [expandedId, setExpandedId] = useState<number | null>(null)
-  const [filters, setFilters] = useState({
-    dataInicial: '',
-    dataFinal: '',
-    cliente: 'all',
-    status: 'all',
+  const [chatOpen, setChatOpen] = useState(false)
+  const [selectedCobranca, setSelectedCobranca] = useState<Cobranca | null>(null)
+  const [actionModal, setActionModal] = useState<{ open: boolean; type: ActionType; cobranca: Cobranca | null }>({
+    open: false,
+    type: null,
+    cobranca: null,
   })
 
-  // Filtrar cobranças do cliente
+  // Filtrar cobranças apenas do cliente logado
   const clienteCobrancas = cobrancas.filter((c) => {
+    // Se o usuário tem clienteId, mostrar apenas suas cobranças
     if (user?.clienteId) {
       return c.clienteId === user.clienteId
     }
-    return true // Admin vendo todos
+    // Admin vendo como cliente - mostrar todas
+    return true
   })
+
+  // Aplicar filtro de status
+  const filteredCobrancas = clienteCobrancas.filter((c) => {
+    if (filters.status && filters.status !== 'all') {
+      return c.status === filters.status
+    }
+    return true
+  })
+
+  const handleOpenChat = (cobranca: Cobranca) => {
+    setSelectedCobranca(cobranca)
+    setChatOpen(true)
+  }
+
+  const handleAction = (type: ActionType, cobranca: Cobranca) => {
+    setActionModal({ open: true, type, cobranca })
+  }
+
+  const handleConfirmAction = () => {
+    if (!actionModal.cobranca || !actionModal.type) return
+
+    // Em uma aplicação real, aqui faria a chamada à API
+    console.log(`Ação ${actionModal.type} confirmada para cobrança ${actionModal.cobranca.id}`)
+
+    // Se for questionar ou recusar, abre o chat
+    if (actionModal.type === 'questionar' || actionModal.type === 'recusar' || actionModal.type === 'contato') {
+      setSelectedCobranca(actionModal.cobranca)
+      setChatOpen(true)
+    }
+
+    setActionModal({ open: false, type: null, cobranca: null })
+  }
+
+  const handleExpandDetails = (cobranca: Cobranca) => {
+    setExpandedId(expandedId === cobranca.id ? null : cobranca.id)
+    // Registrar interação do cliente
+    console.log(`Cliente visualizou detalhes da cobrança ${cobranca.id}`)
+  }
+
+  const getActionConfig = () => {
+    switch (actionModal.type) {
+      case 'aceitar':
+        return actionConfigs.aceitarAtendimentos
+      case 'recusar':
+        return actionConfigs.recusarAtendimentos
+      case 'questionar':
+        return actionConfigs.questionarAtendimentos
+      case 'contato':
+        return actionConfigs.solicitarContato
+      case 'pagamento':
+        return actionConfigs.confirmarPagamento
+      default:
+        return actionConfigs.aceitarAtendimentos
+    }
+  }
 
   if (loading) {
     return (
@@ -62,7 +119,10 @@ export default function PortalClientePage() {
     <div>
       {/* Header da página */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">Cobranças</h2>
+        <h2 className="text-2xl font-bold">Minhas Cobranças</h2>
+        <p className="text-muted-foreground">
+          Visualize e gerencie suas cobranças de atendimentos técnicos.
+        </p>
       </div>
 
       {/* Filtros */}
@@ -73,41 +133,29 @@ export default function PortalClientePage() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <Input
                 type="date"
-                value={filters.dataInicial}
-                onChange={(e) => setFilters({ ...filters, dataInicial: e.target.value })}
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                 className="w-[150px]"
-              />
-              <span className="text-muted-foreground">até</span>
-              <Input
-                type="date"
-                value={filters.dataFinal}
-                onChange={(e) => setFilters({ ...filters, dataFinal: e.target.value })}
-                className="w-[150px]"
+                placeholder="Data inicial"
               />
             </div>
 
             <Select
-              value={filters.status}
+              value={filters.status || 'all'}
               onValueChange={(value) => setFilters({ ...filters, status: value })}
             >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Todos os status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="ABERTO">Em aberto</SelectItem>
-                <SelectItem value="ENVIADA">Enviada</SelectItem>
-                <SelectItem value="PAGA">Paga</SelectItem>
+                {Object.entries(statusConfig).map(([key, config]) => (
+                  <SelectItem key={key} value={key}>
+                    {config.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-
-            <Button variant="outline" size="sm">
-              Buscar novas operados
-            </Button>
-
-            <Button variant="outline" size="sm">
-              Reenviar e-mail
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -119,7 +167,6 @@ export default function PortalClientePage() {
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead>Nº</TableHead>
-                <TableHead>Cliente</TableHead>
                 <TableHead>Período</TableHead>
                 <TableHead className="text-center">Atendimentos</TableHead>
                 <TableHead>Horas</TableHead>
@@ -128,101 +175,165 @@ export default function PortalClientePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {clienteCobrancas.map((cobranca) => {
-                const isExpanded = expandedId === cobranca.id
-                const status = statusConfig[cobranca.status] || statusConfig.ABERTO
+              {filteredCobrancas.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    Nenhuma cobrança encontrada.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredCobrancas.map((cobranca) => {
+                  const isExpanded = expandedId === cobranca.id
 
-                return (
-                  <>
-                    <TableRow key={cobranca.id}>
-                      <TableCell className="font-medium text-so-blue">
-                        {cobranca.id}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium text-so-blue">{cobranca.cliente}</div>
-                        <div className="text-xs text-muted-foreground">Versão do operador</div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {cobranca.periodo}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {cobranca.atendimentos}
-                      </TableCell>
-                      <TableCell>{cobranca.horas}</TableCell>
-                      <TableCell>
-                        <Badge variant={status.variant}>
-                          {status.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="link"
-                          size="sm"
-                          className="text-so-blue"
-                          onClick={() => setExpandedId(isExpanded ? null : cobranca.id)}
-                        >
-                          Detalhes
-                          {isExpanded ? (
-                            <ChevronUp className="ml-1 h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="ml-1 h-4 w-4" />
-                          )}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    {isExpanded && (
-                      <TableRow>
-                        <TableCell colSpan={7} className="bg-muted/20 p-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Atendimentos */}
-                            <div>
-                              <h4 className="font-semibold mb-3">Atendimentos</h4>
-                              <div className="space-y-2">
-                                {cobranca.itens.map((item, idx) => (
-                                  <Card key={idx}>
-                                    <CardContent className="p-3">
-                                      <div className="text-sm">
-                                        <div className="font-medium">{item.data} - {item.solicitante}</div>
-                                        <div className="text-muted-foreground">{item.resumo}</div>
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                          Tempo: {item.tempo}
-                                        </div>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Ações */}
-                            <div>
-                              <h4 className="font-semibold mb-3">Ações</h4>
-                              <div className="space-y-2">
-                                <Button variant="outline" className="w-full justify-start">
-                                  <MessageCircle className="h-4 w-4 mr-2" />
-                                  Falar com Atendente
-                                </Button>
-                                <Button variant="outline" className="w-full justify-start">
-                                  <FileText className="h-4 w-4 mr-2" />
-                                  Solicitar Guia
-                                </Button>
-                                <Button variant="outline" className="w-full justify-start">
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Baixar Relatório
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
+                  return (
+                    <>
+                      <TableRow key={cobranca.id}>
+                        <TableCell className="font-medium text-so-blue">
+                          #{cobranca.id}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {cobranca.periodo}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {cobranca.atendimentos}
+                        </TableCell>
+                        <TableCell>{cobranca.horas}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={cobranca.status} />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-so-blue"
+                            onClick={() => handleExpandDetails(cobranca)}
+                          >
+                            Detalhes
+                            {isExpanded ? (
+                              <ChevronUp className="ml-1 h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="ml-1 h-4 w-4" />
+                            )}
+                          </Button>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </>
-                )
-              })}
+                      {isExpanded && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="bg-muted/20 p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Atendimentos */}
+                              <div>
+                                <h4 className="font-semibold mb-3">Atendimentos Incluídos</h4>
+                                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                  {cobranca.itens.map((item, idx) => (
+                                    <Card key={idx}>
+                                      <CardContent className="p-3">
+                                        <div className="text-sm">
+                                          <div className="font-medium">{item.data} - {item.solicitante}</div>
+                                          <div className="text-muted-foreground">{item.resumo}</div>
+                                          {item.solucao && (
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                              Solução: {item.solucao}
+                                            </div>
+                                          )}
+                                          <div className="text-xs text-muted-foreground mt-1">
+                                            Tempo: {item.tempo}
+                                          </div>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Ações */}
+                              <div>
+                                <h4 className="font-semibold mb-3">Ações</h4>
+                                <div className="space-y-2">
+                                  <Button 
+                                    variant="outline" 
+                                    className="w-full justify-start"
+                                    onClick={() => handleOpenChat(cobranca)}
+                                  >
+                                    <MessageCircle className="h-4 w-4 mr-2" />
+                                    Falar com Atendente
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    className="w-full justify-start text-green-600 hover:text-green-700"
+                                    onClick={() => handleAction('aceitar', cobranca)}
+                                  >
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Aceitar Atendimentos
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    className="w-full justify-start text-yellow-600 hover:text-yellow-700"
+                                    onClick={() => handleAction('questionar', cobranca)}
+                                  >
+                                    <HelpCircle className="h-4 w-4 mr-2" />
+                                    Questionar Atendimentos
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    className="w-full justify-start text-red-600 hover:text-red-700"
+                                    onClick={() => handleAction('recusar', cobranca)}
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Recusar Atendimentos
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    className="w-full justify-start"
+                                    onClick={() => handleAction('pagamento', cobranca)}
+                                  >
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Confirmar Pagamento
+                                  </Button>
+                                  
+                                  <Button variant="outline" className="w-full justify-start">
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Baixar Relatório
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
+                  )
+                })
+              )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal de Chat */}
+      {selectedCobranca && (
+        <ChatModal
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          cobrancaId={selectedCobranca.id}
+          clienteNome={selectedCobranca.cliente}
+          isClienteView={true}
+        />
+      )}
+
+      {/* Modal de Confirmação de Ação */}
+      {actionModal.type && (
+        <ActionConfirmModal
+          open={actionModal.open}
+          onOpenChange={(open) => setActionModal({ ...actionModal, open })}
+          {...getActionConfig()}
+          onConfirm={handleConfirmAction}
+        />
+      )}
     </div>
   )
 }

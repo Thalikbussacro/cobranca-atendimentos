@@ -6,39 +6,80 @@ import { useCobrancas } from '@/hooks/useCobrancas'
 import { Toolbar } from '@/components/cobrancas/Toolbar'
 import { CobrancaTable } from '@/components/cobrancas/CobrancaTable'
 import { AlertBar } from '@/components/layout/AlertBar'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { ChatModal } from '@/components/chat/ChatModal'
+import { ActionConfirmModal, actionConfigs } from '@/components/modals/ActionConfirmModal'
+import { Cobranca } from '@/domain/entities/Cobranca'
+
+type AdminAction = 'enviar' | 'enviar-todos' | 'gerar-fatura' | 'pagar' | 'finalizar' | null
 
 export default function CobrancasPage() {
   const router = useRouter()
   const { cobrancas, loading, filters, setFilters } = useCobrancas()
-  const [showSuccessAlert, setShowSuccessAlert] = useState(true)
-  const [actionDialog, setActionDialog] = useState<{ open: boolean; action: string; id: number | null }>({
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [selectedCobranca, setSelectedCobranca] = useState<Cobranca | null>(null)
+  const [actionModal, setActionModal] = useState<{ open: boolean; type: AdminAction; cobranca: Cobranca | null }>({
     open: false,
-    action: '',
-    id: null,
+    type: null,
+    cobranca: null,
   })
 
+  const handleOpenChat = (cobranca: Cobranca) => {
+    setSelectedCobranca(cobranca)
+    setChatOpen(true)
+  }
+
   const handleAction = (action: string, cobrancaId: number) => {
-    if (action === 'chat') {
-      // Abrir chat
-      console.log('Abrir chat para cobrança', cobrancaId)
+    const cobranca = cobrancas.find((c) => c.id === cobrancaId)
+    if (!cobranca) return
+
+    const actionMap: Record<string, AdminAction> = {
+      'enviar': 'enviar',
+      'gerar-fatura': 'gerar-fatura',
+      'pagar': 'pagar',
+      'finalizar': 'finalizar',
+    }
+
+    const actionType = actionMap[action]
+    if (actionType) {
+      setActionModal({ open: true, type: actionType, cobranca })
     } else {
-      setActionDialog({ open: true, action, id: cobrancaId })
+      // Ações que não precisam de confirmação
+      console.log(`Executando ação ${action} para cobrança ${cobrancaId}`)
     }
   }
 
-  const handleEnviarTodas = async () => {
-    // Simular envio
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  const handleEnviarTodas = () => {
+    setActionModal({ open: true, type: 'enviar-todos', cobranca: null })
+  }
+
+  const handleConfirmAction = async () => {
+    if (!actionModal.type) return
+
+    // Simular ação
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    
+    console.log(`Ação ${actionModal.type} confirmada`, actionModal.cobranca?.id)
+    
+    setActionModal({ open: false, type: null, cobranca: null })
     setShowSuccessAlert(true)
+  }
+
+  const getActionConfig = () => {
+    switch (actionModal.type) {
+      case 'enviar':
+        return actionConfigs.enviarEmail
+      case 'enviar-todos':
+        return actionConfigs.enviarTodosEmails
+      case 'gerar-fatura':
+        return actionConfigs.gerarFatura
+      case 'pagar':
+        return actionConfigs.marcarPago
+      case 'finalizar':
+        return actionConfigs.finalizarCobranca
+      default:
+        return actionConfigs.enviarEmail
+    }
   }
 
   if (loading) {
@@ -55,16 +96,16 @@ export default function CobrancasPage() {
       <div className="mb-6">
         <h2 className="text-2xl font-bold">Cobranças</h2>
         <p className="text-muted-foreground">
-          Gerencie cobranças por período e envie automaticamente aos clientes o e-mails.
+          Gerencie cobranças por período e envie automaticamente aos clientes.
         </p>
       </div>
 
       {/* Alerta de sucesso */}
       {showSuccessAlert && (
         <AlertBar
-          variant="warning"
-          title="Cobranças geradas com sucesso!"
-          description="As cobranças um email automático com a cobrança o o veta laios da para da cliente o envie operados."
+          variant="success"
+          title="Ação realizada com sucesso!"
+          description="A operação foi concluída. Os dados serão atualizados em breve."
           onDismiss={() => setShowSuccessAlert(false)}
         />
       )}
@@ -80,36 +121,32 @@ export default function CobrancasPage() {
       />
 
       {/* Tabela */}
-      {cobrancas.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          Nenhuma cobrança encontrada. Crie uma nova cobrança para começar.
-        </div>
-      ) : (
-        <CobrancaTable cobrancas={cobrancas} onAction={handleAction} />
+      <CobrancaTable 
+        cobrancas={cobrancas} 
+        onAction={handleAction}
+        onChat={handleOpenChat}
+      />
+
+      {/* Modal de Chat */}
+      {selectedCobranca && (
+        <ChatModal
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          cobrancaId={selectedCobranca.id}
+          clienteNome={selectedCobranca.cliente}
+          isClienteView={false}
+        />
       )}
 
-      {/* Dialog de Ação */}
-      <Dialog open={actionDialog.open} onOpenChange={(open) => setActionDialog({ ...actionDialog, open })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar Ação</DialogTitle>
-            <DialogDescription>
-              Deseja executar a ação "{actionDialog.action}" para a cobrança #{actionDialog.id}?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ open: false, action: '', id: null })}>
-              Cancelar
-            </Button>
-            <Button onClick={() => {
-              console.log('Executar', actionDialog.action, actionDialog.id)
-              setActionDialog({ open: false, action: '', id: null })
-            }}>
-              Confirmar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Modal de Confirmação de Ação */}
+      {actionModal.type && (
+        <ActionConfirmModal
+          open={actionModal.open}
+          onOpenChange={(open) => setActionModal({ ...actionModal, open })}
+          {...getActionConfig()}
+          onConfirm={handleConfirmAction}
+        />
+      )}
     </div>
   )
 }

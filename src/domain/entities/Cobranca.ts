@@ -1,11 +1,13 @@
 export type StatusCobranca = 
-  | 'ABERTO' 
-  | 'AGUARDANDO_NF' 
-  | 'ENVIADA' 
+  | 'GERADA'
+  | 'ENVIADA'
+  | 'ACEITA'
+  | 'FATURA_ENVIADA'
   | 'PAGA'
-  | 'FECHADA'
-  | 'CONTESTADA' 
-  | 'CANCELADA'
+  | 'FINALIZADA'
+  | 'CONTESTADA'
+  | 'CONTATO_SOLICITADO'
+  | 'RECUSADA'
 
 export interface AtendimentoItem {
   data: string
@@ -18,7 +20,7 @@ export interface AtendimentoItem {
 export interface Cobranca {
   id: number
   cliente: string
-  clienteId?: number
+  clienteId: number
   periodo: string
   atendimentos: number
   horas: string
@@ -34,6 +36,7 @@ export interface Cobranca {
 
 export interface CreateCobrancaDTO {
   cliente: string
+  clienteId: number
   dataInicial: string
   dataFinal: string
   status: StatusCobranca

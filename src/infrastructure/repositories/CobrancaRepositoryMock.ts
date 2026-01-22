@@ -8,7 +8,7 @@ export class CobrancaRepositoryMock implements ICobrancaRepository {
   async findAll(filters?: { search?: string; status?: string }): Promise<Cobranca[]> {
     let result = [...this.cobrancas]
 
-    if (filters?.status) {
+    if (filters?.status && filters.status !== 'all') {
       result = result.filter((c) => c.status === filters.status)
     }
 
@@ -36,14 +36,16 @@ export class CobrancaRepositoryMock implements ICobrancaRepository {
     const newCobranca: Cobranca = {
       id: newId,
       cliente: data.cliente,
+      clienteId: data.clienteId,
       periodo: `${data.dataInicial} - ${data.dataFinal}`,
       atendimentos: 0,
       horas: '00h 00m',
       nf: '',
       status: data.status,
-      ultimaAcao: 'Criada - aguardando vincular atendimentos',
+      ultimaAcao: 'Criada - aguardando envio',
       notificacao: false,
       itens: [],
+      codigoAcesso: `COB${newId}`,
     }
 
     this.cobrancas.unshift(newCobranca)

@@ -15,11 +15,7 @@ export class GetCobrancasUseCase {
 
     // Se filtro de cliente específico, filtrar
     if (filters?.clienteId) {
-      return cobrancas.filter((c) => {
-        // Em produção, verificar c.clienteId === filters.clienteId
-        // No mock, verificar por nome
-        return true // Temporário
-      })
+      return cobrancas.filter((c) => c.clienteId === filters.clienteId)
     }
 
     return cobrancas
@@ -27,10 +23,15 @@ export class GetCobrancasUseCase {
 
   getKPIs(cobrancas: Cobranca[]) {
     return {
-      aberto: cobrancas.filter((c) => c.status === 'ABERTO').length,
-      aguardandoNF: cobrancas.filter((c) => c.status === 'AGUARDANDO_NF').length,
+      geradas: cobrancas.filter((c) => c.status === 'GERADA').length,
       enviadas: cobrancas.filter((c) => c.status === 'ENVIADA').length,
+      aceitas: cobrancas.filter((c) => c.status === 'ACEITA').length,
+      faturaEnviada: cobrancas.filter((c) => c.status === 'FATURA_ENVIADA').length,
       pagas: cobrancas.filter((c) => c.status === 'PAGA').length,
+      contestadas: cobrancas.filter((c) => c.status === 'CONTESTADA').length,
+      contatoSolicitado: cobrancas.filter((c) => c.status === 'CONTATO_SOLICITADO').length,
+      recusadas: cobrancas.filter((c) => c.status === 'RECUSADA').length,
+      finalizadas: cobrancas.filter((c) => c.status === 'FINALIZADA').length,
     }
   }
 }

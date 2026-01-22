@@ -1,5 +1,12 @@
 import { Cobranca } from '@/domain/entities/Cobranca'
 
+// Datas para demonstrar os destaques de inatividade
+const hoje = new Date()
+const dias3 = new Date(hoje.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
+const dias6 = new Date(hoje.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString()
+const dias12 = new Date(hoje.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString()
+const dias15 = new Date(hoje.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
+
 export const cobrancasMock: Cobranca[] = [
   {
     id: 1001,
@@ -9,10 +16,11 @@ export const cobrancasMock: Cobranca[] = [
     atendimentos: 12,
     horas: '08h 40m',
     nf: '',
-    status: 'ABERTO',
+    status: 'GERADA',
     ultimaAcao: 'Criada pelo operador',
     notificacao: true,
     emailsEnviados: [],
+    ultimaInteracaoCliente: dias3,
     codigoAcesso: 'COB1001',
     itens: [
       {
@@ -41,13 +49,16 @@ export const cobrancasMock: Cobranca[] = [
   {
     id: 1002,
     cliente: 'AgroFábrica Delta',
+    clienteId: 2,
     periodo: '01/10/2025 - 31/12/2025',
     atendimentos: 8,
     horas: '05h 15m',
     nf: '',
-    status: 'AGUARDANDO_NF',
-    ultimaAcao: 'Aguardando emissão NF',
+    status: 'ENVIADA',
+    ultimaAcao: 'E-mail enviado ao cliente',
     notificacao: false,
+    ultimaInteracaoCliente: dias6,
+    codigoAcesso: 'COB1002',
     itens: [
       {
         data: '08/10 16:30',
@@ -73,11 +84,11 @@ export const cobrancasMock: Cobranca[] = [
     atendimentos: 15,
     horas: '09h 05m',
     nf: 'NF 28910',
-    status: 'ENVIADA',
-    ultimaAcao: 'E-mail enviado ao cliente',
+    status: 'ACEITA',
+    ultimaAcao: 'Cliente aceitou os atendimentos',
     notificacao: true,
     emailsEnviados: ['cobranca@sojabrasil.com.br', 'financeiro@sojabrasil.com.br'],
-    ultimaInteracaoCliente: 'Cliente solicitou segunda via da nota fiscal em 19/01/2026',
+    ultimaInteracaoCliente: dias3,
     codigoAcesso: 'COB1003',
     itens: [
       {
@@ -99,6 +110,7 @@ export const cobrancasMock: Cobranca[] = [
   {
     id: 1004,
     cliente: 'Fazenda Horizonte',
+    clienteId: 4,
     periodo: '01/07/2025 - 30/09/2025',
     atendimentos: 6,
     horas: '03h 20m',
@@ -106,6 +118,8 @@ export const cobrancasMock: Cobranca[] = [
     status: 'PAGA',
     ultimaAcao: 'Pagamento confirmado',
     notificacao: false,
+    ultimaInteracaoCliente: dias3,
+    codigoAcesso: 'COB1004',
     itens: [
       {
         data: '20/07 09:20',
@@ -119,13 +133,16 @@ export const cobrancasMock: Cobranca[] = [
   {
     id: 1005,
     cliente: 'Cooperativa Alfa',
+    clienteId: 1,
     periodo: '01/01/2025 - 31/03/2025',
     atendimentos: 5,
     horas: '02h 10m',
     nf: 'NF 27002',
     status: 'CONTESTADA',
-    ultimaAcao: 'Cliente questionou 2 atendimentos',
+    ultimaAcao: 'Cliente questionou atendimentos',
     notificacao: true,
+    ultimaInteracaoCliente: dias12,
+    codigoAcesso: 'COB1005',
     itens: [
       {
         data: '03/02 15:00',
@@ -139,13 +156,16 @@ export const cobrancasMock: Cobranca[] = [
   {
     id: 1006,
     cliente: 'AgroFábrica Delta',
+    clienteId: 2,
     periodo: '01/04/2025 - 30/06/2025',
     atendimentos: 10,
     horas: '06h 50m',
     nf: '',
-    status: 'CANCELADA',
-    ultimaAcao: 'Cancelada pelo operador',
+    status: 'FINALIZADA',
+    ultimaAcao: 'Cobrança finalizada',
     notificacao: false,
+    ultimaInteracaoCliente: dias15,
+    codigoAcesso: 'COB1006',
     itens: [
       {
         data: '05/04 10:00',
@@ -153,6 +173,83 @@ export const cobrancasMock: Cobranca[] = [
         resumo: 'Reconfiguração módulo',
         solucao: 'Feito ajuste geral',
         tempo: '40m',
+      },
+    ],
+  },
+  {
+    id: 1007,
+    cliente: 'Nutrição Animal Sul',
+    clienteId: 5,
+    periodo: '01/10/2025 - 31/12/2025',
+    atendimentos: 7,
+    horas: '04h 30m',
+    nf: '',
+    status: 'FATURA_ENVIADA',
+    ultimaAcao: 'Fatura enviada ao cliente',
+    notificacao: true,
+    emailsEnviados: ['contato@nutricaosul.com.br'],
+    ultimaInteracaoCliente: dias6,
+    codigoAcesso: 'COB1007',
+    itens: [
+      {
+        data: '12/10 14:30',
+        solicitante: 'Marcos',
+        resumo: 'Configuração nova balança',
+        solucao: 'Instalado driver e calibrado',
+        tempo: '1h 15m',
+      },
+      {
+        data: '25/11 10:00',
+        solicitante: 'Fernanda',
+        resumo: 'Erro no relatório mensal',
+        solucao: 'Corrigido parâmetro de data',
+        tempo: '30m',
+      },
+    ],
+  },
+  {
+    id: 1008,
+    cliente: 'Indústria Soja Brasil',
+    clienteId: 3,
+    periodo: '01/10/2025 - 31/12/2025',
+    atendimentos: 4,
+    horas: '02h 45m',
+    nf: '',
+    status: 'CONTATO_SOLICITADO',
+    ultimaAcao: 'Cliente solicitou contato',
+    notificacao: true,
+    ultimaInteracaoCliente: dias3,
+    codigoAcesso: 'COB1008',
+    itens: [
+      {
+        data: '18/11 16:00',
+        solicitante: 'Paulo',
+        resumo: 'Dúvida sobre faturamento',
+        solucao: 'Explicado processo via ligação',
+        tempo: '35m',
+      },
+    ],
+  },
+  {
+    id: 1009,
+    cliente: 'Fazenda Horizonte',
+    clienteId: 4,
+    periodo: '01/10/2025 - 31/12/2025',
+    atendimentos: 3,
+    horas: '01h 50m',
+    nf: '',
+    status: 'RECUSADA',
+    ultimaAcao: 'Cliente recusou a cobrança',
+    notificacao: true,
+    ultimaInteracaoCliente: dias12,
+    codigoAcesso: 'COB1009',
+    itens: [
+      {
+        data: '05/12 11:00',
+        solicitante: 'Rafa',
+        resumo: 'Suporte emergencial',
+        solucao: 'Resolvido problema de conexão',
+        tempo: '50m',
       },
     ],
   },

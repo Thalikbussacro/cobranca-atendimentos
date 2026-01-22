@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Plus, Send, LayoutGrid, List, Search } from 'lucide-react'
+import { Plus, Send, Search } from 'lucide-react'
+import { statusConfig } from '@/presentation/constants/status'
 
 interface ToolbarProps {
   search: string
@@ -33,12 +34,12 @@ export function Toolbar({
       <div className="flex items-center gap-3">
         <Button onClick={onNewCobranca}>
           <Plus className="h-4 w-4 mr-2" />
-          Nova Cobranças
+          Nova Cobrança
         </Button>
 
         <Button variant="outline" onClick={onEnviarTodas}>
           <Send className="h-4 w-4 mr-2" />
-          Enviar todos e-mails
+          Enviar Todos E-mails
         </Button>
       </div>
 
@@ -46,35 +47,26 @@ export function Toolbar({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar verafa"
+            placeholder="Buscar cliente..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9 w-[200px]"
           />
         </div>
 
-        <Select value={status} onValueChange={onStatusChange}>
-          <SelectTrigger className="w-[180px]">
+        <Select value={status || 'all'} onValueChange={onStatusChange}>
+          <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Todos os status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os status</SelectItem>
-            <SelectItem value="ABERTO">Em aberto</SelectItem>
-            <SelectItem value="AGUARDANDO_NF">Aguardando NF</SelectItem>
-            <SelectItem value="ENVIADA">Enviada</SelectItem>
-            <SelectItem value="PAGA">Paga</SelectItem>
-            <SelectItem value="CONTESTADA">Contestada</SelectItem>
+            {Object.entries(statusConfig).map(([key, config]) => (
+              <SelectItem key={key} value={key}>
+                {config.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-
-        <div className="flex border rounded-md">
-          <Button variant="ghost" size="icon" className="rounded-r-none">
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-l-none border-l">
-            <List className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
     </div>
   )
