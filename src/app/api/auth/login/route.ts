@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json()
 
-    // Mock authentication - aceita qualquer usuário/senha não vazia
+    // Validação de campos obrigatórios
     if (!username || !password) {
       return NextResponse.json(
         { success: false, message: 'Usuário e senha são obrigatórios' },
@@ -12,43 +12,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    let user
+    // Credenciais do .env (com fallback para desenvolvimento)
+    const validUsername = process.env.AUTH_USERNAME || 'admin'
+    const validPassword = process.env.AUTH_PASSWORD || 'admin123'
 
-    // Login admin
-    if (username === 'admin' || username === 'admin123' || username === 'operador01' || username.startsWith('op')) {
-      user = {
-        id: '1',
-        name: username,
-        email: `${username}@soautomacao.com.br`,
-        role: 'admin' as const,
-      }
-    } 
-    // Login cliente via código (COB1001, etc)
-    else if (username.startsWith('COB')) {
-      // Extrai ID da cobrança do código (COB1001 -> 1001)
-      const cobrancaId = parseInt(username.substring(3))
-      const clienteId = cobrancaId % 10 || 1 // Mock simples
-      
-      user = {
-        id: `cliente_${clienteId}`,
-        name: `Cliente ${clienteId}`,
-        email: `cliente${clienteId}@exemplo.com.br`,
-        role: 'cliente' as const,
-        clienteId,
-      }
+    // Verifica credenciais
+    if (username !== validUsername || password !== validPassword) {
+      return NextResponse.json(
+        { success: false, message: 'Usuário ou senha inválidos' },
+        { status: 401 }
+      )
     }
-    // Login cliente direto (cliente1, cliente2, etc)
-    else {
-      const clienteMatch = username.match(/cliente(\d+)/)
-      const clienteId = clienteMatch ? parseInt(clienteMatch[1]) : 1
 
-      user = {
-        id: `cliente_${clienteId}`,
-        name: `Cliente ${clienteId}`,
-        email: `cliente${clienteId}@exemplo.com.br`,
-        role: 'cliente' as const,
-        clienteId,
-      }
+    // Retorna usuário autenticado
+    const user = {
+      id: '1',
+      name: 'Operador',
+      email: 'operador@soautomacao.com.br',
+      role: 'admin' as const,
     }
 
     return NextResponse.json({

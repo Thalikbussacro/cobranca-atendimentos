@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { FileText, Plus, BarChart3, Receipt, X } from 'lucide-react'
+import { Plus, Receipt, X } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 const menuItems = [
@@ -14,20 +14,9 @@ const menuItems = [
   },
   {
     icon: Plus,
-    label: 'Nova',
+    label: 'Nova Cobrança',
     href: '/nova-cobranca',
     highlight: true,
-  },
-  {
-    icon: FileText,
-    label: 'Cobranças',
-    href: '/cobrancas',
-    subItem: true,
-  },
-  {
-    icon: BarChart3,
-    label: 'Relatórios',
-    href: '/relatorios',
   },
 ]
 

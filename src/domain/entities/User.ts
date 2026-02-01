@@ -1,11 +1,8 @@
-export type UserRole = 'admin' | 'cliente'
-
 export interface User {
   id: string
   name: string
   email?: string
-  role: UserRole
-  clienteId?: number
+  role: 'admin'
 }
 
 export interface LoginCredentials {

@@ -11,60 +11,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react'
+import { ChevronDown, ChevronUp, Mail } from 'lucide-react'
 import { CobrancaDetails } from './CobrancaDetails'
 import { StatusBadge } from './StatusBadge'
 import { SortableHeader, SortDirection } from './SortableHeader'
-import { cn } from '@/lib/utils'
-import { AtendimentoItem } from '@/domain/entities/Cobranca'
 
 interface CobrancaTableProps {
   cobrancas: Cobranca[]
-  onAction: (action: string, cobrancaId: number) => void
-  onChat: (cobranca: Cobranca) => void
-  onAtendimentoClick?: (atendimento: AtendimentoItem, cobranca: Cobranca) => void
+  onEnviarEmail: (cobrancaId: number) => void
+  onAtendimentoClick?: (cobranca: Cobranca) => void
 }
 
-type SortField = 'id' | 'cliente' | 'periodo' | 'atendimentos' | 'status' | 'ultimaInteracao'
+type SortField = 'id' | 'cliente' | 'periodo' | 'atendimentos' | 'emailEnviado'
 
 interface SortState {
   field: SortField | null
   direction: SortDirection
-}
-
-// Calcula os dias desde a última interação
-function getDaysSinceInteraction(ultimaInteracao?: string): number | null {
-  if (!ultimaInteracao) return null
-  
-  const lastDate = new Date(ultimaInteracao)
-  const now = new Date()
-  const diffTime = now.getTime() - lastDate.getTime()
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-  
-  return diffDays
-}
-
-// Retorna a classe de cor baseada nos dias de inatividade
-function getInactivityClass(days: number | null): string {
-  if (days === null) return ''
-  if (days > 10) return 'bg-red-50 hover:bg-red-100'
-  if (days > 5) return 'bg-yellow-50 hover:bg-yellow-100'
-  return ''
-}
-
-// Formata a data de última interação
-function formatLastInteraction(ultimaInteracao?: string): string {
-  if (!ultimaInteracao) return '-'
-  
-  const date = new Date(ultimaInteracao)
-  const days = getDaysSinceInteraction(ultimaInteracao)
-  const formattedDate = date.toLocaleDateString('pt-BR')
-  
-  if (days === 0) return 'Hoje'
-  if (days === 1) return 'Ontem'
-  if (days !== null && days <= 7) return `${days} dias atrás`
-  
-  return formattedDate
 }
 
 // Função de ordenação
@@ -87,13 +49,8 @@ function sortCobrancas(cobrancas: Cobranca[], sortState: SortState): Cobranca[] 
       case 'atendimentos':
         comparison = a.atendimentos - b.atendimentos
         break
-      case 'status':
-        comparison = a.status.localeCompare(b.status)
-        break
-      case 'ultimaInteracao':
-        const dateA = a.ultimaInteracaoCliente ? new Date(a.ultimaInteracaoCliente).getTime() : 0
-        const dateB = b.ultimaInteracaoCliente ? new Date(b.ultimaInteracaoCliente).getTime() : 0
-        comparison = dateA - dateB
+      case 'emailEnviado':
+        comparison = (a.emailEnviado ? 1 : 0) - (b.emailEnviado ? 1 : 0)
         break
     }
 
@@ -101,7 +58,7 @@ function sortCobrancas(cobrancas: Cobranca[], sortState: SortState): Cobranca[] 
   })
 }
 
-export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick }: CobrancaTableProps) {
+export function CobrancaTable({ cobrancas, onEnviarEmail, onAtendimentoClick }: CobrancaTableProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [sortState, setSortState] = useState<SortState>({ field: null, direction: null })
 
@@ -169,22 +126,14 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
             >
               Atend.
             </SortableHeader>
+            <TableHead className="hidden lg:table-cell">Horas</TableHead>
             <SortableHeader
-              field="status"
+              field="emailEnviado"
               currentField={sortState.field}
               currentDirection={sortState.direction}
               onSort={handleSort}
             >
               Status
-            </SortableHeader>
-            <SortableHeader
-              field="ultimaInteracao"
-              currentField={sortState.field}
-              currentDirection={sortState.direction}
-              onSort={handleSort}
-              className="hidden lg:table-cell"
-            >
-              Última Interação
             </SortableHeader>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
@@ -199,14 +148,12 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
           ) : (
             sortedCobrancas.map((cobranca) => {
               const isExpanded = expandedId === cobranca.id
-              const daysSinceInteraction = getDaysSinceInteraction(cobranca.ultimaInteracaoCliente)
-              const inactivityClass = getInactivityClass(daysSinceInteraction)
 
               return (
                 <>
-                  <TableRow 
-                    key={cobranca.id} 
-                    className={cn('transition-colors', inactivityClass || 'hover:bg-muted/30')}
+                  <TableRow
+                    key={cobranca.id}
+                    className="hover:bg-muted/30 transition-colors"
                   >
                     <TableCell className="font-medium text-so-blue text-xs md:text-sm">
                       #{cobranca.id}
@@ -214,9 +161,6 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
                     <TableCell>
                       <div>
                         <div className="font-medium text-so-blue text-sm">{cobranca.cliente}</div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">
-                          Código: {cobranca.codigoAcesso || '-'}
-                        </div>
                         {/* Show periodo on mobile since column is hidden */}
                         <div className="text-xs text-muted-foreground md:hidden mt-0.5">
                           {cobranca.periodo}
@@ -229,35 +173,25 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
                     <TableCell className="text-center text-sm">
                       {cobranca.atendimentos}
                     </TableCell>
-                    <TableCell>
-                      <StatusBadge status={cobranca.status} />
+                    <TableCell className="text-muted-foreground hidden lg:table-cell text-sm">
+                      {cobranca.horas}
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <div className="flex flex-col">
-                        <span className={cn(
-                          'text-sm',
-                          daysSinceInteraction !== null && daysSinceInteraction > 10 && 'text-red-600 font-medium',
-                          daysSinceInteraction !== null && daysSinceInteraction > 5 && daysSinceInteraction <= 10 && 'text-yellow-600 font-medium'
-                        )}>
-                          {formatLastInteraction(cobranca.ultimaInteracaoCliente)}
-                        </span>
-                        {daysSinceInteraction !== null && daysSinceInteraction > 5 && (
-                          <span className="text-xs text-muted-foreground">
-                            {daysSinceInteraction} dias sem interação
-                          </span>
-                        )}
-                      </div>
+                    <TableCell>
+                      <StatusBadge emailEnviado={cobranca.emailEnviado} />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 md:gap-2">
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 md:h-8 md:w-8"
-                          onClick={() => onChat(cobranca)}
-                          title="Abrir chat"
+                          variant="outline"
+                          size="sm"
+                          className="text-xs md:text-sm h-7 md:h-8"
+                          onClick={() => onEnviarEmail(cobranca.id)}
+                          disabled={cobranca.emailEnviado}
+                          title={cobranca.emailEnviado ? "E-mail já enviado" : "Enviar e-mail"}
                         >
-                          <MessageCircle className="h-4 w-4" />
+                          <Mail className="h-4 w-4 mr-1" />
+                          <span className="hidden sm:inline">Enviar E-mail</span>
+                          <span className="sm:hidden">Enviar</span>
                         </Button>
                         <Button
                           variant="link"
@@ -279,11 +213,9 @@ export function CobrancaTable({ cobrancas, onAction, onChat, onAtendimentoClick 
                   {isExpanded && (
                     <TableRow>
                       <TableCell colSpan={7} className="p-0 bg-muted/20">
-                        <CobrancaDetails 
-                          cobranca={cobranca} 
-                          onAction={onAction}
-                          onChatOpen={() => onChat(cobranca)}
-                          onAtendimentoClick={onAtendimentoClick ? (atendimento) => onAtendimentoClick(atendimento, cobranca) : undefined}
+                        <CobrancaDetails
+                          cobranca={cobranca}
+                          onAtendimentoClick={onAtendimentoClick ? () => onAtendimentoClick(cobranca) : undefined}
                         />
                       </TableCell>
                     </TableRow>

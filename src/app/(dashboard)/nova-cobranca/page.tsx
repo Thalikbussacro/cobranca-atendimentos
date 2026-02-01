@@ -22,6 +22,7 @@ export default function NovaCobrancaPage() {
     clienteId: 'todos',
     dataInicial: '',
     dataFinal: '',
+    precoHora: '150.00',
   })
   const [loading, setLoading] = useState(false)
 
@@ -33,11 +34,17 @@ export default function NovaCobrancaPage() {
       return
     }
 
+    if (!formData.precoHora || parseFloat(formData.precoHora) <= 0) {
+      alert('Informe um preço por hora válido.')
+      return
+    }
+
     // Redirecionar para confirmação
     const params = new URLSearchParams({
       clienteId: formData.clienteId,
       dataInicial: formData.dataInicial,
       dataFinal: formData.dataFinal,
+      precoHora: formData.precoHora,
     })
 
     router.push(`/nova-cobranca/confirmar?${params.toString()}`)
@@ -108,6 +115,24 @@ export default function NovaCobrancaPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Preço por Hora */}
+            <div className="space-y-2">
+              <Label htmlFor="precoHora">Preço por Hora (R$)</Label>
+              <Input
+                id="precoHora"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.precoHora}
+                onChange={(e) => setFormData({ ...formData, precoHora: e.target.value })}
+                placeholder="150.00"
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Este valor será usado para calcular o total de todas as cobranças geradas.
+              </p>
             </div>
 
             {/* Texto informativo */}

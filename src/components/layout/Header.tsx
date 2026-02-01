@@ -7,11 +7,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { getInitials } from '@/lib/utils'
 
 interface HeaderProps {
-  onVersionClick?: () => void
   onMenuClick?: () => void
 }
 
-export function Header({ onVersionClick, onMenuClick }: HeaderProps) {
+export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter()
   const { user, logout } = useAuth()
 
@@ -45,27 +44,6 @@ export function Header({ onVersionClick, onMenuClick }: HeaderProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-2 md:gap-3">
-        {/* Ver versao do cliente */}
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onVersionClick}
-          className="text-gray-600 hidden sm:flex"
-        >
-          Ver versão do cliente
-          <ChevronDown className="ml-1 h-4 w-4" />
-        </Button>
-        
-        {/* Mobile version button */}
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onVersionClick}
-          className="text-gray-600 sm:hidden text-xs px-2"
-        >
-          Cliente
-        </Button>
-
         {/* User badge */}
         <div className="flex items-center gap-2 bg-so-blue text-white px-2 md:px-3 py-1.5 rounded-full text-xs md:text-sm font-medium">
           <div className="w-5 h-5 md:w-6 md:h-6 bg-white/20 rounded-full flex items-center justify-center text-xs">

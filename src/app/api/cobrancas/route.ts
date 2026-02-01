@@ -6,10 +6,12 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search') || ''
     const status = searchParams.get('status') || ''
+    const periodo = searchParams.get('periodo') || ''
 
     const cobrancas = await cobrancaService.getCobrancas.execute({
       search,
       status,
+      periodo,
     })
 
     return NextResponse.json({ cobrancas })

@@ -6,94 +6,44 @@ import { useCobrancas } from '@/hooks/useCobrancas'
 import { Toolbar } from '@/components/cobrancas/Toolbar'
 import { CobrancaTable } from '@/components/cobrancas/CobrancaTable'
 import { AlertBar } from '@/components/layout/AlertBar'
-import { ChatModal } from '@/components/chat/ChatModal'
-import { ActionConfirmModal, actionConfigs } from '@/components/modals/ActionConfirmModal'
-import { AtendimentoDetailModal } from '@/components/modals/AtendimentoDetailModal'
-import { Cobranca, AtendimentoItem } from '@/domain/entities/Cobranca'
-
-type AdminAction = 'enviar' | 'enviar-todos' | 'gerar-fatura' | 'pagar' | 'finalizar' | null
+import { Cobranca } from '@/domain/entities/Cobranca'
 
 export default function CobrancasPage() {
   const router = useRouter()
   const { cobrancas, loading, filters, setFilters } = useCobrancas()
   const [showSuccessAlert, setShowSuccessAlert] = useState(false)
-  const [chatOpen, setChatOpen] = useState(false)
-  const [selectedCobranca, setSelectedCobranca] = useState<Cobranca | null>(null)
-  const [actionModal, setActionModal] = useState<{ open: boolean; type: AdminAction; cobranca: Cobranca | null }>({
-    open: false,
-    type: null,
-    cobranca: null,
-  })
-  const [atendimentoModal, setAtendimentoModal] = useState<{
-    open: boolean
-    atendimento: AtendimentoItem | null
-    cobranca: Cobranca | null
-  }>({
-    open: false,
-    atendimento: null,
-    cobranca: null,
-  })
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const handleOpenChat = (cobranca: Cobranca) => {
-    setSelectedCobranca(cobranca)
-    setChatOpen(true)
-  }
-
-  const handleAction = (action: string, cobrancaId: number) => {
-    const cobranca = cobrancas.find((c) => c.id === cobrancaId)
-    if (!cobranca) return
-
-    const actionMap: Record<string, AdminAction> = {
-      'enviar': 'enviar',
-      'gerar-fatura': 'gerar-fatura',
-      'pagar': 'pagar',
-      'finalizar': 'finalizar',
-    }
-
-    const actionType = actionMap[action]
-    if (actionType) {
-      setActionModal({ open: true, type: actionType, cobranca })
-    } else {
-      // Ações que não precisam de confirmação
-      console.log(`Executando ação ${action} para cobrança ${cobrancaId}`)
-    }
-  }
-
-  const handleEnviarTodas = () => {
-    setActionModal({ open: true, type: 'enviar-todos', cobranca: null })
-  }
-
-  const handleConfirmAction = async () => {
-    if (!actionModal.type) return
-
-    // Simular ação
+  const handleEnviarEmail = async (cobrancaId: number) => {
+    // Simular envio de e-mail
     await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    console.log(`Ação ${actionModal.type} confirmada`, actionModal.cobranca?.id)
-    
-    setActionModal({ open: false, type: null, cobranca: null })
+
+    console.log(`E-mail enviado para cobrança ${cobrancaId}`)
+
+    setSuccessMessage('E-mail enviado com sucesso!')
     setShowSuccessAlert(true)
   }
 
-  const handleAtendimentoClick = (atendimento: AtendimentoItem, cobranca: Cobranca) => {
-    setAtendimentoModal({ open: true, atendimento, cobranca })
+  const handleEnviarTodos = async () => {
+    const pendentes = cobrancas.filter(c => !c.emailEnviado)
+
+    if (pendentes.length === 0) {
+      setSuccessMessage('Não há e-mails pendentes para enviar.')
+      setShowSuccessAlert(true)
+      return
+    }
+
+    // Simular envio em lote
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    console.log(`Enviando ${pendentes.length} e-mails pendentes`)
+
+    setSuccessMessage(`${pendentes.length} e-mail(s) enviado(s) com sucesso!`)
+    setShowSuccessAlert(true)
   }
 
-  const getActionConfig = () => {
-    switch (actionModal.type) {
-      case 'enviar':
-        return actionConfigs.enviarEmail
-      case 'enviar-todos':
-        return actionConfigs.enviarTodosEmails
-      case 'gerar-fatura':
-        return actionConfigs.gerarFatura
-      case 'pagar':
-        return actionConfigs.marcarPago
-      case 'finalizar':
-        return actionConfigs.finalizarCobranca
-      default:
-        return actionConfigs.enviarEmail
-    }
+  const handleAtendimentoClick = (cobranca: Cobranca) => {
+    console.log('Visualizando atendimentos da cobrança', cobranca.id)
   }
 
   if (loading) {
@@ -110,7 +60,7 @@ export default function CobrancasPage() {
       <div className="mb-4 md:mb-6">
         <h2 className="text-xl md:text-2xl font-bold">Cobranças</h2>
         <p className="text-muted-foreground text-sm md:text-base">
-          Gerencie cobranças por período e envie automaticamente aos clientes.
+          Gerencie cobranças por período e envie e-mails aos clientes.
         </p>
       </div>
 
@@ -118,8 +68,8 @@ export default function CobrancasPage() {
       {showSuccessAlert && (
         <AlertBar
           variant="success"
-          title="Ação realizada com sucesso!"
-          description="A operação foi concluída. Os dados serão atualizados em breve."
+          title="Sucesso!"
+          description={successMessage}
           onDismiss={() => setShowSuccessAlert(false)}
         />
       )}
@@ -130,46 +80,17 @@ export default function CobrancasPage() {
         onSearchChange={(value) => setFilters({ ...filters, search: value })}
         status={filters.status}
         onStatusChange={(value) => setFilters({ ...filters, status: value })}
+        periodo={filters.periodo}
+        onPeriodoChange={(value) => setFilters({ ...filters, periodo: value })}
         onNewCobranca={() => router.push('/nova-cobranca')}
-        onEnviarTodas={handleEnviarTodas}
+        onEnviarTodos={handleEnviarTodos}
       />
 
       {/* Tabela */}
-      <CobrancaTable 
-        cobrancas={cobrancas} 
-        onAction={handleAction}
-        onChat={handleOpenChat}
+      <CobrancaTable
+        cobrancas={cobrancas}
+        onEnviarEmail={handleEnviarEmail}
         onAtendimentoClick={handleAtendimentoClick}
-      />
-
-      {/* Modal de Chat */}
-      {selectedCobranca && (
-        <ChatModal
-          open={chatOpen}
-          onOpenChange={setChatOpen}
-          cobrancaId={selectedCobranca.id}
-          clienteNome={selectedCobranca.cliente}
-          isClienteView={false}
-        />
-      )}
-
-      {/* Modal de Confirmação de Ação */}
-      {actionModal.type && (
-        <ActionConfirmModal
-          open={actionModal.open}
-          onOpenChange={(open) => setActionModal({ ...actionModal, open })}
-          {...getActionConfig()}
-          onConfirm={handleConfirmAction}
-        />
-      )}
-
-      {/* Modal de Detalhes do Atendimento */}
-      <AtendimentoDetailModal
-        open={atendimentoModal.open}
-        onOpenChange={(open) => setAtendimentoModal({ ...atendimentoModal, open })}
-        atendimento={atendimentoModal.atendimento}
-        clienteNome={atendimentoModal.cobranca?.cliente}
-        cobrancaId={atendimentoModal.cobranca?.id}
       />
     </div>
   )
