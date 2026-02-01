@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(for file in src/components/ui/*.tsx)",
+      "Bash(done)",
+      "Bash(for entity in src/domain/entities/*.ts)",
+      "Bash(if exist \"src\\\\app\\\\api\\\\chat\" rmdir /s /q \"src\\\\app\\\\api\\\\chat\")",
+      "Bash(if exist \"src\\\\constants\" rmdir /s /q \"src\\\\constants\")",
+      "Bash(if exist \"src\\\\presentation\" rmdir /s /q \"src\\\\presentation\")",
+      "Bash(if exist \"src\\\\types\" rmdir /s /q \"src\\\\types\")",
+      "Bash(if exist \"src\\\\components\\\\modals\" rmdir /s /q \"src\\\\components\\\\modals\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\Thalik\\Repos\\Cobranca-atendimentos\\src\\app\\(cliente)"

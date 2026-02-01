@@ -19,7 +19,6 @@ import { SortableHeader, SortDirection } from './SortableHeader'
 interface CobrancaTableProps {
   cobrancas: Cobranca[]
   onEnviarEmail: (cobrancaId: number) => void
-  onAtendimentoClick?: (cobranca: Cobranca) => void
 }
 
 type SortField = 'id' | 'cliente' | 'periodo' | 'atendimentos' | 'emailEnviado'
@@ -58,7 +57,7 @@ function sortCobrancas(cobrancas: Cobranca[], sortState: SortState): Cobranca[] 
   })
 }
 
-export function CobrancaTable({ cobrancas, onEnviarEmail, onAtendimentoClick }: CobrancaTableProps) {
+export function CobrancaTable({ cobrancas, onEnviarEmail }: CobrancaTableProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [sortState, setSortState] = useState<SortState>({ field: null, direction: null })
 
@@ -215,7 +214,6 @@ export function CobrancaTable({ cobrancas, onEnviarEmail, onAtendimentoClick }: 
                       <TableCell colSpan={7} className="p-0 bg-muted/20">
                         <CobrancaDetails
                           cobranca={cobranca}
-                          onAtendimentoClick={onAtendimentoClick ? () => onAtendimentoClick(cobranca) : undefined}
                         />
                       </TableCell>
                     </TableRow>

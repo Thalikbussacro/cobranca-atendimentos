@@ -6,7 +6,6 @@ import { useCobrancas } from '@/hooks/useCobrancas'
 import { Toolbar } from '@/components/cobrancas/Toolbar'
 import { CobrancaTable } from '@/components/cobrancas/CobrancaTable'
 import { AlertBar } from '@/components/layout/AlertBar'
-import { Cobranca } from '@/domain/entities/Cobranca'
 
 export default function CobrancasPage() {
   const router = useRouter()
@@ -40,10 +39,6 @@ export default function CobrancasPage() {
 
     setSuccessMessage(`${pendentes.length} e-mail(s) enviado(s) com sucesso!`)
     setShowSuccessAlert(true)
-  }
-
-  const handleAtendimentoClick = (cobranca: Cobranca) => {
-    console.log('Visualizando atendimentos da cobrança', cobranca.id)
   }
 
   if (loading) {
@@ -90,7 +85,6 @@ export default function CobrancasPage() {
       <CobrancaTable
         cobrancas={cobrancas}
         onEnviarEmail={handleEnviarEmail}
-        onAtendimentoClick={handleAtendimentoClick}
       />
     </div>
   )

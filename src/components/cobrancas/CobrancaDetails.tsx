@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card'
 
 interface CobrancaDetailsProps {
   cobranca: Cobranca
-  onAtendimentoClick?: () => void
 }
 
 // Converte "08h 40m" para horas decimais (8.67)
