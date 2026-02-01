@@ -27,7 +27,7 @@ export function Brand({ className, variant = 'default', showText = true }: Brand
               isWhite ? 'text-white' : 'text-so-blue'
             )}
           >
-            SO AUTOMAÇÃO
+            Empresa Genérica
           </span>
           <span 
             className={cn(

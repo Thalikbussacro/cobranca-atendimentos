@@ -1,7 +1,7 @@
 {
   "name": "cobranca-atendimentos",
   "version": "1.0.0",
-  "description": "Sistema de Cobrança de Atendimentos - SO Automação",
+  "description": "Sistema de Cobrança de Atendimentos - Empresa Genérica",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

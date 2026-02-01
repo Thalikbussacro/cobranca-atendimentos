@@ -1,6 +1,6 @@
 # Sistema de Cobrança de Atendimentos
 
-Sistema simplificado para gestão e envio de cobranças de atendimentos técnicos da SO Automação.
+Sistema simplificado para gestão e envio de cobranças de atendimentos técnicos da Empresa Genérica.
 
 Desenvolvido com Next.js 15, TypeScript e Shadcn/UI.
 
@@ -79,7 +79,7 @@ SMTP_SECURE=false
 SMTP_USER=your_email@example.com
 SMTP_PASSWORD=your_smtp_password
 SMTP_FROM_EMAIL=noreply@soautomacao.com.br
-SMTP_FROM_NAME=SO Automação - Sistema de Cobranças
+SMTP_FROM_NAME=Empresa Genérica - Sistema de Cobranças
 ```
 
 ### Aplicação
@@ -222,4 +222,4 @@ LOG_SQL_QUERIES=false   # true para ver queries SQL (apenas dev)
 
 ## Licença
 
-Propriedade da SO Automação - Todos os direitos reservados.
+Propriedade da Empresa Genérica - Todos os direitos reservados.

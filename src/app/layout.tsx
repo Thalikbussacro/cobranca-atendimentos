@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Atendimento do Cliente - SO Automação',
+  title: 'Atendimento do Cliente - Empresa Genérica',
   description: 'Sistema de gestão de cobranças de atendimentos técnicos',
 }
 

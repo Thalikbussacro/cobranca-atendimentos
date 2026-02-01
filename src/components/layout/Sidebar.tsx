@@ -87,7 +87,7 @@ export function Sidebar({ mobile = false, onClose }: SidebarProps) {
       <div className="p-4 border-t border-white/10">
         <div className="text-white/50 text-xs">
           <div className="mb-1">Onde resolver está:</div>
-          <div className="text-white/30">SO Automação</div>
+          <div className="text-white/30">Empresa Genérica</div>
         </div>
       </div>
     </aside>
