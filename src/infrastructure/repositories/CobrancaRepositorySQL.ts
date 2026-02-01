@@ -146,7 +146,16 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
   async create(data: CreateCobrancaDTO): Promise<Cobranca> {
     try {
       const result = await db.transaction(async (transaction) => {
-        // Buscar próximo CodCobranca
+        // Adquirir lock de aplicação para evitar race condition ao gerar ID
+        // Este lock garante que apenas uma transação por vez pode gerar o próximo CodCobranca
+        await transaction.request().query(`
+          DECLARE @result INT
+          EXEC @result = sp_getapplock @Resource = 'Cad_Cobranca_NextId', @LockMode = 'Exclusive', @LockTimeout = 10000
+          IF @result < 0
+            THROW 50001, 'Não foi possível obter lock para gerar ID', 1
+        `)
+
+        // Buscar próximo CodCobranca (agora protegido por lock)
         const getMaxIdQuery = `
           SELECT ISNULL(MAX(CodCobranca), 0) + 1 as novoId
           FROM Cad_Cobranca
@@ -154,7 +163,7 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
         const maxIdResult = await transaction.request().query(getMaxIdQuery)
         const novoCodigo = maxIdResult.recordset[0].novoId
 
-        // Converter datas (formato DD/MM/YYYY para Date)
+        // Converter datas (formato DD/MM/YYYY ou YYYY-MM-DD para Date)
         const dataInicial = this.parseDataBR(data.dataInicial)
         const dataFinal = this.parseDataBR(data.dataFinal)
 
@@ -195,6 +204,11 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
           .input('dataInicial', dataInicial)
           .input('dataFinal', dataFinal)
           .query(insertItensQuery)
+
+        // Liberar lock de aplicação
+        await transaction.request().query(`
+          EXEC sp_releaseapplock @Resource = 'Cad_Cobranca_NextId'
+        `)
 
         return novoCodigo
       })
@@ -340,17 +354,37 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
     return `${dia}/${mes}/${ano}`
   }
 
-  private parseDataBR(dataBR: string): Date {
-    // Formato esperado: DD/MM/YYYY
-    const partes = dataBR.split('/')
-    if (partes.length !== 3) {
-      throw new Error(`Formato de data inválido: ${dataBR}`)
+  private parseDataBR(data: string): Date {
+    // Aceita dois formatos:
+    // 1. DD/MM/YYYY (brasileiro)
+    // 2. YYYY-MM-DD (ISO - vindo do HTML input type="date")
+
+    if (data.includes('/')) {
+      // Formato brasileiro: DD/MM/YYYY
+      const partes = data.split('/')
+      if (partes.length !== 3) {
+        throw new Error(`Formato de data inválido: ${data}`)
+      }
+
+      const dia = parseInt(partes[0])
+      const mes = parseInt(partes[1]) - 1 // Mês começa em 0
+      const ano = parseInt(partes[2])
+
+      return new Date(ano, mes, dia, 23, 59, 59)
+    } else if (data.includes('-')) {
+      // Formato ISO: YYYY-MM-DD
+      const partes = data.split('-')
+      if (partes.length !== 3) {
+        throw new Error(`Formato de data inválido: ${data}`)
+      }
+
+      const ano = parseInt(partes[0])
+      const mes = parseInt(partes[1]) - 1 // Mês começa em 0
+      const dia = parseInt(partes[2])
+
+      return new Date(ano, mes, dia, 23, 59, 59)
+    } else {
+      throw new Error(`Formato de data inválido: ${data}. Use DD/MM/YYYY ou YYYY-MM-DD`)
     }
-
-    const dia = parseInt(partes[0])
-    const mes = parseInt(partes[1]) - 1 // Mês começa em 0
-    const ano = parseInt(partes[2])
-
-    return new Date(ano, mes, dia)
   }
 }

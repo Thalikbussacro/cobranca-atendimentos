@@ -70,8 +70,7 @@ export function Sidebar({ mobile = false, onClose }: SidebarProps) {
                     isActive
                       ? 'bg-white/10 text-white font-semibold'
                       : 'text-white/70 hover:bg-white/5 hover:text-white',
-                    item.highlight && 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30',
-                    item.subItem && 'ml-4 text-xs'
+                    item.highlight && 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30'
                   )}
                 >
                   <Icon className={cn('h-4 w-4', item.highlight && 'text-yellow-400')} />

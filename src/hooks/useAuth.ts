@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User } from '@/domain/entities/User'
+import { User } from '@/domain/entities/user'
 
 interface AuthState {
   user: User | null

@@ -10,7 +10,10 @@
       "Bash(if exist \"src\\\\presentation\" rmdir /s /q \"src\\\\presentation\")",
       "Bash(if exist \"src\\\\types\" rmdir /s /q \"src\\\\types\")",
       "Bash(if exist \"src\\\\components\\\\modals\" rmdir /s /q \"src\\\\components\\\\modals\")",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Thalik\\Repos\\Cobranca-atendimentos\\src\\app\\(cliente)"
