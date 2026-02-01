@@ -14,7 +14,6 @@ import {
   TableFooter,
 } from '@/components/ui/table'
 import { Loader2, CheckCircle } from 'lucide-react'
-import { clientesMock } from '@/infrastructure/data/mock-clientes'
 
 interface PreviewItem {
   clienteId: number
@@ -40,36 +39,68 @@ export default function ConfirmarCobrancaPage() {
       return
     }
 
-    // Simular busca de atendimentos
-    setTimeout(() => {
-      if (clienteId === 'todos') {
-        const mockPreview = clientesMock.map((cliente) => ({
-          clienteId: cliente.id,
-          clienteNome: cliente.nome,
-          atendimentos: Math.floor(Math.random() * 15) + 3,
-          tempo: `${Math.floor(Math.random() * 10) + 2}h ${Math.floor(Math.random() * 60)}m`,
-        }))
-        setPreview(mockPreview)
-      } else {
-        const cliente = clientesMock.find((c) => c.id === parseInt(clienteId))
-        if (cliente) {
-          setPreview([
-            {
-              clienteId: cliente.id,
-              clienteNome: cliente.nome,
-              atendimentos: 8,
-              tempo: '5h 30m',
-            },
-          ])
-        }
-      }
-      setLoading(false)
-    }, 800)
+    // Buscar preview da API
+    const params = new URLSearchParams({
+      clienteId,
+      dataInicial,
+      dataFinal,
+    })
+
+    fetch(`/api/cobrancas/preview?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setPreview(data.preview || [])
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Erro ao buscar preview:', err)
+        setLoading(false)
+      })
   }, [searchParams, router])
 
   const handleConfirmar = async () => {
     setConfirmando(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    const clienteId = searchParams.get('clienteId')
+    const dataInicial = searchParams.get('dataInicial')
+    const dataFinal = searchParams.get('dataFinal')
+    const precoHora = searchParams.get('precoHora')
+
+    if (clienteId === 'todos') {
+      // Criar cobranças para todos os clientes do preview
+      const promises = preview.map((item) =>
+        fetch('/api/cobrancas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cliente: item.clienteNome,
+            clienteId: item.clienteId,
+            dataInicial: dataInicial,
+            dataFinal: dataFinal,
+            precoHora: parseFloat(precoHora || '150'),
+          }),
+        })
+      )
+
+      await Promise.all(promises)
+    } else {
+      // Criar cobrança para cliente específico
+      const item = preview[0]
+      if (item) {
+        await fetch('/api/cobrancas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cliente: item.clienteNome,
+            clienteId: item.clienteId,
+            dataInicial: dataInicial,
+            dataFinal: dataFinal,
+            precoHora: parseFloat(precoHora || '150'),
+          }),
+        })
+      }
+    }
+
     router.push('/cobrancas')
   }
 

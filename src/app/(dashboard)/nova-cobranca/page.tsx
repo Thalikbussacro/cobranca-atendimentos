@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Calendar, CheckCircle } from 'lucide-react'
-import { clientesMock } from '@/infrastructure/data/mock-clientes'
+import { Cliente } from '@/domain/entities/Cliente'
 
 export default function NovaCobrancaPage() {
   const router = useRouter()
@@ -25,6 +25,14 @@ export default function NovaCobrancaPage() {
     precoHora: '150.00',
   })
   const [loading, setLoading] = useState(false)
+  const [clientes, setClientes] = useState<Cliente[]>([])
+
+  useEffect(() => {
+    fetch('/api/clientes')
+      .then((res) => res.json())
+      .then((data) => setClientes(data.clientes || []))
+      .catch((err) => console.error('Erro ao carregar clientes:', err))
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,7 +85,7 @@ export default function NovaCobrancaPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos os clientes</SelectItem>
-                  {clientesMock.map((cliente) => (
+                  {clientes.map((cliente) => (
                     <SelectItem key={cliente.id} value={cliente.id.toString()}>
                       {cliente.nome}
                     </SelectItem>
