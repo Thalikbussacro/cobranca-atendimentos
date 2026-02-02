@@ -13,7 +13,8 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
   async findAll(filters?: {
     search?: string
     status?: string
-    periodo?: string
+    dataInicial?: string
+    dataFinal?: string
   }): Promise<Cobranca[]> {
     try {
       let query = `
@@ -53,28 +54,18 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
         }
       }
 
-      // Filtro de período
-      if (filters?.periodo && filters.periodo !== 'todos') {
-        const now = new Date()
-        let startDate: Date
-        let endDate: Date = now
+      // Filtro de data inicial
+      if (filters?.dataInicial) {
+        const dataInicial = this.parseDataBR(filters.dataInicial)
+        query += ` AND c.DataHoraFinal >= @startDate`
+        params.startDate = dataInicial
+      }
 
-        if (filters.periodo === 'mes-atual') {
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1)
-        } else if (filters.periodo === 'mes-anterior') {
-          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-          endDate = new Date(now.getFullYear(), now.getMonth(), 0)
-        } else if (filters.periodo === 'trimestre') {
-          startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
-        } else if (filters.periodo === 'ano') {
-          startDate = new Date(now.getFullYear(), 0, 1)
-        } else {
-          startDate = new Date(0)
-        }
-
-        query += ` AND c.DataHoraFinal >= @startDate AND c.DataHoraFinal <= @endDate`
-        params.startDate = startDate
-        params.endDate = endDate
+      // Filtro de data final
+      if (filters?.dataFinal) {
+        const dataFinal = this.parseDataBR(filters.dataFinal)
+        query += ` AND c.DataHoraFinal <= @endDate`
+        params.endDate = dataFinal
       }
 
       query += `
@@ -86,7 +77,22 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
 
       const result = await db.query(query, params)
 
-      return result.map((row) => this.mapToCobranca(row))
+      // Mapear cobranças e buscar atendimentos de cada uma
+      const cobrancas = result.map((row) => this.mapToCobranca(row))
+
+      // Buscar atendimentos para cada cobrança
+      for (const cobranca of cobrancas) {
+        const atendimentos = await this.atendimentoRepository.findByCobranca(cobranca.id)
+        cobranca.itens = atendimentos.map((atend) => ({
+          data: this.formatarData(atend.dataInicio),
+          solicitante: atend.solicitante,
+          resumo: atend.problema,
+          solucao: atend.solucao,
+          tempo: this.minutosParaHoras(atend.duracaoMinutos || 0),
+        }))
+      }
+
+      return cobrancas
     } catch (error) {
       console.error('Erro ao buscar todas as cobranças:', error)
       throw new Error('Erro ao buscar cobranças do banco de dados')

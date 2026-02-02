@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { Cobranca } from '@/domain/entities/Cobranca'
 import { Card, CardContent } from '@/components/ui/card'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface CobrancaDetailsProps {
   cobranca: Cobranca
@@ -21,6 +23,11 @@ function horasParaDecimal(horasStr: string): number {
 export function CobrancaDetails({ cobranca }: CobrancaDetailsProps) {
   const horasDecimais = horasParaDecimal(cobranca.horas)
   const precoTotal = horasDecimais * cobranca.precoHora
+  const [expandedAtendimento, setExpandedAtendimento] = useState<number | null>(null)
+
+  const toggleAtendimento = (idx: number) => {
+    setExpandedAtendimento(expandedAtendimento === idx ? null : idx)
+  }
 
   return (
     <div className="p-3 md:p-6">
@@ -94,29 +101,60 @@ export function CobrancaDetails({ cobranca }: CobrancaDetailsProps) {
         Atendimentos Incluídos ({cobranca.atendimentos})
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[400px] md:max-h-[500px] overflow-y-auto">
-        {cobranca.itens.map((item, idx) => (
-          <Card
-            key={idx}
-            className="border-l-4 border-l-so-blue"
-          >
-            <CardContent className="p-3 md:p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="font-medium text-sm">{item.data} - {item.solicitante}</div>
-                  <div className="text-xs md:text-sm text-muted-foreground">Tempo: {item.tempo}</div>
+        {cobranca.itens.map((item, idx) => {
+          const isExpanded = expandedAtendimento === idx
+          const shouldTruncate = !isExpanded && (item.resumo.length > 100 || (item.solucao && item.solucao.length > 100))
+
+          return (
+            <Card
+              key={idx}
+              className="border-l-4 border-l-so-blue hover:bg-muted/30 cursor-pointer transition-colors"
+              onClick={() => toggleAtendimento(idx)}
+            >
+              <CardContent className="p-3 md:p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{item.data} - {item.solicitante}</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">Tempo: {item.tempo}</div>
+                  </div>
+                  {shouldTruncate && (
+                    <div className="ml-2 text-so-blue">
+                      {isExpanded ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-              <p className="text-xs md:text-sm text-muted-foreground">
-                <strong>Problema:</strong> {item.resumo}
-              </p>
-              {item.solucao && (
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                  <strong>Solução:</strong> {item.solucao}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-0.5">Problema:</p>
+                    <p className={`text-xs md:text-sm text-muted-foreground ${!isExpanded && item.resumo.length > 100 ? 'line-clamp-2' : ''}`}>
+                      {item.resumo}
+                    </p>
+                  </div>
+
+                  {item.solucao && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-0.5">Solução:</p>
+                      <p className={`text-xs md:text-sm text-muted-foreground ${!isExpanded && item.solucao.length > 100 ? 'line-clamp-2' : ''}`}>
+                        {item.solucao}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {shouldTruncate && (
+                  <div className="mt-2 text-xs text-so-blue font-medium">
+                    {isExpanded ? 'Clique para recolher' : 'Clique para expandir'}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

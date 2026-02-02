@@ -41,7 +41,7 @@ export default function CobrancasPage() {
     setShowSuccessAlert(true)
   }
 
-  if (loading) {
+  if (loading && cobrancas.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-muted-foreground">Carregando cobranças...</div>
@@ -75,8 +75,10 @@ export default function CobrancasPage() {
         onSearchChange={(value) => setFilters({ ...filters, search: value })}
         status={filters.status}
         onStatusChange={(value) => setFilters({ ...filters, status: value })}
-        periodo={filters.periodo}
-        onPeriodoChange={(value) => setFilters({ ...filters, periodo: value })}
+        dataInicial={filters.dataInicial}
+        dataFinal={filters.dataFinal}
+        onDataInicialChange={(value) => setFilters({ ...filters, dataInicial: value })}
+        onDataFinalChange={(value) => setFilters({ ...filters, dataFinal: value })}
         onNewCobranca={() => router.push('/nova-cobranca')}
         onEnviarTodos={handleEnviarTodos}
       />

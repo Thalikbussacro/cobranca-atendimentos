@@ -1,27 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Cobranca } from '@/domain/entities/Cobranca'
 
 interface Filters {
   search: string
   status: string
-  periodo: string
+  dataInicial: string
+  dataFinal: string
 }
 
 export function useCobrancas() {
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [filters, setFilters] = useState<Filters>({ search: '', status: '', periodo: '' })
+  const [filters, setFilters] = useState<Filters>({
+    search: '',
+    status: '',
+    dataInicial: '',
+    dataFinal: ''
+  })
 
-  const fetchCobrancas = async () => {
+  const fetchCobrancas = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
-      if (filters.search) params.append('search', filters.search)
-      if (filters.status && filters.status !== 'all') params.append('status', filters.status)
-      if (filters.periodo && filters.periodo !== 'todos') params.append('periodo', filters.periodo)
+
+      // Filtro de busca (somente se tiver pelo menos 2 caracteres para evitar muitas requisições)
+      if (filters.search && filters.search.length >= 2) {
+        params.append('search', filters.search)
+      }
+
+      // Filtro de status
+      if (filters.status && filters.status !== 'all') {
+        params.append('status', filters.status)
+      }
+
+      // Filtros de data
+      if (filters.dataInicial) {
+        params.append('dataInicial', filters.dataInicial)
+      }
+      if (filters.dataFinal) {
+        params.append('dataFinal', filters.dataFinal)
+      }
 
       const response = await fetch(`/api/cobrancas?${params}`)
       const data = await response.json()
@@ -35,11 +56,15 @@ export function useCobrancas() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
   useEffect(() => {
-    fetchCobrancas()
-  }, [filters])
+    const timeoutId = setTimeout(() => {
+      fetchCobrancas()
+    }, 300) // Debounce de 300ms
+
+    return () => clearTimeout(timeoutId)
+  }, [fetchCobrancas])
 
   const createCobranca = async (data: {
     cliente: string

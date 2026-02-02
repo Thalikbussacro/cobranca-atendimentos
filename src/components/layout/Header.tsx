@@ -2,15 +2,11 @@
 
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, LogOut, Menu } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { getInitials } from '@/lib/utils'
 
-interface HeaderProps {
-  onMenuClick?: () => void
-}
-
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header() {
   const router = useRouter()
   const { user, logout } = useAuth()
 
@@ -23,16 +19,6 @@ export function Header({ onMenuClick }: HeaderProps) {
     <header className="h-14 md:h-16 bg-white border-b flex items-center justify-between px-4 md:px-6">
       {/* Left side */}
       <div className="flex items-center gap-2 md:gap-3">
-        {/* Mobile menu button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onMenuClick}
-          className="lg:hidden text-gray-600"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        
         {/* Logo/Title */}
         <div className="w-8 h-8 bg-so-blue rounded-lg flex items-center justify-center">
           <span className="text-white font-bold text-xs">SO</span>
@@ -50,7 +36,6 @@ export function Header({ onMenuClick }: HeaderProps) {
             {getInitials(user?.name || 'OP')}
           </div>
           <span className="hidden md:inline">{user?.name || 'Operador'}</span>
-          <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
         </div>
 
         {/* Logout */}

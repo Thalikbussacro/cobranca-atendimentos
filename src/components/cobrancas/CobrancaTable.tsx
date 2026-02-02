@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Fragment } from 'react'
 import { Cobranca } from '@/domain/entities/Cobranca'
 import { Button } from '@/components/ui/button'
 import {
@@ -149,9 +149,8 @@ export function CobrancaTable({ cobrancas, onEnviarEmail }: CobrancaTableProps) 
               const isExpanded = expandedId === cobranca.id
 
               return (
-                <>
+                <Fragment key={cobranca.id}>
                   <TableRow
-                    key={cobranca.id}
                     className="hover:bg-muted/30 transition-colors"
                   >
                     <TableCell className="font-medium text-so-blue text-xs md:text-sm">
@@ -218,7 +217,7 @@ export function CobrancaTable({ cobrancas, onEnviarEmail }: CobrancaTableProps) 
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               )
             })
           )}
