@@ -14,17 +14,32 @@ export default function CobrancasPage() {
   const [successMessage, setSuccessMessage] = useState('')
 
   const handleEnviarEmail = async (cobrancaId: number) => {
-    // Simular envio de e-mail
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      const response = await fetch(`/api/cobrancas/${cobrancaId}/enviar-email`, {
+        method: 'POST',
+      })
 
-    console.log(`E-mail enviado para cobrança ${cobrancaId}`)
+      const data = await response.json()
 
-    setSuccessMessage('E-mail enviado com sucesso!')
-    setShowSuccessAlert(true)
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao enviar e-mail')
+      }
+
+      console.log(`E-mail enviado para cobrança ${cobrancaId}`)
+      setSuccessMessage(data.message || 'E-mail enviado com sucesso!')
+      setShowSuccessAlert(true)
+
+      // Recarregar cobranças para atualizar status de envio
+      window.location.reload()
+    } catch (error: any) {
+      console.error('Erro ao enviar e-mail:', error)
+      setSuccessMessage(`Erro: ${error.message}`)
+      setShowSuccessAlert(true)
+    }
   }
 
   const handleEnviarTodos = async () => {
-    const pendentes = cobrancas.filter(c => !c.emailEnviado)
+    const pendentes = cobrancas.filter((c) => !c.emailEnviado)
 
     if (pendentes.length === 0) {
       setSuccessMessage('Não há e-mails pendentes para enviar.')
@@ -32,13 +47,38 @@ export default function CobrancasPage() {
       return
     }
 
-    // Simular envio em lote
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      console.log(`Enviando ${pendentes.length} e-mails pendentes`)
 
-    console.log(`Enviando ${pendentes.length} e-mails pendentes`)
+      // Enviar emails em paralelo
+      const promises = pendentes.map((cobranca) =>
+        fetch(`/api/cobrancas/${cobranca.id}/enviar-email`, {
+          method: 'POST',
+        }).then((res) => res.json())
+      )
 
-    setSuccessMessage(`${pendentes.length} e-mail(s) enviado(s) com sucesso!`)
-    setShowSuccessAlert(true)
+      const results = await Promise.allSettled(promises)
+
+      const sucessos = results.filter((r) => r.status === 'fulfilled').length
+      const falhas = results.filter((r) => r.status === 'rejected').length
+
+      if (falhas > 0) {
+        setSuccessMessage(
+          `${sucessos} e-mail(s) enviado(s), ${falhas} falharam. Verifique o console.`
+        )
+      } else {
+        setSuccessMessage(`${sucessos} e-mail(s) enviado(s) com sucesso!`)
+      }
+
+      setShowSuccessAlert(true)
+
+      // Recarregar cobranças para atualizar status de envio
+      window.location.reload()
+    } catch (error: any) {
+      console.error('Erro ao enviar e-mails:', error)
+      setSuccessMessage(`Erro: ${error.message}`)
+      setShowSuccessAlert(true)
+    }
   }
 
   if (loading && cobrancas.length === 0) {

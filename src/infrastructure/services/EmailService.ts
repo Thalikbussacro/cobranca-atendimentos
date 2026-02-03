@@ -37,35 +37,63 @@ export class EmailServiceSMTP implements IEmailService {
   }
 
   async enviarCobranca(cobranca: Cobranca): Promise<void> {
+    console.log('=== INICIANDO ENVIO DE EMAIL ===')
+    console.log('Cobrança ID:', cobranca.id)
+    console.log('Cliente:', cobranca.cliente)
+    console.log('Emails raw:', cobranca.clienteEmails)
+
     // 1. Parse e validação de emails
     const emails = parseEmails(cobranca.clienteEmails)
+    console.log('Emails parseados:', emails)
+
     if (emails.length === 0) {
       throw new Error(
         'Nenhum email válido encontrado para o cliente. Verifique o cadastro.'
       )
     }
 
-    // 2. Gerar HTML do email
+    // 2. Verificar conexão SMTP
+    console.log('Verificando conexão SMTP...')
+    console.log('SMTP Config:', {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE,
+      user: process.env.SMTP_USER,
+    })
+
+    try {
+      await this.transporter.verify()
+      console.log('✓ Conexão SMTP verificada com sucesso')
+    } catch (error: any) {
+      console.error('✗ Erro ao verificar conexão SMTP:', error.message)
+      throw new Error(`Falha na conexão SMTP: ${error.message}`)
+    }
+
+    // 3. Gerar HTML do email
     const html = gerarHTMLCobranca(cobranca)
+    console.log('✓ Template HTML gerado')
 
-    // 3. Calcular valor total para o subject
+    // 4. Calcular valor total para o subject
     const valorTotal = this.calcularValorTotal(cobranca)
+    const subject = `Cobrança #${cobranca.id} - ${cobranca.periodo} - ${valorTotal}`
+    console.log('Subject:', subject)
 
-    // 4. Enviar email
+    // 5. Enviar email
+    console.log('Enviando email...')
     const info = await this.transporter.sendMail({
       from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
       to: emails.join(', '),
-      subject: `Cobrança #${cobranca.id} - ${cobranca.periodo} - ${valorTotal}`,
+      subject,
       html,
     })
 
-    // 5. Log de sucesso
-    console.log('Email enviado com sucesso:', {
-      cobrancaId: cobranca.id,
-      cliente: cobranca.cliente,
-      emails,
-      messageId: info.messageId,
-    })
+    // 6. Log de sucesso
+    console.log('✓✓✓ EMAIL ENVIADO COM SUCESSO ✓✓✓')
+    console.log('MessageID:', info.messageId)
+    console.log('Accepted:', info.accepted)
+    console.log('Rejected:', info.rejected)
+    console.log('Response:', info.response)
+    console.log('===================================')
   }
 
   /**
