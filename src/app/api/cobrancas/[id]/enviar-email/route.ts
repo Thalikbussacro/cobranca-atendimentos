@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { CobrancaRepositorySQL } from '@/infrastructure/repositories/CobrancaRepositorySQL'
+import { EmailServiceSMTP } from '@/infrastructure/services/EmailService'
 
 const cobrancaRepository = new CobrancaRepositorySQL()
 
@@ -11,7 +12,7 @@ export async function POST(
     const { id } = await params
     const cobrancaId = parseInt(id)
 
-    // Verificar se cobrança existe
+    // Buscar cobrança completa
     const cobranca = await cobrancaRepository.findById(cobrancaId)
     if (!cobranca) {
       return NextResponse.json(
@@ -20,22 +21,33 @@ export async function POST(
       )
     }
 
-    // Marcar como enviado
-    await cobrancaRepository.markEmailSent(cobrancaId)
+    // Validar que o cliente tem emails cadastrados
+    if (!cobranca.clienteEmails || cobranca.clienteEmails.trim() === '') {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Cliente não possui emails cadastrados',
+        },
+        { status: 400 }
+      )
+    }
 
-    // TODO: Implementar envio real via SMTP
-    // const emailService = new EmailService()
-    // await emailService.enviarCobranca(cobranca)
+    // Enviar email (pode lançar exceção)
+    const emailService = new EmailServiceSMTP()
+    await emailService.enviarCobranca(cobranca)
+
+    // Só marca como enviado se chegou aqui (envio bem-sucedido)
+    await cobrancaRepository.markEmailSent(cobrancaId)
 
     return NextResponse.json({
       success: true,
-      message: 'E-mail marcado como enviado. Implementação de SMTP será feita no futuro.',
+      message: 'E-mail enviado com sucesso',
     })
   } catch (error: any) {
     console.error('Erro ao enviar e-mail:', error)
-    return NextResponse.json(
-      { success: false, message: error.message || 'Erro ao enviar e-mail' },
-      { status: 500 }
-    )
+
+    // Retornar erro específico
+    const message = error.message || 'Erro ao enviar e-mail'
+    return NextResponse.json({ success: false, message }, { status: 500 })
   }
 }
