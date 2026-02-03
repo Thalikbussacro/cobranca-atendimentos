@@ -18,6 +18,10 @@ export default function CobrancasPage() {
   const [showProgress, setShowProgress] = useState(false)
   const [enviandoEmLote, setEnviandoEmLote] = useState(false)
   const [progressoLote, setProgressoLote] = useState({ atual: 0, total: 0 })
+  const [showConfirmacaoEnvio, setShowConfirmacaoEnvio] = useState(false)
+  const [cobrancasPendentes, setCobrancasPendentes] = useState<typeof cobrancas>([])
+  const [cancelarEnvio, setCancelarEnvio] = useState(false)
+
 
   const handleEnviarEmail = async (cobrancaId: number) => {
     try {
@@ -59,7 +63,7 @@ export default function CobrancasPage() {
     }
   }
 
-  const handleEnviarTodos = async () => {
+  const handleEnviarTodos = () => {
     const pendentes = cobrancas.filter((c) => !c.emailEnviado)
 
     if (pendentes.length === 0) {
@@ -68,19 +72,37 @@ export default function CobrancasPage() {
       return
     }
 
+    // Mostrar modal de confirmação com a lista
+    setCobrancasPendentes(pendentes)
+    setShowConfirmacaoEnvio(true)
+  }
+
+  const confirmarEnvioTodos = async () => {
+    // Fechar modal de confirmação
+    setShowConfirmacaoEnvio(false)
+
     try {
       setEnviandoEmLote(true)
       setShowProgress(true)
-      setProgressoLote({ atual: 0, total: pendentes.length })
-      console.log(`Enviando ${pendentes.length} e-mails pendentes`)
+      setCancelarEnvio(false)
+      setProgressoLote({ atual: 0, total: cobrancasPendentes.length })
+      console.log(`Enviando ${cobrancasPendentes.length} e-mails pendentes`)
 
       let sucessos = 0
       let falhas = 0
+      let cancelado = false
 
       // Enviar emails sequencialmente para mostrar progresso
-      for (let i = 0; i < pendentes.length; i++) {
-        const cobranca = pendentes[i]
-        setProgressoLote({ atual: i + 1, total: pendentes.length })
+      for (let i = 0; i < cobrancasPendentes.length; i++) {
+        // Verificar se foi solicitado cancelamento
+        if (cancelarEnvio) {
+          cancelado = true
+          console.log('Envio cancelado pelo usuário')
+          break
+        }
+
+        const cobranca = cobrancasPendentes[i]
+        setProgressoLote({ atual: i + 1, total: cobrancasPendentes.length })
         setProgressoEnvio(`Enviando para ${cobranca.cliente}...`)
 
         try {
@@ -100,11 +122,20 @@ export default function CobrancasPage() {
         }
       }
 
-      setProgressoEnvio('Concluído!')
+      if (cancelado) {
+        setProgressoEnvio('Envio interrompido')
+      } else {
+        setProgressoEnvio('Concluído!')
+      }
+
       await new Promise(resolve => setTimeout(resolve, 500))
       setShowProgress(false)
 
-      if (falhas > 0) {
+      if (cancelado) {
+        setSuccessMessage(
+          `Envio interrompido. ${sucessos} e-mail(s) enviado(s) antes do cancelamento.`
+        )
+      } else if (falhas > 0) {
         setSuccessMessage(
           `${sucessos} e-mail(s) enviado(s), ${falhas} falharam. Verifique o console.`
         )
@@ -123,6 +154,7 @@ export default function CobrancasPage() {
       setShowSuccessAlert(true)
     } finally {
       setEnviandoEmLote(false)
+      setCancelarEnvio(false)
     }
   }
 
@@ -184,6 +216,55 @@ export default function CobrancasPage() {
         />
       )}
 
+      {/* Modal de confirmação de envio em lote */}
+      {showConfirmacaoEnvio && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl max-h-[80vh] flex flex-col">
+            <h3 className="text-lg font-semibold mb-4">Confirmar Envio de E-mails</h3>
+
+            <p className="text-sm text-muted-foreground mb-4">
+              Os seguintes e-mails serão enviados ({cobrancasPendentes.length} cobrança{cobrancasPendentes.length !== 1 ? 's' : ''}):
+            </p>
+
+            <div className="flex-1 overflow-y-auto mb-6 border rounded-md">
+              <table className="w-full text-sm">
+                <thead className="bg-muted sticky top-0">
+                  <tr>
+                    <th className="text-left p-2 font-medium">Cliente</th>
+                    <th className="text-left p-2 font-medium">E-mail</th>
+                    <th className="text-left p-2 font-medium">Período</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cobrancasPendentes.map((cobranca) => (
+                    <tr key={cobranca.id} className="border-t">
+                      <td className="p-2">{cobranca.cliente}</td>
+                      <td className="p-2 text-xs">{cobranca.clienteEmails}</td>
+                      <td className="p-2 text-xs">{cobranca.periodo}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirmacaoEnvio(false)}
+                className="px-4 py-2 text-sm border rounded-md hover:bg-muted transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarEnvioTodos}
+                className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+              >
+                Confirmar Envio
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de progresso */}
       {showProgress && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -209,6 +290,21 @@ export default function CobrancasPage() {
                 }}
               />
             </div>
+            {enviandoEmLote && !cancelarEnvio && (
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setCancelarEnvio(true)}
+                  className="px-4 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                >
+                  Cancelar Envio
+                </button>
+              </div>
+            )}
+            {cancelarEnvio && (
+              <div className="mt-4 text-sm text-muted-foreground text-center">
+                Cancelando após o email atual...
+              </div>
+            )}
           </div>
         </div>
       )}
