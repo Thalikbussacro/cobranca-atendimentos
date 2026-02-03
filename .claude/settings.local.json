@@ -15,7 +15,8 @@
       "Bash(curl:*)",
       "Bash(npm run build:*)",
       "Bash(ls:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "WebFetch(domain:www.soautomacao.com.br)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Thalik\\Repos\\Cobranca-atendimentos\\src\\app\\(cliente)"

@@ -1,7 +1,7 @@
 import { Cobranca } from '@/domain/entities/Cobranca'
 import nodemailer from 'nodemailer'
 import { parseEmails } from './emailValidator'
-import { gerarHTMLCobranca } from './emailTemplate'
+import { gerarHTMLCobranca, gerarTextoPlanoCobranca } from './emailTemplate'
 
 /**
  * Interface para serviço de envio de e-mails
@@ -69,13 +69,13 @@ export class EmailServiceSMTP implements IEmailService {
       throw new Error(`Falha na conexão SMTP: ${error.message}`)
     }
 
-    // 3. Gerar HTML do email
+    // 3. Gerar HTML e texto plano do email
     const html = gerarHTMLCobranca(cobranca)
-    console.log('✓ Template HTML gerado')
+    const text = gerarTextoPlanoCobranca(cobranca)
+    console.log('✓ Templates gerados (HTML + texto plano)')
 
-    // 4. Calcular valor total para o subject
-    const valorTotal = this.calcularValorTotal(cobranca)
-    const subject = `Cobrança #${cobranca.id} - ${cobranca.periodo} - ${valorTotal}`
+    // 4. Criar subject do email
+    const subject = `Empresa Genérica - Atendimentos Prestados - ${cobranca.periodo}`
     console.log('Subject:', subject)
 
     // 5. Enviar email
@@ -85,6 +85,7 @@ export class EmailServiceSMTP implements IEmailService {
       to: emails.join(', '),
       subject,
       html,
+      text, // Versão texto plano (fallback)
     })
 
     // 6. Log de sucesso
@@ -96,25 +97,6 @@ export class EmailServiceSMTP implements IEmailService {
     console.log('===================================')
   }
 
-  /**
-   * Calcula o valor total da cobrança para exibir no subject
-   */
-  private calcularValorTotal(cobranca: Cobranca): string {
-    const horasMatch = cobranca.horas.match(/(\d+)h\s*(\d+)m/)
-    if (!horasMatch) {
-      return 'R$ 0,00'
-    }
-
-    const horas = parseInt(horasMatch[1])
-    const minutos = parseInt(horasMatch[2])
-    const horasDecimal = horas + minutos / 60
-    const total = horasDecimal * cobranca.precoHora
-
-    return total.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    })
-  }
 }
 
 /**

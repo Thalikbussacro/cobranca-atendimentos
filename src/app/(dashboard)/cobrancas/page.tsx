@@ -9,12 +9,25 @@ import { AlertBar } from '@/components/layout/AlertBar'
 
 export default function CobrancasPage() {
   const router = useRouter()
-  const { cobrancas, loading, filters, setFilters } = useCobrancas()
+  const { cobrancas, loading, filters, setFilters, refresh } = useCobrancas()
   const [showSuccessAlert, setShowSuccessAlert] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [enviandoEmailId, setEnviandoEmailId] = useState<number | null>(null)
+  const [cancelandoId, setCancelandoId] = useState<number | null>(null)
+  const [progressoEnvio, setProgressoEnvio] = useState<string>('')
+  const [showProgress, setShowProgress] = useState(false)
+  const [enviandoEmLote, setEnviandoEmLote] = useState(false)
+  const [progressoLote, setProgressoLote] = useState({ atual: 0, total: 0 })
 
   const handleEnviarEmail = async (cobrancaId: number) => {
     try {
+      setEnviandoEmailId(cobrancaId)
+      setShowProgress(true)
+
+      setProgressoEnvio('Verificando conexão SMTP...')
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      setProgressoEnvio('Gerando email...')
       const response = await fetch(`/api/cobrancas/${cobrancaId}/enviar-email`, {
         method: 'POST',
       })
@@ -25,16 +38,24 @@ export default function CobrancasPage() {
         throw new Error(data.message || 'Erro ao enviar e-mail')
       }
 
+      setProgressoEnvio('Email enviado com sucesso!')
       console.log(`E-mail enviado para cobrança ${cobrancaId}`)
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setShowProgress(false)
+
       setSuccessMessage(data.message || 'E-mail enviado com sucesso!')
       setShowSuccessAlert(true)
 
       // Recarregar cobranças para atualizar status de envio
-      window.location.reload()
+      await refresh()
     } catch (error: any) {
       console.error('Erro ao enviar e-mail:', error)
+      setShowProgress(false)
       setSuccessMessage(`Erro: ${error.message}`)
       setShowSuccessAlert(true)
+    } finally {
+      setEnviandoEmailId(null)
     }
   }
 
@@ -48,19 +69,40 @@ export default function CobrancasPage() {
     }
 
     try {
+      setEnviandoEmLote(true)
+      setShowProgress(true)
+      setProgressoLote({ atual: 0, total: pendentes.length })
       console.log(`Enviando ${pendentes.length} e-mails pendentes`)
 
-      // Enviar emails em paralelo
-      const promises = pendentes.map((cobranca) =>
-        fetch(`/api/cobrancas/${cobranca.id}/enviar-email`, {
-          method: 'POST',
-        }).then((res) => res.json())
-      )
+      let sucessos = 0
+      let falhas = 0
 
-      const results = await Promise.allSettled(promises)
+      // Enviar emails sequencialmente para mostrar progresso
+      for (let i = 0; i < pendentes.length; i++) {
+        const cobranca = pendentes[i]
+        setProgressoLote({ atual: i + 1, total: pendentes.length })
+        setProgressoEnvio(`Enviando para ${cobranca.cliente}...`)
 
-      const sucessos = results.filter((r) => r.status === 'fulfilled').length
-      const falhas = results.filter((r) => r.status === 'rejected').length
+        try {
+          const response = await fetch(`/api/cobrancas/${cobranca.id}/enviar-email`, {
+            method: 'POST',
+          })
+
+          if (response.ok) {
+            sucessos++
+          } else {
+            falhas++
+            console.error(`Falha ao enviar email para ${cobranca.cliente}`)
+          }
+        } catch (error) {
+          falhas++
+          console.error(`Erro ao enviar email para ${cobranca.cliente}:`, error)
+        }
+      }
+
+      setProgressoEnvio('Concluído!')
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setShowProgress(false)
 
       if (falhas > 0) {
         setSuccessMessage(
@@ -73,11 +115,44 @@ export default function CobrancasPage() {
       setShowSuccessAlert(true)
 
       // Recarregar cobranças para atualizar status de envio
-      window.location.reload()
+      await refresh()
     } catch (error: any) {
       console.error('Erro ao enviar e-mails:', error)
+      setShowProgress(false)
       setSuccessMessage(`Erro: ${error.message}`)
       setShowSuccessAlert(true)
+    } finally {
+      setEnviandoEmLote(false)
+    }
+  }
+
+  const handleCancelarCobranca = async (cobrancaId: number) => {
+    if (!confirm('Tem certeza que deseja cancelar esta cobrança?')) {
+      return
+    }
+
+    try {
+      setCancelandoId(cobrancaId)
+      const response = await fetch(`/api/cobrancas/${cobrancaId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Erro ao cancelar cobrança')
+      }
+
+      setSuccessMessage('Cobrança cancelada com sucesso!')
+      setShowSuccessAlert(true)
+
+      // Recarregar cobranças
+      await refresh()
+    } catch (error: any) {
+      console.error('Erro ao cancelar cobrança:', error)
+      setSuccessMessage(`Erro: ${error.message}`)
+      setShowSuccessAlert(true)
+    } finally {
+      setCancelandoId(null)
     }
   }
 
@@ -109,6 +184,35 @@ export default function CobrancasPage() {
         />
       )}
 
+      {/* Modal de progresso */}
+      {showProgress && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <div className="flex-1">
+                <p className="font-medium text-sm">
+                  {enviandoEmLote
+                    ? `Enviando emails (${progressoLote.atual} de ${progressoLote.total})`
+                    : 'Enviando email...'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{progressoEnvio}</p>
+              </div>
+            </div>
+            <div className="mt-4 h-1 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{
+                  width: enviandoEmLote
+                    ? `${(progressoLote.atual / progressoLote.total) * 100}%`
+                    : '100%',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toolbar */}
       <Toolbar
         search={filters.search}
@@ -127,6 +231,9 @@ export default function CobrancasPage() {
       <CobrancaTable
         cobrancas={cobrancas}
         onEnviarEmail={handleEnviarEmail}
+        onCancelarCobranca={handleCancelarCobranca}
+        enviandoEmailId={enviandoEmailId}
+        cancelandoId={cancelandoId}
       />
     </div>
   )

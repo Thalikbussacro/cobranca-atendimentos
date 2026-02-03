@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ChevronDown, ChevronUp, Mail } from 'lucide-react'
+import { ChevronDown, ChevronUp, Mail, Trash2, Loader2 } from 'lucide-react'
 import { CobrancaDetails } from './CobrancaDetails'
 import { StatusBadge } from './StatusBadge'
 import { SortableHeader, SortDirection } from './SortableHeader'
@@ -19,6 +19,9 @@ import { SortableHeader, SortDirection } from './SortableHeader'
 interface CobrancaTableProps {
   cobrancas: Cobranca[]
   onEnviarEmail: (cobrancaId: number) => void
+  onCancelarCobranca: (cobrancaId: number) => void
+  enviandoEmailId: number | null
+  cancelandoId: number | null
 }
 
 type SortField = 'id' | 'cliente' | 'periodo' | 'atendimentos' | 'emailEnviado'
@@ -57,7 +60,13 @@ function sortCobrancas(cobrancas: Cobranca[], sortState: SortState): Cobranca[] 
   })
 }
 
-export function CobrancaTable({ cobrancas, onEnviarEmail }: CobrancaTableProps) {
+export function CobrancaTable({
+  cobrancas,
+  onEnviarEmail,
+  onCancelarCobranca,
+  enviandoEmailId,
+  cancelandoId,
+}: CobrancaTableProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [sortState, setSortState] = useState<SortState>({ field: null, direction: null })
 
@@ -179,17 +188,42 @@ export function CobrancaTable({ cobrancas, onEnviarEmail }: CobrancaTableProps) 
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 md:gap-2">
+                        {!cobranca.emailEnviado && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs md:text-sm h-7 md:h-8"
+                            onClick={() => onCancelarCobranca(cobranca.id)}
+                            disabled={cancelandoId === cobranca.id || enviandoEmailId !== null}
+                            title="Cancelar cobrança"
+                          >
+                            {cancelandoId === cobranca.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                            <span className="hidden md:inline ml-1">Cancelar</span>
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
                           className="text-xs md:text-sm h-7 md:h-8"
                           onClick={() => onEnviarEmail(cobranca.id)}
-                          disabled={cobranca.emailEnviado}
-                          title={cobranca.emailEnviado ? "E-mail já enviado" : "Enviar e-mail"}
+                          disabled={cobranca.emailEnviado || enviandoEmailId === cobranca.id || cancelandoId !== null}
+                          title={cobranca.emailEnviado ? 'E-mail já enviado' : 'Enviar e-mail'}
                         >
-                          <Mail className="h-4 w-4 mr-1" />
-                          <span className="hidden sm:inline">Enviar E-mail</span>
-                          <span className="sm:hidden">Enviar</span>
+                          {enviandoEmailId === cobranca.id ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Mail className="h-4 w-4 mr-1" />
+                          )}
+                          <span className="hidden sm:inline">
+                            {enviandoEmailId === cobranca.id ? 'Enviando...' : 'Enviar E-mail'}
+                          </span>
+                          <span className="sm:hidden">
+                            {enviandoEmailId === cobranca.id ? '...' : 'Enviar'}
+                          </span>
                         </Button>
                         <Button
                           variant="link"
