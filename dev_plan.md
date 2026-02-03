@@ -44,8 +44,8 @@ npm install --save-dev @types/mssql
 
 **Ações**:
 1. Criar arquivo `.env.example` com todas as variáveis necessárias
-2. Usuário deve copiar para `.env.local` e preencher com valores reais
-3. Adicionar `.env.local` ao `.gitignore` se ainda não estiver
+2. Usuário deve copiar para `.env` e preencher com valores reais
+3. Adicionar `.env` ao `.gitignore` se ainda não estiver
 
 **Variáveis Necessárias**:
 - **Banco de Dados**:
@@ -66,10 +66,10 @@ npm install --save-dev @types/mssql
 
 **Arquivos Criados**:
 - `.env.example` (versionado)
-- `.env.local` (não versionado, usuário cria manualmente)
+- `.env` (não versionado, usuário cria manualmente)
 
 **Arquivos Verificados**:
-- `.gitignore` (garantir que `.env.local` está listado)
+- `.gitignore` (garantir que `.env` está listado)
 
 ---
 
@@ -432,7 +432,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
 **Testes Manuais**:
 ```bash
-# 1. Verificar se .env.local está configurado
+# 1. Verificar se .env está configurado
 # 2. Iniciar aplicação
 npm run dev
 
@@ -567,7 +567,7 @@ curl http://localhost:3000/api/health
 1. Atualizar `README.md` com:
    - Requisitos (SQL Server, Node.js)
    - Passos de instalação
-   - Configuração do `.env.local`
+   - Configuração do `.env`
    - Como rodar o projeto
    - Como rodar scripts SQL de setup
 
@@ -615,7 +615,7 @@ Erros comuns e como tratá-los:
 
 ### Segurança
 - **SQL Injection**: SEMPRE usar parameterized queries
-- **Senhas**: Nunca versionar `.env.local`
+- **Senhas**: Nunca versionar `.env`
 - **Conexão**: Usar `encrypt: true` em produção
 
 ### Performance

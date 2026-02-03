@@ -37,9 +37,9 @@ Desenvolvido com Next.js 15, TypeScript e Shadcn/UI.
 npm install
 
 # Configurar variáveis de ambiente
-cp .env.example .env.local
+cp .env.example .env
 
-# Editar .env.local com suas configurações
+# Editar .env com suas configurações
 # (Veja seção "Configuração" abaixo)
 
 # Rodar em modo desenvolvimento
@@ -50,7 +50,7 @@ O sistema estará disponível em [http://localhost:3000](http://localhost:3000)
 
 ## Configuração
 
-Crie um arquivo `.env.local` na raiz do projeto e configure as seguintes variáveis:
+Crie um arquivo `.env` na raiz do projeto (ou copie de `.env.example`) e configure as seguintes variáveis:
 
 ### Autenticação
 ```env
@@ -194,7 +194,7 @@ src/
 
 ## Logs e Debugging
 
-O sistema possui logs configuráveis. Ajuste no `.env.local`:
+O sistema possui logs configuráveis. Ajuste no `.env`:
 
 ```env
 LOG_LEVEL=info          # error, warn, info, debug
@@ -204,7 +204,7 @@ LOG_SQL_QUERIES=false   # true para ver queries SQL (apenas dev)
 ## Segurança
 
 - ✅ Queries parametrizadas para prevenir SQL Injection
-- ✅ Arquivo `.env.local` não versionado no Git
+- ✅ Arquivo `.env` não versionado no Git
 - ✅ Pool de conexões para melhor performance
 - ✅ Tratamento de erros em todas as camadas
 
