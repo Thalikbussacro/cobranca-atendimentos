@@ -52,33 +52,16 @@ export class EmailServiceSMTP implements IEmailService {
       )
     }
 
-    // 2. Verificar conexão SMTP
-    console.log('Verificando conexão SMTP...')
-    console.log('SMTP Config:', {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_SECURE,
-      user: process.env.SMTP_USER,
-    })
-
-    try {
-      await this.transporter.verify()
-      console.log('✓ Conexão SMTP verificada com sucesso')
-    } catch (error: any) {
-      console.error('✗ Erro ao verificar conexão SMTP:', error.message)
-      throw new Error(`Falha na conexão SMTP: ${error.message}`)
-    }
-
-    // 3. Gerar HTML e texto plano do email
+    // 2. Gerar HTML e texto plano do email
     const html = gerarHTMLCobranca(cobranca)
     const text = gerarTextoPlanoCobranca(cobranca)
     console.log('✓ Templates gerados (HTML + texto plano)')
 
-    // 4. Criar subject do email
+    // 3. Criar subject do email
     const subject = `Empresa Genérica - Atendimentos Prestados - ${cobranca.periodo}`
     console.log('Subject:', subject)
 
-    // 5. Enviar email
+    // 4. Enviar email
     console.log('Enviando email...')
     const info = await this.transporter.sendMail({
       from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
@@ -88,7 +71,7 @@ export class EmailServiceSMTP implements IEmailService {
       text, // Versão texto plano (fallback)
     })
 
-    // 6. Log de sucesso
+    // 5. Log de sucesso
     console.log('✓✓✓ EMAIL ENVIADO COM SUCESSO ✓✓✓')
     console.log('MessageID:', info.messageId)
     console.log('Accepted:', info.accepted)

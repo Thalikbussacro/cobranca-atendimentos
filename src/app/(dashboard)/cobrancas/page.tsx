@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCobrancas } from '@/hooks/useCobrancas'
 import { Toolbar } from '@/components/cobrancas/Toolbar'
@@ -21,17 +21,38 @@ export default function CobrancasPage() {
   const [showConfirmacaoEnvio, setShowConfirmacaoEnvio] = useState(false)
   const [cobrancasPendentes, setCobrancasPendentes] = useState<typeof cobrancas>([])
   const [cancelarEnvio, setCancelarEnvio] = useState(false)
+  const cancelarEnvioRef = useRef(false)
+
+  // Função para calcular valor total da cobrança
+  const calcularValorTotal = (horas: string, precoHora: number): string => {
+    const horasMatch = horas.match(/(\d+)h\s*(\d+)m/)
+    if (!horasMatch) return 'R$ 0,00'
+
+    const h = parseInt(horasMatch[1])
+    const m = parseInt(horasMatch[2])
+    const horasDecimal = h + m / 60
+    const total = horasDecimal * precoHora
+
+    return total.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+  }
+
+  const formatarPrecoHora = (preco: number): string => {
+    return preco.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+  }
 
 
   const handleEnviarEmail = async (cobrancaId: number) => {
     try {
       setEnviandoEmailId(cobrancaId)
       setShowProgress(true)
+      setProgressoEnvio('Enviando email...')
 
-      setProgressoEnvio('Verificando conexão SMTP...')
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      setProgressoEnvio('Gerando email...')
       const response = await fetch(`/api/cobrancas/${cobrancaId}/enviar-email`, {
         method: 'POST',
       })
@@ -45,7 +66,8 @@ export default function CobrancasPage() {
       setProgressoEnvio('Email enviado com sucesso!')
       console.log(`E-mail enviado para cobrança ${cobrancaId}`)
 
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Pequeno delay para mostrar mensagem de sucesso
+      await new Promise(resolve => setTimeout(resolve, 300))
       setShowProgress(false)
 
       setSuccessMessage(data.message || 'E-mail enviado com sucesso!')
@@ -85,6 +107,7 @@ export default function CobrancasPage() {
       setEnviandoEmLote(true)
       setShowProgress(true)
       setCancelarEnvio(false)
+      cancelarEnvioRef.current = false
       setProgressoLote({ atual: 0, total: cobrancasPendentes.length })
       console.log(`Enviando ${cobrancasPendentes.length} e-mails pendentes`)
 
@@ -94,8 +117,8 @@ export default function CobrancasPage() {
 
       // Enviar emails sequencialmente para mostrar progresso
       for (let i = 0; i < cobrancasPendentes.length; i++) {
-        // Verificar se foi solicitado cancelamento
-        if (cancelarEnvio) {
+        // Verificar se foi solicitado cancelamento (usando ref para leitura imediata)
+        if (cancelarEnvioRef.current) {
           cancelado = true
           console.log('Envio cancelado pelo usuário')
           break
@@ -128,7 +151,7 @@ export default function CobrancasPage() {
         setProgressoEnvio('Concluído!')
       }
 
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 300))
       setShowProgress(false)
 
       if (cancelado) {
@@ -231,16 +254,22 @@ export default function CobrancasPage() {
                 <thead className="bg-muted sticky top-0">
                   <tr>
                     <th className="text-left p-2 font-medium">Cliente</th>
-                    <th className="text-left p-2 font-medium">E-mail</th>
                     <th className="text-left p-2 font-medium">Período</th>
+                    <th className="text-right p-2 font-medium">Atend.</th>
+                    <th className="text-right p-2 font-medium">Horas</th>
+                    <th className="text-right p-2 font-medium">R$/h</th>
+                    <th className="text-right p-2 font-medium">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {cobrancasPendentes.map((cobranca) => (
                     <tr key={cobranca.id} className="border-t">
                       <td className="p-2">{cobranca.cliente}</td>
-                      <td className="p-2 text-xs">{cobranca.clienteEmails}</td>
                       <td className="p-2 text-xs">{cobranca.periodo}</td>
+                      <td className="p-2 text-right">{cobranca.atendimentos}</td>
+                      <td className="p-2 text-right text-xs">{cobranca.horas}</td>
+                      <td className="p-2 text-right text-xs">{formatarPrecoHora(cobranca.precoHora)}</td>
+                      <td className="p-2 text-right font-semibold text-xs">{calcularValorTotal(cobranca.horas, cobranca.precoHora)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -293,7 +322,10 @@ export default function CobrancasPage() {
             {enviandoEmLote && !cancelarEnvio && (
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={() => setCancelarEnvio(true)}
+                  onClick={() => {
+                    setCancelarEnvio(true)
+                    cancelarEnvioRef.current = true
+                  }}
                   className="px-4 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                 >
                   Cancelar Envio
