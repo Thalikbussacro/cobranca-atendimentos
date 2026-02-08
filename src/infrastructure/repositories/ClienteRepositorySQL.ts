@@ -11,7 +11,7 @@ export class ClienteRepositorySQL implements IClienteRepository {
           CodCliente as id,
           Descricao as nome,
           CNPJ as cnpj,
-          Email as emails,
+          EMail as emails,
           Telefone as telefone
         FROM Cad_Cliente
         ORDER BY Descricao
@@ -33,7 +33,7 @@ export class ClienteRepositorySQL implements IClienteRepository {
           CodCliente as id,
           Descricao as nome,
           CNPJ as cnpj,
-          Email as emails,
+          EMail as emails,
           Telefone as telefone
         FROM Cad_Cliente
         WHERE CodCliente = @id
@@ -65,7 +65,7 @@ export class ClienteRepositorySQL implements IClienteRepository {
 
         // Inserir cliente
         const insertQuery = `
-          INSERT INTO Cad_Cliente (CodCliente, Descricao, CNPJ, Email, Telefone)
+          INSERT INTO Cad_Cliente (CodCliente, Descricao, CNPJ, EMail, Telefone)
           VALUES (@id, @nome, @cnpj, @emails, @telefone)
         `
 
@@ -109,7 +109,7 @@ export class ClienteRepositorySQL implements IClienteRepository {
         params.cnpj = data.cnpj
       }
       if (data.emails !== undefined) {
-        updates.push('Email = @emails')
+        updates.push('EMail = @emails')
         params.emails = data.emails
       }
       if (data.telefone !== undefined) {

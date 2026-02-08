@@ -23,13 +23,13 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
           c.CodCliente as clienteId,
           cl.Descricao as cliente,
           cl.CNPJ as clienteCnpj,
-          cl.Email as clienteEmails,
+          cl.EMail as clienteEmails,
           c.PrecoHora as precoHora,
           c.DataHoraInicial,
           c.DataHoraFinal,
           c.EmailEnviado as emailEnviado,
           COUNT(ci.CodAtendimento) as totalAtendimentos,
-          ISNULL(SUM(DATEDIFF(MINUTE, a.DataHoraInicio, a.DataHoraFim)), 0) as totalMinutos
+          ISNULL(SUM(DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal)), 0) as totalMinutos
         FROM Cad_Cobranca c
         INNER JOIN Cad_Cliente cl ON cl.CodCliente = c.CodCliente
         LEFT JOIN Cad_Cobranca_Item ci ON ci.CodCobranca = c.CodCobranca
@@ -70,7 +70,7 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
 
       query += `
         GROUP BY
-          c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.Email,
+          c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.EMail,
           c.PrecoHora, c.DataHoraInicial, c.DataHoraFinal, c.EmailEnviado
         ORDER BY c.DataHoraFinal DESC
       `
@@ -107,20 +107,20 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
           c.CodCliente as clienteId,
           cl.Descricao as cliente,
           cl.CNPJ as clienteCnpj,
-          cl.Email as clienteEmails,
+          cl.EMail as clienteEmails,
           c.PrecoHora as precoHora,
           c.DataHoraInicial,
           c.DataHoraFinal,
           c.EmailEnviado as emailEnviado,
           COUNT(ci.CodAtendimento) as totalAtendimentos,
-          ISNULL(SUM(DATEDIFF(MINUTE, a.DataHoraInicio, a.DataHoraFim)), 0) as totalMinutos
+          ISNULL(SUM(DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal)), 0) as totalMinutos
         FROM Cad_Cobranca c
         INNER JOIN Cad_Cliente cl ON cl.CodCliente = c.CodCliente
         LEFT JOIN Cad_Cobranca_Item ci ON ci.CodCobranca = c.CodCobranca
         LEFT JOIN Opr_Atendimento a ON a.CodAtendimento = ci.CodAtendimento
         WHERE c.CodCobranca = @id
         GROUP BY
-          c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.Email,
+          c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.EMail,
           c.PrecoHora, c.DataHoraInicial, c.DataHoraFinal, c.EmailEnviado
       `
 
@@ -194,9 +194,9 @@ export class CobrancaRepositorySQL implements ICobrancaRepository {
           SELECT @codigo, a.CodAtendimento
           FROM Opr_Atendimento a
           WHERE a.CodCliente = @clienteId
-            AND a.DataHoraInicio >= @dataInicial
-            AND a.DataHoraFim <= @dataFinal
-            AND a.CobrarAtendimento = 'Sim'
+            AND a.DataHoraInicial >= @dataInicial
+            AND a.DataHoraFinal <= @dataFinal
+            AND a.CobrarAtendimento = 'SIM'
             AND NOT EXISTS (
               SELECT 1 FROM Cad_Cobranca_Item ci2
               WHERE ci2.CodAtendimento = a.CodAtendimento

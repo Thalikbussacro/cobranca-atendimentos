@@ -14,23 +14,23 @@ export class AtendimentoRepositorySQL implements IAtendimentoRepository {
         SELECT
           a.CodAtendimento as id,
           a.CodCliente as clienteId,
-          a.DataHoraInicio as dataInicio,
-          a.DataHoraFim as dataFim,
-          a.Problema as problema,
-          a.Solucao as solucao,
+          a.DataHoraInicial as dataInicio,
+          a.DataHoraFinal as dataFim,
+          a.ProblemaRelatado as problema,
+          a.SolucaoRepassada as solucao,
           a.Solicitante as solicitante,
           a.CobrarAtendimento,
-          DATEDIFF(MINUTE, a.DataHoraInicio, a.DataHoraFim) as duracaoMinutos
+          DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal) as duracaoMinutos
         FROM Opr_Atendimento a
         WHERE a.CodCliente = @clienteId
-          AND a.DataHoraInicio >= @dataInicio
-          AND a.DataHoraFim <= @dataFim
-          AND a.CobrarAtendimento = 'Sim'
+          AND a.DataHoraInicial >= @dataInicio
+          AND a.DataHoraFinal <= @dataFim
+          AND a.CobrarAtendimento = 'SIM'
           AND NOT EXISTS (
             SELECT 1 FROM Cad_Cobranca_Item ci
             WHERE ci.CodAtendimento = a.CodAtendimento
           )
-        ORDER BY a.DataHoraInicio DESC
+        ORDER BY a.DataHoraInicial DESC
       `
 
       const result = await db.query(query, {
@@ -52,17 +52,17 @@ export class AtendimentoRepositorySQL implements IAtendimentoRepository {
         SELECT
           a.CodAtendimento as id,
           a.CodCliente as clienteId,
-          a.DataHoraInicio as dataInicio,
-          a.DataHoraFim as dataFim,
-          a.Problema as problema,
-          a.Solucao as solucao,
+          a.DataHoraInicial as dataInicio,
+          a.DataHoraFinal as dataFim,
+          a.ProblemaRelatado as problema,
+          a.SolucaoRepassada as solucao,
           a.Solicitante as solicitante,
           a.CobrarAtendimento,
-          DATEDIFF(MINUTE, a.DataHoraInicio, a.DataHoraFim) as duracaoMinutos
+          DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal) as duracaoMinutos
         FROM Opr_Atendimento a
         INNER JOIN Cad_Cobranca_Item ci ON ci.CodAtendimento = a.CodAtendimento
         WHERE ci.CodCobranca = @cobrancaId
-        ORDER BY a.DataHoraInicio
+        ORDER BY a.DataHoraInicial
       `
 
       const result = await db.query(query, { cobrancaId })
@@ -80,13 +80,13 @@ export class AtendimentoRepositorySQL implements IAtendimentoRepository {
         SELECT
           a.CodAtendimento as id,
           a.CodCliente as clienteId,
-          a.DataHoraInicio as dataInicio,
-          a.DataHoraFim as dataFim,
-          a.Problema as problema,
-          a.Solucao as solucao,
+          a.DataHoraInicial as dataInicio,
+          a.DataHoraFinal as dataFim,
+          a.ProblemaRelatado as problema,
+          a.SolucaoRepassada as solucao,
           a.Solicitante as solicitante,
           a.CobrarAtendimento,
-          DATEDIFF(MINUTE, a.DataHoraInicio, a.DataHoraFim) as duracaoMinutos
+          DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal) as duracaoMinutos
         FROM Opr_Atendimento a
         WHERE a.CobrarAtendimento = 'Sim'
           AND NOT EXISTS (
@@ -102,7 +102,7 @@ export class AtendimentoRepositorySQL implements IAtendimentoRepository {
         params.clienteId = clienteId
       }
 
-      query += ` ORDER BY a.DataHoraInicio DESC`
+      query += ` ORDER BY a.DataHoraInicial DESC`
 
       const result = await db.query(query, params)
 
@@ -119,13 +119,13 @@ export class AtendimentoRepositorySQL implements IAtendimentoRepository {
         SELECT
           a.CodAtendimento as id,
           a.CodCliente as clienteId,
-          a.DataHoraInicio as dataInicio,
-          a.DataHoraFim as dataFim,
-          a.Problema as problema,
-          a.Solucao as solucao,
+          a.DataHoraInicial as dataInicio,
+          a.DataHoraFinal as dataFim,
+          a.ProblemaRelatado as problema,
+          a.SolucaoRepassada as solucao,
           a.Solicitante as solicitante,
           a.CobrarAtendimento,
-          DATEDIFF(MINUTE, a.DataHoraInicio, a.DataHoraFim) as duracaoMinutos
+          DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal) as duracaoMinutos
         FROM Opr_Atendimento a
         WHERE a.CodAtendimento = @id
       `
@@ -152,7 +152,7 @@ export class AtendimentoRepositorySQL implements IAtendimentoRepository {
       problema: row.problema || '',
       solucao: row.solucao || '',
       solicitante: row.solicitante || '',
-      cobrarAtendimento: row.CobrarAtendimento === 'Sim',
+      cobrarAtendimento: row.CobrarAtendimento === 'SIM',
       duracaoMinutos: row.duracaoMinutos || 0,
     }
   }

@@ -8,7 +8,7 @@ export interface DbCliente {
   CodCliente: number
   Descricao: string
   CNPJ: string | null
-  Email: string | null
+  EMail: string | null
   Telefone: string | null
 }
 
@@ -19,12 +19,12 @@ export interface DbCliente {
 export interface DbAtendimento {
   CodAtendimento: number
   CodCliente: number
-  DataHoraInicio: Date
-  DataHoraFim: Date
-  Problema: string | null
-  Solucao: string | null
+  DataHoraInicial: Date
+  DataHoraFinal: Date
+  ProblemaRelatado: string | null
+  SolucaoRepassada: string | null
   Solicitante: string | null
-  CobrarAtendimento: string // 'Sim' ou 'Não'
+  CobrarAtendimento: string // 'SIM' ou 'NAO'
 }
 
 /**
@@ -64,7 +64,7 @@ export interface DbCobrancaComCliente {
   // Dados do cliente
   cliente: string
   clienteCnpj: string | null
-  clienteEmails: string | null
+  clienteEmails: string | null // mapeado de EMail
 
   // Dados agregados
   totalAtendimentos: number
