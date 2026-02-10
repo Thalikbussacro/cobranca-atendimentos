@@ -143,7 +143,7 @@ export function gerarHTMLCobranca(cobranca: Cobranca): string {
               </p>
               <p style="margin: 0 0 10px 0; color: #333333; font-size: 13px; line-height: 1.6;">
                 <strong>Forma de pagamento:</strong> PIX, Boleto Bancário ou Transferência Bancária<br>
-                <strong>Lançar no CNPJ:</strong> ${cobranca.clienteCnpj}
+                <strong>Se podemos faturar no CNPJ:</strong> ${cobranca.clienteCnpj}
               </p>
             </td>
           </tr>
