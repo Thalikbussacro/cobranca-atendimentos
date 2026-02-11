@@ -39,12 +39,6 @@ export default function LoginPage() {
 
       if (data.success) {
         login(data.user, data.token)
-        
-        if (data.user.role === 'cliente') {
-          router.push('/portal')
-        } else {
-          router.push('/cobrancas')
-        }
       } else {
         setError(data.message || 'Credenciais inválidas')
       }

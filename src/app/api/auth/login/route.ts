@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Credenciais do .env (com fallback para desenvolvimento)
-    const validUsername = process.env.AUTH_USERNAME || 'admin'
-    const validPassword = process.env.AUTH_PASSWORD || 'admin123'
+    const validUsername = process.env.AUTH_USERNAME
+    const validPassword = process.env.AUTH_PASSWORD
 
     // Verifica credenciais
     if (username !== validUsername || password !== validPassword) {
@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
     // Retorna usuário autenticado
     const user = {
       id: '1',
-      name: 'Operador',
-      email: 'operador@soautomacao.com.br',
+      name: 'admin',
+      email: 'admin@empresagenerica.com.br',
       role: 'admin' as const,
     }
 

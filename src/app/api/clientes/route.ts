@@ -15,27 +15,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-
-    // Validações básicas
-    if (!body.nome || !body.cnpj) {
-      return NextResponse.json(
-        { success: false, message: 'Nome e CNPJ são obrigatórios' },
-        { status: 400 }
-      )
-    }
-
-    const cliente = await clienteRepository.create(body)
-
-    return NextResponse.json({ success: true, cliente })
-  } catch (error: any) {
-    console.error('Erro ao criar cliente:', error)
-    return NextResponse.json(
-      { success: false, message: error.message || 'Erro ao criar cliente' },
-      { status: 500 }
-    )
-  }
-}
