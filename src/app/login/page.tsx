@@ -39,6 +39,7 @@ export default function LoginPage() {
 
       if (data.success) {
         login(data.user, data.token)
+        router.push('/cobrancas')
       } else {
         setError(data.message || 'Credenciais inválidas')
       }
