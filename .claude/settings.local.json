@@ -18,7 +18,14 @@
       "Bash(powershell -Command:*)",
       "WebFetch(domain:www.soautomacao.com.br)",
       "Bash(dir:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git checkout:*)",
+      "Bash(timeout 5 npm run dev:*)",
+      "Bash(npm create:*)",
+      "Bash(npx tailwindcss init -p)",
+      "Bash(frontend/src/index.css:*)",
+      "Bash(frontend/src/lib/utils.ts:*)",
+      "Bash(git add:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Thalik\\Repos\\Cobranca-atendimentos\\src\\app\\(cliente)"
