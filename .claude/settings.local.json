@@ -25,7 +25,13 @@
       "Bash(npx tailwindcss init -p)",
       "Bash(frontend/src/index.css:*)",
       "Bash(frontend/src/lib/utils.ts:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(frontend/src/types/user.ts:*)",
+      "Bash(frontend/src/hooks/useAuth.ts:*)",
+      "Bash(frontend/src/services/api.ts:*)",
+      "Bash(frontend/src/components/layout/Header.tsx:*)",
+      "Bash(frontend/src/hooks/useCobrancas.ts:*)",
+      "Bash(frontend/src/pages/CobrancasPage.tsx:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Thalik\\Repos\\Cobranca-atendimentos\\src\\app\\(cliente)"
