@@ -31,7 +31,12 @@
       "Bash(frontend/src/services/api.ts:*)",
       "Bash(frontend/src/components/layout/Header.tsx:*)",
       "Bash(frontend/src/hooks/useCobrancas.ts:*)",
-      "Bash(frontend/src/pages/CobrancasPage.tsx:*)"
+      "Bash(frontend/src/pages/CobrancasPage.tsx:*)",
+      "Bash(git commit:*)",
+      "Bash(README.md:*)",
+      "Bash(__NEW_LINE_3651bb30625c4400__ git add README.md)",
+      "Bash(cat:*)",
+      "Bash(.gitignore:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Thalik\\Repos\\Cobranca-atendimentos\\src\\app\\(cliente)"
