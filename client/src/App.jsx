@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { Header } from '@/components/layout/Header'
+import { Header } from '@/components/Header'
 import LoginPage from '@/pages/LoginPage'
 import CobrancasPage from '@/pages/CobrancasPage'
 import ClientesPage from '@/pages/ClientesPage'

@@ -1,50 +1,56 @@
-# Sistema de Cobrança de Atendimentos
+# Sistema de Cobranca de Atendimentos
 
-Sistema para gerenciar cobranças de atendimentos técnicos.
+Sistema para gerenciar cobrancas de atendimentos tecnicos.
 
 ## Tecnologias
 
-- Backend: Express.js + TypeScript (MVC)
-- Frontend: React 19 + Vite + TypeScript
-- UI: Tailwind CSS 3 + Shadcn/UI
+- Backend: Express.js (JavaScript)
+- Frontend: React 19 + Vite 7
+- UI: Tailwind CSS 3 + Radix UI
 - Database: SQL Server
-- Deploy: Monolito (backend serve frontend estático)
+- Deploy: Monolito (backend serve frontend estatico)
 
 ## Estrutura
 
 ```
-├── src/                # Backend (TypeScript)
-│   ├── controllers/
-│   ├── models/
+├── server/                # Backend (JavaScript)
+│   ├── server.js          # Express app + auth + error handler
+│   ├── db/
+│   │   ├── connection.js  # Singleton de conexao mssql
+│   │   └── queries.js     # Todas as queries
+│   ├── email/
+│   │   └── mailer.js      # Envio de email via nodemailer
 │   ├── routes/
-│   └── services/
+│   │   ├── clientes.js
+│   │   └── cobrancas.js
+│   └── package.json
 │
-├── client/             # Frontend (React + Vite)
+├── client/                # Frontend (React + Vite)
 │   ├── src/
+│   │   ├── components/    # TabelaCobrancas, TabelaClientes, FiltrosPeriodo, ui/, layout/
+│   │   ├── hooks/         # useAuth (zustand), useCobrancas
+│   │   ├── pages/         # LoginPage, CobrancasPage, ClientesPage
+│   │   ├── services/      # api.js (chamadas HTTP)
+│   │   └── lib/           # utils.js
 │   ├── package.json
-│   └── vite.config.ts
+│   └── vite.config.js
 │
-├── dist/               # Build produção
-│   ├── *.js            # Backend compilado
-│   └── public/         # Frontend buildado
-│
-└── package.json        # Scripts e deps backend
+└── package.json           # Scripts de orquestracao (concurrently)
 ```
 
 ## Setup
 
 ```bash
-# backend
+# instalar deps (raiz + server + client)
 npm install
-
-# frontend
+cd server && npm install && cd ..
 cd client && npm install && cd ..
 
-# configurar .env
-cp .env.example .env
+# configurar .env na pasta server/
+cp .env.example server/.env
 ```
 
-Variáveis necessárias no `.env`:
+Variaveis necessarias no `.env`:
 
 ```env
 PORT=3001
@@ -74,50 +80,55 @@ Abre:
 - Frontend: `http://localhost:5173` (com HMR)
 - Backend: `http://localhost:3001` (API)
 
-## Produção
+## Producao
 
 ```bash
-npm run build  # compila tudo
-npm start      # roda em localhost:3001
+npm run build  # builda o frontend
+npm start      # roda o servidor em localhost:3001
 ```
 
 ## Scripts
 
-| Comando | Ação |
+| Comando | Acao |
 |---------|------|
-| `npm run dev` | Dev mode (backend + frontend) |
-| `npm run build` | Build completo |
-| `npm start` | Produção |
+| `npm run dev` | Dev mode (backend + frontend simultaneos) |
+| `npm run dev:server` | Apenas backend (node --watch) |
+| `npm run dev:client` | Apenas frontend (vite) |
+| `npm run build` | Build do frontend |
+| `npm start` | Producao |
 
 ## API
 
-| Método | Rota | Descrição |
+| Metodo | Rota | Descricao |
 |--------|------|-----------|
 | POST | `/api/auth/login` | Login |
 | GET | `/api/clientes` | Lista clientes |
-| GET | `/api/cobrancas` | Lista cobranças |
-| POST | `/api/cobrancas` | Cria cobrança |
-| POST | `/api/cobrancas/:id/enviar-email` | Envia email |
+| GET | `/api/cobrancas` | Lista cobrancas (filtros: search, status, inicio, fim) |
+| GET | `/api/cobrancas/preview` | Preview de atendimentos por cliente/periodo |
+| POST | `/api/cobrancas/gerar` | Gera cobrancas (body: clienteIds, inicio, fim, precoHora) |
+| POST | `/api/cobrancas/enviar/:id` | Envia email de uma cobranca |
+| POST | `/api/cobrancas/enviar-todas` | Envia email de todas as cobrancas pendentes |
 
 ## Features
 
-- Autenticação
-- CRUD de cobranças
-- Filtros (busca, status, período)
-- Envio de emails
+- Autenticacao simples (usuario/senha via .env)
+- Geracao de cobrancas por periodo com preview
+- Filtros (busca, status, periodo)
+- Envio de emails individual e em lote
+- Paginas de clientes e cobrancas
 - Interface responsiva
 
 ## Stack Completa
 
 **Backend:**
-- Express 4, TypeScript 5, MSSQL, Nodemailer, CORS
+- Express 4, MSSQL, Nodemailer, CORS, dotenv
 
 **Frontend:**
-- React 19, Vite 7, TypeScript 5, Tailwind CSS 3, Shadcn/UI, React Router 7, Zustand, Lucide Icons
+- React 19, Vite 7, Tailwind CSS 3, Radix UI, React Router 7, Zustand 5, Lucide Icons
 
 **Dev:**
-- Nodemon, ts-node, Concurrently
+- Nodemon, Concurrently
 
-## Licença
+## Licenca
 
 ISC

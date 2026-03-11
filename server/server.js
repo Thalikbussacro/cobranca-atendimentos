@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
 import path from 'path'
@@ -7,6 +7,7 @@ import clientesRouter from './routes/clientes.js'
 import cobrancasRouter from './routes/cobrancas.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
 const app = express()
 const PORT = process.env.PORT || 3001

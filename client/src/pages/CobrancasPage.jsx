@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useCobrancas } from '@/hooks/useCobrancas'
 import { TabelaCobrancas } from '@/components/TabelaCobrancas'
 import { FiltrosPeriodo } from '@/components/FiltrosPeriodo'
-import { AlertBar } from '@/components/layout/AlertBar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Send, Search } from 'lucide-react'
+import { Send, Search, X } from 'lucide-react'
 import { enviarEmail, enviarTodas } from '@/services/api'
 
 export default function CobrancasPage() {
@@ -22,18 +21,14 @@ export default function CobrancasPage() {
   const [enviandoEmailId, setEnviandoEmailId] = useState(null)
   const [enviandoTodas, setEnviandoTodas] = useState(false)
 
-  const showAlerta = (description) => {
-    setAlerta(description)
-  }
-
   const handleEnviarEmail = async (cobrancaId) => {
     try {
       setEnviandoEmailId(cobrancaId)
       const data = await enviarEmail(cobrancaId)
-      showAlerta(data.message || 'E-mail enviado com sucesso!')
+      setAlerta(data.message || 'E-mail enviado com sucesso!')
       await refresh()
     } catch (error) {
-      showAlerta(`Erro: ${error.message}`)
+      setAlerta(`Erro: ${error.message}`)
     } finally {
       setEnviandoEmailId(null)
     }
@@ -43,10 +38,10 @@ export default function CobrancasPage() {
     try {
       setEnviandoTodas(true)
       const data = await enviarTodas()
-      showAlerta(data.message || 'E-mails enviados com sucesso!')
+      setAlerta(data.message || 'E-mails enviados com sucesso!')
       await refresh()
     } catch (error) {
-      showAlerta(`Erro: ${error.message}`)
+      setAlerta(`Erro: ${error.message}`)
     } finally {
       setEnviandoTodas(false)
     }
@@ -55,12 +50,15 @@ export default function CobrancasPage() {
   return (
     <div className="flex flex-col h-full">
       {alerta && (
-        <AlertBar
-          title="Notificação"
-          description={alerta}
-          variant="success"
-          onDismiss={() => setAlerta(null)}
-        />
+        <div className="relative mb-4 mx-4 md:mx-6 mt-4 px-4 py-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-800">
+          {alerta}
+          <button
+            onClick={() => setAlerta(null)}
+            className="absolute right-2 top-2 text-green-600 hover:text-green-800"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden p-4 md:p-6">

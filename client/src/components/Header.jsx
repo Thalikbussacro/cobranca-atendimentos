@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { getInitials } from '@/lib/utils'
 
 export function Header() {
   const navigate = useNavigate()
@@ -26,10 +25,7 @@ export function Header() {
 
       <div className="flex items-center gap-2 md:gap-3">
         <div className="flex items-center gap-2 bg-so-blue text-white px-2 md:px-3 py-1.5 rounded-full text-xs md:text-sm font-medium">
-          <div className="w-5 h-5 md:w-6 md:h-6 bg-white/20 rounded-full flex items-center justify-center text-xs">
-            {getInitials(user?.name || 'OP')}
-          </div>
-          <span className="hidden md:inline">{user?.name || 'Operador'}</span>
+          <span>{user?.name || 'Operador'}</span>
         </div>
 
         <Button
