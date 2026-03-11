@@ -198,51 +198,51 @@
 
 ### Fase 1 — Preparacao
 
-- [ ] 1.1. Criar branch `migration/simplify-to-js`
-- [ ] 1.2. Remover `dist/` do git e adicionar ao `.gitignore` (ja esta no gitignore, so precisa remover o que foi commitado)
-- [ ] 1.3. Criar estrutura de pastas `server/`, `server/routes/`, `server/db/`, `server/email/`
+- [x] 1.1. Criar branch `migration/simplify-to-js`
+- [x] 1.2. Remover `dist/` do git e adicionar ao `.gitignore` (ja esta no gitignore, so precisa remover o que foi commitado)
+- [x] 1.3. Criar estrutura de pastas `server/`, `server/routes/`, `server/db/`, `server/email/`
 
 ### Fase 2 — Migrar servidor (TS → JS)
 
-- [ ] 2.1. Criar `server/db/connection.js` — converter database.ts removendo interfaces e tipos
-- [ ] 2.2. Criar `server/db/queries.js` — consolidar queries de Cliente.ts, Atendimento.ts e Cobranca.ts sem tipos TS
-- [ ] 2.3. Criar `server/email/mailer.js` — converter emailService.ts removendo tipos
-- [ ] 2.4. Criar `server/routes/clientes.js` — consolidar clienteRoutes + clienteController (apenas GET /)
-- [ ] 2.5. Criar `server/routes/cobrancas.js` — consolidar cobrancaRoutes + cobrancaController, ajustando endpoints:
+- [x] 2.1. Criar `server/db/connection.js` — converter database.ts removendo interfaces e tipos
+- [x] 2.2. Criar `server/db/queries.js` — consolidar queries de Cliente.ts, Atendimento.ts e Cobranca.ts sem tipos TS
+- [x] 2.3. Criar `server/email/mailer.js` — converter emailService.ts removendo tipos
+- [x] 2.4. Criar `server/routes/clientes.js` — consolidar clienteRoutes + clienteController (apenas GET /)
+- [x] 2.5. Criar `server/routes/cobrancas.js` — consolidar cobrancaRoutes + cobrancaController, ajustando endpoints:
   - GET `/` → lista cobrancas com filtro por inicio/fim
   - GET `/preview` → preview de atendimentos por cliente/periodo
   - POST `/gerar` → recebe { clienteIds[], inicio, fim, precoHora } e gera todas de uma vez
   - POST `/enviar/:id` → envia email de uma cobranca
   - POST `/enviar-todas` → envia todas pendentes
-- [ ] 2.6. Criar `server/server.js` — consolidar server.ts + app.ts + auth inline + error handler inline
-- [ ] 2.7. Criar `server/package.json` — dependencias: express, cors, dotenv, mssql, nodemailer + devDeps: nodemon
-- [ ] 2.8. Mover `.env.example` para a raiz (ja esta) — validar que DB vars estao completas
-- [ ] 2.9. Testar servidor isoladamente (rodar e verificar que responde)
+- [x] 2.6. Criar `server/server.js` — consolidar server.ts + app.ts + auth inline + error handler inline
+- [x] 2.7. Criar `server/package.json` — dependencias: express, cors, dotenv, mssql, nodemailer + devDeps: nodemon
+- [x] 2.8. Mover `.env.example` para a raiz (ja esta) — validar que DB vars estao completas
+- [x] 2.9. Testar servidor isoladamente (rodar e verificar que responde)
 
 ### Fase 3 — Migrar cliente (TS → JS)
 
-- [ ] 3.1. Converter `vite.config.ts` → `vite.config.js` (remover import de tipo)
-- [ ] 3.2. Converter `tailwind.config.ts` → `tailwind.config.js` (remover `import type`)
-- [ ] 3.3. Converter `postcss.config.js` — ja e JS, manter
-- [ ] 3.4. Remover `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json` do client
-- [ ] 3.5. Converter `src/lib/utils.ts` → `utils.js` (remover ClassValue import)
-- [ ] 3.6. Converter componentes UI usados (.tsx → .jsx): alert, badge, button, card, input, label, select, table
-- [ ] 3.7. Remover componentes UI nao usados: dialog.tsx, scroll-area.tsx
-- [ ] 3.8. Converter componentes de layout (.tsx → .jsx): Header, Brand, AlertBar
-- [ ] 3.9. Converter LoadingSpinner.tsx → .jsx
-- [ ] 3.10. Consolidar services (4 arquivos .ts) → `services/api.js` (1 arquivo .js)
-- [ ] 3.11. Converter `hooks/useAuth.ts` → `useAuth.js` (remover tipos)
-- [ ] 3.12. Converter `hooks/useCobrancas.ts` → `useCobrancas.js` (remover tipos)
-- [ ] 3.13. Criar `pages/ClientesPage.jsx` — tabela de clientes (somente leitura)
-- [ ] 3.14. Criar `components/TabelaClientes.jsx` — componente de tabela de clientes
-- [ ] 3.15. Criar `components/FiltrosPeriodo.jsx` — selecao de cliente(s), periodo, e botao gerar
-- [ ] 3.16. Refatorar `pages/CobrancasPage.jsx` — integrar FiltrosPeriodo + TabelaCobrancas + enviar-todas
-- [ ] 3.17. Criar `components/TabelaCobrancas.jsx` — consolidar CobrancaTable + CobrancaDetails + SortableHeader + StatusBadge
-- [ ] 3.18. Converter `pages/LoginPage.tsx` → `LoginPage.jsx`
-- [ ] 3.19. Refatorar `App.jsx` — atualizar rotas (remover /nova-cobranca e /confirmar, adicionar /clientes)
-- [ ] 3.20. Converter `main.tsx` → `main.jsx`
-- [ ] 3.21. Atualizar `index.html` — apontar src para main.jsx
-- [ ] 3.22. Atualizar `client/package.json`:
+- [x] 3.1. Converter `vite.config.ts` → `vite.config.js` (remover import de tipo)
+- [x] 3.2. Converter `tailwind.config.ts` → `tailwind.config.js` (remover `import type`)
+- [x] 3.3. Converter `postcss.config.js` — ja e JS, manter
+- [x] 3.4. Remover `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json` do client
+- [x] 3.5. Converter `src/lib/utils.ts` → `utils.js` (remover ClassValue import)
+- [x] 3.6. Converter componentes UI usados (.tsx → .jsx): alert, badge, button, card, input, label, select, table
+- [x] 3.7. Remover componentes UI nao usados: dialog.tsx, scroll-area.tsx
+- [x] 3.8. Converter componentes de layout (.tsx → .jsx): Header, Brand, AlertBar
+- [x] 3.9. Converter LoadingSpinner.tsx → .jsx
+- [x] 3.10. Consolidar services (4 arquivos .ts) → `services/api.js` (1 arquivo .js)
+- [x] 3.11. Converter `hooks/useAuth.ts` → `useAuth.js` (remover tipos)
+- [x] 3.12. Converter `hooks/useCobrancas.ts` → `useCobrancas.js` (remover tipos)
+- [x] 3.13. Criar `pages/ClientesPage.jsx` — tabela de clientes (somente leitura)
+- [x] 3.14. Criar `components/TabelaClientes.jsx` — componente de tabela de clientes
+- [x] 3.15. Criar `components/FiltrosPeriodo.jsx` — selecao de cliente(s), periodo, e botao gerar
+- [x] 3.16. Refatorar `pages/CobrancasPage.jsx` — integrar FiltrosPeriodo + TabelaCobrancas + enviar-todas
+- [x] 3.17. Criar `components/TabelaCobrancas.jsx` — consolidar CobrancaTable + CobrancaDetails + SortableHeader + StatusBadge
+- [x] 3.18. Converter `pages/LoginPage.tsx` → `LoginPage.jsx`
+- [x] 3.19. Refatorar `App.jsx` — atualizar rotas (remover /nova-cobranca e /confirmar, adicionar /clientes)
+- [x] 3.20. Converter `main.tsx` → `main.jsx`
+- [x] 3.21. Atualizar `index.html` — apontar src para main.jsx
+- [x] 3.22. Atualizar `client/package.json`:
   - Remover todas as dependencias de tipos (@types/*)
   - Remover typescript e typescript-eslint
   - Remover eslint e plugins (opcional, para simplificar)
@@ -250,14 +250,14 @@
 
 ### Fase 4 — Limpeza e ajustes finais
 
-- [ ] 4.1. Remover pastas antigas: `src/` (servidor antigo), `backend/`, `frontend/` (se existirem resquicios)
-- [ ] 4.2. Atualizar `package.json` da raiz ou remover (o package.json raiz atual e o do servidor — sera substituido por `server/package.json`)
-- [ ] 4.3. Remover `tsconfig.json` da raiz
-- [ ] 4.4. Remover `nodemon.json` da raiz
-- [ ] 4.5. Atualizar `.gitignore`
-- [ ] 4.6. Testar fluxo completo: login → clientes → gerar cobranca → listar → enviar email
-- [ ] 4.7. Verificar que `npm run dev` funciona em ambos (client e server)
-- [ ] 4.8. Remover `eslint.config.js` do client (se decidirmos simplificar)
+- [x] 4.1. Remover pastas antigas: `src/` (servidor antigo), `backend/`, `frontend/` (se existirem resquicios)
+- [x] 4.2. Atualizar `package.json` da raiz ou remover (o package.json raiz atual e o do servidor — sera substituido por `server/package.json`)
+- [x] 4.3. Remover `tsconfig.json` da raiz
+- [x] 4.4. Remover `nodemon.json` da raiz
+- [x] 4.5. Atualizar `.gitignore`
+- [x] 4.6. Testar fluxo completo: login → clientes → gerar cobranca → listar → enviar email
+- [x] 4.7. Verificar que `npm run dev` funciona em ambos (client e server)
+- [x] 4.8. Remover `eslint.config.js` do client (se decidirmos simplificar)
 
 ---
 
