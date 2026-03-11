@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import { Cobranca } from '@/services/cobrancaService'
+import type { Cobranca } from '@/services/cobrancaService'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 

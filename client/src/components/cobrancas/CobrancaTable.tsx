@@ -1,6 +1,6 @@
 
 import { useState, useMemo, Fragment } from 'react'
-import { Cobranca } from '@/services/cobrancaService'
+import type { Cobranca } from '@/services/cobrancaService'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -13,7 +13,7 @@ import {
 import { ChevronDown, ChevronUp, Mail, Trash2, Loader2 } from 'lucide-react'
 import { CobrancaDetails } from './CobrancaDetails'
 import { StatusBadge } from './StatusBadge'
-import { SortableHeader, SortDirection } from './SortableHeader'
+import { SortableHeader, type SortDirection } from './SortableHeader'
 
 interface CobrancaTableProps {
   cobrancas: Cobranca[]
