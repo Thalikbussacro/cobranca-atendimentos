@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
-import { Brand } from '@/components/layout/Brand'
 import { Loader2 } from 'lucide-react'
 import { login as loginService } from '@/services/api'
 
@@ -45,7 +44,15 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardContent className="pt-6 md:pt-8 pb-4 md:pb-6 px-4 md:px-8">
           <div className="flex justify-center mb-6 md:mb-8">
-            <Brand />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg bg-so-blue text-white">
+                SO
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-sm leading-tight text-so-blue">Empresa Genérica</span>
+                <span className="text-xs text-gray-500">Atendimento do Cliente</span>
+              </div>
+            </div>
           </div>
 
           <p className="text-center text-muted-foreground mb-4 md:mb-6 text-sm md:text-base">

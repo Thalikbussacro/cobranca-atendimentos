@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { TabelaClientes } from '@/components/TabelaClientes'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { getAllClientes } from '@/services/api'
 
 export default function ClientesPage() {

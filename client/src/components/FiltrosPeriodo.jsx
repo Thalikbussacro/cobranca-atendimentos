@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 import { getAllClientes, getPreview, gerarCobrancas } from '@/services/api'
 

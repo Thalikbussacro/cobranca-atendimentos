@@ -29,131 +29,6 @@ function formatarPrecoHora(preco) {
   return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-function gerarHTMLCobranca(cobranca) {
-  const valorTotal = calcularValorTotal(cobranca)
-  const precoHoraFormatado = formatarPrecoHora(cobranca.precoHora)
-
-  return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Empresa Genérica - Atendimentos Prestados - ${cobranca.periodo}</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #E8F4F8;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #E8F4F8; padding: 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <tr>
-            <td style="background-color: #1A5F7A; padding: 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">
-                EMPRESA GENÉRICA
-              </h1>
-              <p style="margin: 10px 0 0 0; color: #E8F4F8; font-size: 16px;">
-                Atendimentos Prestados - ${cobranca.periodo}
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 30px; background-color: #ffffff;">
-              <p style="margin: 0 0 15px 0; color: #333333; font-size: 14px; line-height: 1.6;">
-                Prezado(a) <strong>${cobranca.cliente}</strong>,
-              </p>
-              <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.6;">
-                Segue a relação dos atendimentos técnicos prestados no período de <strong>${cobranca.periodo}</strong>.
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 30px; background-color: #f8f9fa; border-top: 1px solid #dee2e6;">
-              <h2 style="margin: 0 0 15px 0; color: #1A5F7A; font-size: 16px; font-weight: bold;">
-                Forma de Pagamento
-              </h2>
-              <p style="margin: 0 0 10px 0; color: #333333; font-size: 13px; line-height: 1.6;">
-                Por favor, responda este e-mail informando:
-              </p>
-              <p style="margin: 0 0 10px 0; color: #333333; font-size: 13px; line-height: 1.6;">
-                <strong>Forma de pagamento:</strong> PIX, Boleto Bancário ou Transferência Bancária<br>
-                <strong>Se podemos faturar no CNPJ:</strong> ${cobranca.clienteCnpj}
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 0 30px 30px 30px;">
-              <h2 style="margin: 0 0 15px 0; color: #1A5F7A; font-size: 16px; font-weight: bold;">
-                Resumo Financeiro
-              </h2>
-              <table width="100%" cellpadding="10" cellspacing="0" style="background-color: #f8f9fa; border-left: 3px solid #1A5F7A;">
-                <tr>
-                  <td style="color: #666666; font-size: 13px;">Total de Atendimentos:</td>
-                  <td style="color: #333333; font-size: 13px; font-weight: bold; text-align: right;">${cobranca.atendimentos}</td>
-                </tr>
-                <tr>
-                  <td style="color: #666666; font-size: 13px;">Horas Totais:</td>
-                  <td style="color: #333333; font-size: 13px; font-weight: bold; text-align: right;">${cobranca.horas}</td>
-                </tr>
-                <tr>
-                  <td style="color: #666666; font-size: 13px;">Preço por Hora:</td>
-                  <td style="color: #333333; font-size: 13px; font-weight: bold; text-align: right;">${precoHoraFormatado}</td>
-                </tr>
-                <tr style="border-top: 2px solid #dee2e6;">
-                  <td style="color: #333333; font-size: 15px; padding-top: 10px;"><strong>Valor Total:</strong></td>
-                  <td style="color: #1A5F7A; font-size: 18px; font-weight: bold; text-align: right; padding-top: 10px;">${valorTotal}</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 0 30px 30px 30px;">
-              <h2 style="margin: 0 0 15px 0; color: #1A5F7A; font-size: 16px; font-weight: bold;">
-                Detalhamento dos Atendimentos
-              </h2>
-              <table width="100%" cellpadding="10" cellspacing="0" style="border: 1px solid #dee2e6; border-radius: 4px;">
-                <thead>
-                  <tr style="background-color: #1A5F7A;">
-                    <th style="color: #ffffff; font-size: 12px; text-align: left; padding: 12px; border-bottom: 2px solid #0f4a5f;">Data</th>
-                    <th style="color: #ffffff; font-size: 12px; text-align: left; padding: 12px; border-bottom: 2px solid #0f4a5f;">Solicitante</th>
-                    <th style="color: #ffffff; font-size: 12px; text-align: left; padding: 12px; border-bottom: 2px solid #0f4a5f;">Problema</th>
-                    <th style="color: #ffffff; font-size: 12px; text-align: left; padding: 12px; border-bottom: 2px solid #0f4a5f;">Solução</th>
-                    <th style="color: #ffffff; font-size: 12px; text-align: center; padding: 12px; border-bottom: 2px solid #0f4a5f;">Tempo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${cobranca.itens
-                    .map(
-                      (item, index) => `
-                  <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8f9fa'};">
-                    <td style="color: #333333; font-size: 13px; padding: 10px; border-bottom: 1px solid #dee2e6;">${item.data}</td>
-                    <td style="color: #333333; font-size: 13px; padding: 10px; border-bottom: 1px solid #dee2e6;">${item.solicitante}</td>
-                    <td style="color: #333333; font-size: 13px; padding: 10px; border-bottom: 1px solid #dee2e6;">${item.resumo}</td>
-                    <td style="color: #333333; font-size: 13px; padding: 10px; border-bottom: 1px solid #dee2e6;">${item.solucao}</td>
-                    <td style="color: #333333; font-size: 13px; padding: 10px; text-align: center; border-bottom: 1px solid #dee2e6;">${item.tempo}</td>
-                  </tr>
-                  `
-                    )
-                    .join('')}
-                </tbody>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color: #1A5F7A; padding: 15px; text-align: center;">
-              <p style="margin: 0; color: #E8F4F8; font-size: 12px;">
-                Empresa Genérica | Sistema de Cobranças
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `.trim()
-}
-
 function gerarTextoPlanoCobranca(cobranca) {
   const valorTotal = calcularValorTotal(cobranca)
   const precoHoraFormatado = formatarPrecoHora(cobranca.precoHora)
@@ -205,15 +80,13 @@ export async function enviarCobrancaEmail(cobranca) {
     throw new Error('Nenhum email válido encontrado para o cliente. Verifique o cadastro.')
   }
 
-  const html = gerarHTMLCobranca(cobranca)
   const text = gerarTextoPlanoCobranca(cobranca)
   const subject = `Empresa Genérica - Atendimentos Prestados - ${cobranca.periodo}`
 
   const info = await transporter.sendMail({
-    from: `${process.env.EMAIL_FROM || 'noreply@empresagenerica.com'}`,
+    from: process.env.EMAIL_FROM || 'noreply@empresagenerica.com',
     to: emails.join(', '),
     subject,
-    html,
     text,
   })
 
