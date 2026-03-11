@@ -2,145 +2,122 @@
 
 Sistema para gerenciar cobranças de atendimentos técnicos.
 
-## Arquitetura
+## Tecnologias
 
-- **Backend**: Express.js + TypeScript + MVC
-- **Frontend**: React + Vite + TypeScript + Tailwind CSS
-- **Banco de Dados**: SQL Server
+- Backend: Express.js + TypeScript (MVC)
+- Frontend: React 19 + Vite + TypeScript
+- UI: Tailwind CSS 3 + Shadcn/UI
+- Database: SQL Server
+- Deploy: Monolito (backend serve frontend estático)
 
-## Estrutura do Projeto
+## Estrutura
 
 ```
-├── backend/          # API Express
-│   ├── src/
-│   │   ├── models/      # Lógica de acesso ao banco
-│   │   ├── controllers/ # Controladores das rotas
-│   │   ├── routes/      # Definição de rotas
-│   │   ├── services/    # Serviços (email, etc)
-│   │   └── config/      # Configurações (DB)
-│   └── package.json
+├── src/                # Backend (TypeScript)
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   └── services/
 │
-└── frontend/         # React App
-    ├── src/
-    │   ├── components/  # Componentes React
-    │   ├── pages/       # Páginas da aplicação
-    │   ├── hooks/       # Custom hooks
-    │   ├── services/    # Chamadas à API
-    │   └── types/       # TypeScript types
-    └── package.json
+├── client/             # Frontend (React + Vite)
+│   ├── src/
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── dist/               # Build produção
+│   ├── *.js            # Backend compilado
+│   └── public/         # Frontend buildado
+│
+└── package.json        # Scripts e deps backend
 ```
 
-## Instalação
-
-### Backend
+## Setup
 
 ```bash
-cd backend
+# backend
 npm install
+
+# frontend
+cd client && npm install && cd ..
+
+# configurar .env
 cp .env.example .env
-# Configure as variáveis de ambiente no .env
-npm run dev
 ```
 
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## Configuração
-
-### Variáveis de Ambiente - Backend
-
-Edite `backend/.env`:
+Variáveis necessárias no `.env`:
 
 ```env
 PORT=3001
-
-# Autenticação
 AUTH_USERNAME=admin
-AUTH_PASSWORD=sua_senha
+AUTH_PASSWORD=senha
 
-# SQL Server
 DB_SERVER=localhost
-DB_DATABASE=seu_banco
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
+DB_DATABASE=nome_banco
+DB_USER=usuario
+DB_PASSWORD=senha
 DB_PORT=1433
 
-# SMTP
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=seu_email@gmail.com
-SMTP_PASS=sua_senha_app
+SMTP_USER=email@gmail.com
+SMTP_PASS=senha_app
 EMAIL_FROM=noreply@empresa.com
 ```
 
-## Uso
-
-1. **Inicie o backend** (porta 3001)
-2. **Inicie o frontend** (porta 5173)
-3. **Acesse** http://localhost:5173
-4. **Login**: use as credenciais configuradas no .env
-
-## Funcionalidades
-
-- ✅ Autenticação de usuários
-- ✅ Listagem de cobranças com filtros
-- ✅ Criação de nova cobrança
-- ✅ Visualização detalhada de cobranças
-- ✅ Envio de emails de cobrança
-- ✅ Interface responsiva
-
 ## Desenvolvimento
 
-### Estrutura de Rotas
+```bash
+npm run dev
+```
+
+Abre:
+- Frontend: `http://localhost:5173` (com HMR)
+- Backend: `http://localhost:3001` (API)
+
+## Produção
+
+```bash
+npm run build  # compila tudo
+npm start      # roda em localhost:3001
+```
+
+## Scripts
+
+| Comando | Ação |
+|---------|------|
+| `npm run dev` | Dev mode (backend + frontend) |
+| `npm run build` | Build completo |
+| `npm start` | Produção |
+
+## API
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/auth/login` | Login |
+| GET | `/api/clientes` | Lista clientes |
+| GET | `/api/cobrancas` | Lista cobranças |
+| POST | `/api/cobrancas` | Cria cobrança |
+| POST | `/api/cobrancas/:id/enviar-email` | Envia email |
+
+## Features
+
+- Autenticação
+- CRUD de cobranças
+- Filtros (busca, status, período)
+- Envio de emails
+- Interface responsiva
+
+## Stack Completa
+
+**Backend:**
+- Express 4, TypeScript 5, MSSQL, Nodemailer, CORS
 
 **Frontend:**
-- `/login` - Página de login
-- `/cobrancas` - Listagem de cobranças
-- `/nova-cobranca` - Criação de cobrança
-- `/nova-cobranca/confirmar` - Confirmação antes de criar
+- React 19, Vite 7, TypeScript 5, Tailwind CSS 3, Shadcn/UI, React Router 7, Zustand, Lucide Icons
 
-**Backend API:**
-- `POST /api/auth/login` - Autenticação
-- `GET /api/clientes` - Listar clientes
-- `GET /api/cobrancas` - Listar cobranças
-- `POST /api/cobrancas` - Criar cobrança
-- `POST /api/cobrancas/:id/enviar-email` - Enviar email
+**Dev:**
+- Nodemon, ts-node, Concurrently
 
-## Build para Produção
+## Licença
 
-### Backend
-```bash
-cd backend
-npm run build
-npm start
-```
-
-### Frontend
-```bash
-cd frontend
-npm run build
-# Os arquivos estarão em frontend/dist
-```
-
-## Tecnologias
-
-### Backend
-- Express.js
-- TypeScript
-- MSSQL
-- Nodemailer
-
-### Frontend
-- React 19
-- Vite
-- TypeScript
-- Tailwind CSS
-- Shadcn/UI
-- React Router
-- Zustand
-- Lucide Icons
+ISC

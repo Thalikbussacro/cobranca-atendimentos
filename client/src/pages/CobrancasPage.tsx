@@ -8,11 +8,10 @@ import { sendEmail } from '@/services/cobrancaService'
 
 export default function CobrancasPage() {
   const navigate = useNavigate()
-  const { cobrancas, loading, filters, setFilters, refresh } = useCobrancas()
+  const { cobrancas, filters, setFilters, refresh } = useCobrancas()
   const [showSuccessAlert, setShowSuccessAlert] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [enviandoEmailId, setEnviandoEmailId] = useState<number | null>(null)
-  const [cancelandoId, setCancelandoId] = useState<number | null>(null)
 
   const handleEnviarEmail = async (cobrancaId: number) => {
     try {
@@ -39,7 +38,12 @@ export default function CobrancasPage() {
   return (
     <div className="flex flex-col h-full">
       {showSuccessAlert && (
-        <AlertBar message={successMessage} onClose={() => setShowSuccessAlert(false)} />
+        <AlertBar
+          title="Notificação"
+          description={successMessage}
+          variant="success"
+          onDismiss={() => setShowSuccessAlert(false)}
+        />
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden p-4 md:p-6">
@@ -51,10 +55,16 @@ export default function CobrancasPage() {
         </div>
 
         <Toolbar
-          filters={filters}
-          onFilterChange={setFilters}
-          onNovaCobranca={() => navigate('/nova-cobranca')}
-          loading={loading}
+          search={filters.search || ''}
+          onSearchChange={(value) => setFilters({ ...filters, search: value })}
+          status={filters.status || 'all'}
+          onStatusChange={(value) => setFilters({ ...filters, status: value })}
+          dataInicial={filters.periodo?.split(' - ')[0] || ''}
+          dataFinal={filters.periodo?.split(' - ')[1] || ''}
+          onDataInicialChange={(value) => setFilters({ ...filters, periodo: `${value} - ${filters.periodo?.split(' - ')[1] || ''}` })}
+          onDataFinalChange={(value) => setFilters({ ...filters, periodo: `${filters.periodo?.split(' - ')[0] || ''} - ${value}` })}
+          onNewCobranca={() => navigate('/nova-cobranca')}
+          onEnviarTodos={() => console.log('Enviar todos')}
         />
 
         <div className="flex-1 overflow-hidden">
@@ -63,7 +73,7 @@ export default function CobrancasPage() {
             onEnviarEmail={handleEnviarEmail}
             onCancelarCobranca={handleCancelarCobranca}
             enviandoEmailId={enviandoEmailId}
-            cancelandoId={cancelandoId}
+            cancelandoId={null}
           />
         </div>
       </div>

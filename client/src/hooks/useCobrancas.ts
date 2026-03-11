@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Cobranca, getAllCobrancas, CobrancaFilters } from '@/services/cobrancaService'
+import { getAllCobrancas } from '@/services/cobrancaService'
+import type { Cobranca, CobrancaFilters } from '@/services/cobrancaService'
 
 export function useCobrancas() {
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([])

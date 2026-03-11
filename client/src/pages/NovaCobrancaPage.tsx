@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeft } from 'lucide-react'
 import { getAllClientes } from '@/services/clienteService'
-import { getPreview } from '@/services/cobrancaService'
 import { useEffect } from 'react'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
