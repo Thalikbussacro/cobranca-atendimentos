@@ -6,15 +6,16 @@ Sistema para gerenciar cobrancas de atendimentos tecnicos.
 
 - Backend: Express.js (JavaScript)
 - Frontend: React 19 + Vite 7
-- UI: Tailwind CSS 3 + Radix UI
+- UI: Tailwind CSS 3 + shadcn/ui
 - Database: SQL Server
-- Deploy: Monolito (backend serve frontend estatico)
 
 ## Estrutura
 
 ```
 ├── server/                # Backend (JavaScript)
 │   ├── server.js          # Express app + auth + error handler
+│   ├── .env               # Variaveis de ambiente (nao versionado)
+│   ├── .env.example       # Exemplo de configuracao
 │   ├── db/
 │   │   ├── connection.js  # Singleton de conexao mssql
 │   │   └── queries.js     # Todas as queries
@@ -25,32 +26,30 @@ Sistema para gerenciar cobrancas de atendimentos tecnicos.
 │   │   └── cobrancas.js
 │   └── package.json
 │
-├── client/                # Frontend (React + Vite)
-│   ├── src/
-│   │   ├── components/    # TabelaCobrancas, TabelaClientes, FiltrosPeriodo, ui/, layout/
-│   │   ├── hooks/         # useAuth (zustand), useCobrancas
-│   │   ├── pages/         # LoginPage, CobrancasPage, ClientesPage
-│   │   ├── services/      # api.js (chamadas HTTP)
-│   │   └── lib/           # utils.js
-│   ├── package.json
-│   └── vite.config.js
-│
-└── package.json           # Scripts de orquestracao (concurrently)
+└── client/                # Frontend (React + Vite)
+    ├── src/
+    │   ├── components/    # TabelaCobrancas, TabelaClientes, FiltrosPeriodo, ui/, layout/
+    │   ├── hooks/         # useAuth (zustand), useCobrancas
+    │   ├── pages/         # LoginPage, CobrancasPage, ClientesPage
+    │   ├── services/      # api.js (chamadas HTTP)
+    │   └── lib/           # utils.js
+    ├── package.json
+    └── vite.config.js
 ```
 
 ## Setup
 
 ```bash
-# instalar deps (raiz + server + client)
-npm install
-cd server && npm install && cd ..
-cd client && npm install && cd ..
+# instalar dependencias
+cd server && npm install
+cd ../client && npm install
 
-# configurar .env na pasta server/
-cp .env.example server/.env
+# configurar variaveis de ambiente
+cp server/.env.example server/.env
+# editar server/.env com os valores corretos
 ```
 
-Variaveis necessarias no `.env`:
+Variaveis necessarias no `server/.env`:
 
 ```env
 PORT=3001
@@ -72,42 +71,51 @@ EMAIL_FROM=noreply@empresa.com
 
 ## Desenvolvimento
 
+Abrir dois terminais:
+
 ```bash
-npm run dev
+# terminal 1 - backend
+cd server && npm run dev
+
+# terminal 2 - frontend
+cd client && npm run dev
 ```
 
 Abre:
+
 - Frontend: `http://localhost:5173` (com HMR)
 - Backend: `http://localhost:3001` (API)
 
 ## Producao
 
 ```bash
-npm run build  # builda o frontend
-npm start      # roda o servidor em localhost:3001
+# buildar o frontend
+cd client && npm run build
+
+# rodar o servidor (serve tambem os arquivos estaticos do client/dist)
+cd server && npm start
 ```
 
 ## Scripts
 
-| Comando | Acao |
-|---------|------|
-| `npm run dev` | Dev mode (backend + frontend simultaneos) |
-| `npm run dev:server` | Apenas backend (node --watch) |
-| `npm run dev:client` | Apenas frontend (vite) |
-| `npm run build` | Build do frontend |
-| `npm start` | Producao |
+| Comando                        | Acao                          |
+| ------------------------------ | ----------------------------- |
+| `cd server && npm run dev`     | Backend com hot reload        |
+| `cd client && npm run dev`     | Frontend com HMR              |
+| `cd client && npm run build`   | Build do frontend             |
+| `cd server && npm start`       | Producao                      |
 
 ## API
 
-| Metodo | Rota | Descricao |
-|--------|------|-----------|
-| POST | `/api/auth/login` | Login |
-| GET | `/api/clientes` | Lista clientes |
-| GET | `/api/cobrancas` | Lista cobrancas (filtros: search, status, inicio, fim) |
-| GET | `/api/cobrancas/preview` | Preview de atendimentos por cliente/periodo |
-| POST | `/api/cobrancas/gerar` | Gera cobrancas (body: clienteIds, inicio, fim, precoHora) |
-| POST | `/api/cobrancas/enviar/:id` | Envia email de uma cobranca |
-| POST | `/api/cobrancas/enviar-todas` | Envia email de todas as cobrancas pendentes |
+| Metodo | Rota                          | Descricao                                                 |
+| ------ | ----------------------------- | --------------------------------------------------------- |
+| POST   | `/api/auth/login`             | Login                                                     |
+| GET    | `/api/clientes`               | Lista clientes                                            |
+| GET    | `/api/cobrancas`              | Lista cobrancas (filtros: search, status, inicio, fim)    |
+| GET    | `/api/cobrancas/preview`      | Preview de atendimentos por cliente/periodo               |
+| POST   | `/api/cobrancas/gerar`        | Gera cobrancas (body: clienteIds, inicio, fim, precoHora) |
+| POST   | `/api/cobrancas/enviar/:id`   | Envia email de uma cobranca                               |
+| POST   | `/api/cobrancas/enviar-todas` | Envia email de todas as cobrancas pendentes               |
 
 ## Features
 
@@ -121,13 +129,12 @@ npm start      # roda o servidor em localhost:3001
 ## Stack Completa
 
 **Backend:**
-- Express 4, MSSQL, Nodemailer, CORS, dotenv
+
+- Express 4, MSSQL, Nodemailer, CORS, dotenv, nodemon
 
 **Frontend:**
-- React 19, Vite 7, Tailwind CSS 3, Radix UI, React Router 7, Zustand 5, Lucide Icons
 
-**Dev:**
-- Nodemon, Concurrently
+- React 19, Vite 7, Tailwind CSS 3, shadcn/ui (Radix UI), React Router 7, Zustand 5, Lucide Icons
 
 ## Licenca
 

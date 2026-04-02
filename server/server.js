@@ -6,8 +6,8 @@ import { fileURLToPath } from 'url'
 import clientesRouter from './routes/clientes.js'
 import cobrancasRouter from './routes/cobrancas.js'
 
+dotenv.config()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
 const app = express()
 const PORT = process.env.PORT || 3001

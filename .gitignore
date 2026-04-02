@@ -32,6 +32,9 @@ yarn-error.log*
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+
 # Backup files
 *.bak
 *~
