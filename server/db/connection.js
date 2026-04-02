@@ -2,24 +2,26 @@ import sql from 'mssql'
 
 let pool = null
 
-const config = {
-  server: process.env.DB_SERVER,
-  database: process.env.DB_DATABASE,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : undefined,
-  options: {
-    encrypt: process.env.DB_ENCRYPT === 'true',
-    trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true',
-    enableArithAbort: true,
-    connectionTimeout: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 15000,
-    requestTimeout: parseInt(process.env.DB_REQUEST_TIMEOUT) || 15000,
-  },
+function getConfig() {
+  return {
+    server: process.env.DB_SERVER,
+    database: process.env.DB_DATABASE,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : undefined,
+    options: {
+      encrypt: process.env.DB_ENCRYPT === 'true',
+      trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true',
+      enableArithAbort: true,
+      connectionTimeout: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 15000,
+      requestTimeout: parseInt(process.env.DB_REQUEST_TIMEOUT) || 15000,
+    },
+  }
 }
 
 async function connect() {
   if (pool?.connected) return pool
-  pool = await new sql.ConnectionPool(config).connect()
+  pool = await new sql.ConnectionPool(getConfig()).connect()
   console.log('Conexão com SQL Server estabelecida')
   pool.on('error', (err) => console.error('Erro no pool SQL Server:', err))
   return pool

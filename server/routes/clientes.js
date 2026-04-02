@@ -8,6 +8,7 @@ router.get('/', async (req, res) => {
     const clientes = await findAllClientes()
     return res.json({ clientes })
   } catch (error) {
+    console.error('Erro ao buscar clientes:', error)
     return res.status(500).json({ success: false, message: 'Erro ao buscar clientes' })
   }
 })
