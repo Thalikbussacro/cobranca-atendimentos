@@ -1,14 +1,10 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import clientesRouter from './routes/clientes.js'
 import cobrancasRouter from './routes/cobrancas.js'
 
 dotenv.config()
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -42,15 +38,6 @@ app.post('/api/auth/login', (req, res) => {
 // API Routes
 app.use('/api/clientes', clientesRouter)
 app.use('/api/cobrancas', cobrancasRouter)
-
-// Servir arquivos estáticos do frontend (produção)
-const publicPath = path.join(__dirname, '..', 'client', 'dist')
-app.use(express.static(publicPath))
-
-// SPA fallback
-app.get('*', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'))
-})
 
 // Error handler
 app.use((err, req, res, next) => {
