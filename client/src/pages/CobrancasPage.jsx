@@ -91,7 +91,7 @@ export default function CobrancasPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto">
           <TabelaCobrancas
             cobrancas={cobrancas}
             onEnviarEmail={handleEnviarEmail}
