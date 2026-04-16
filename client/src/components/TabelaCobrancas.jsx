@@ -8,13 +8,27 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ChevronDown, ChevronUp, Mail, Loader2, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Mail, Loader2, Trash2, Inbox } from 'lucide-react'
 import { sortCobrancas } from '@/utils/sorting'
 import { StatusBadge } from '@/components/StatusBadge'
 import { SortableHeader } from '@/components/SortableHeader'
 import { CobrancaDetails } from '@/components/CobrancaDetails'
 
-export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onCancelar }) {
+function SkeletonRow() {
+  return (
+    <TableRow>
+      <TableCell><div className="h-4 w-8 bg-gray-200 rounded animate-pulse" /></TableCell>
+      <TableCell><div className="h-4 w-32 bg-gray-200 rounded animate-pulse" /></TableCell>
+      <TableCell className="hidden md:table-cell"><div className="h-4 w-28 bg-gray-200 rounded animate-pulse" /></TableCell>
+      <TableCell className="text-center"><div className="h-4 w-6 bg-gray-200 rounded animate-pulse mx-auto" /></TableCell>
+      <TableCell className="hidden lg:table-cell"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse" /></TableCell>
+      <TableCell><div className="h-5 w-20 bg-gray-200 rounded-full animate-pulse" /></TableCell>
+      <TableCell className="text-right"><div className="h-7 w-24 bg-gray-200 rounded animate-pulse ml-auto" /></TableCell>
+    </TableRow>
+  )
+}
+
+export function TabelaCobrancas({ cobrancas, loading, onEnviarEmail, enviandoEmailId, onCancelar }) {
   const [expandedId, setExpandedId] = useState(null)
   const [sortState, setSortState] = useState({ field: null, direction: null })
 
@@ -39,6 +53,13 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
 
   return (
     <div className="border rounded-lg overflow-x-auto">
+      {/* Contagem de registros */}
+      {!loading && cobrancas.length > 0 && (
+        <div className="px-4 py-2 bg-muted/30 border-b text-xs text-muted-foreground">
+          {cobrancas.length} cobrança(s) encontrada(s)
+        </div>
+      )}
+
       <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow className="bg-muted/50">
@@ -49,7 +70,7 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
               onSort={handleSort}
               className="w-[60px] md:w-[80px]"
             >
-              Nº
+              N
             </SortableHeader>
             <SortableHeader
               field="cliente"
@@ -66,7 +87,7 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
               onSort={handleSort}
               className="hidden md:table-cell"
             >
-              Período
+              Periodo
             </SortableHeader>
             <SortableHeader
               field="atendimentos"
@@ -86,17 +107,26 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
             >
               Status
             </SortableHeader>
-            <TableHead className="text-right">Ações</TableHead>
+            <TableHead className="text-right">Acoes</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedCobrancas.length === 0 ? (
+          {loading ? (
+            <>
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+            </>
+          ) : sortedCobrancas.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={7}
-                className="text-center py-6 md:py-8 text-muted-foreground text-sm"
-              >
-                Nenhuma cobrança encontrada.
+              <TableCell colSpan={7} className="py-12">
+                <div className="flex flex-col items-center justify-center text-muted-foreground">
+                  <Inbox className="h-10 w-10 mb-3 text-gray-300" />
+                  <p className="text-sm font-medium">Nenhuma cobranca encontrada</p>
+                  <p className="text-xs mt-1">Gere novas cobrancas usando o formulario acima</p>
+                </div>
               </TableCell>
             </TableRow>
           ) : (
@@ -105,7 +135,10 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
 
               return (
                 <Fragment key={cobranca.id}>
-                  <TableRow className="hover:bg-muted/30 transition-colors">
+                  <TableRow
+                    className={`hover:bg-muted/30 transition-colors cursor-pointer ${isExpanded ? 'bg-muted/20' : ''}`}
+                    onClick={() => toggleExpand(cobranca.id)}
+                  >
                     <TableCell className="font-medium text-so-blue text-xs md:text-sm">
                       #{cobranca.id}
                     </TableCell>
@@ -128,14 +161,14 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
                       <StatusBadge emailEnviado={cobranca.emailEnviado} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1 md:gap-2">
+                      <div className="flex items-center justify-end gap-1 md:gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="outline"
                           size="sm"
                           className="text-xs md:text-sm h-7 md:h-8"
                           onClick={() => onEnviarEmail(cobranca.id)}
                           disabled={cobranca.emailEnviado || enviandoEmailId === cobranca.id}
-                          title={cobranca.emailEnviado ? 'E-mail já enviado' : 'Enviar e-mail'}
+                          title={cobranca.emailEnviado ? 'E-mail ja enviado' : 'Enviar e-mail'}
                         >
                           {enviandoEmailId === cobranca.id ? (
                             <Loader2 className="h-4 w-4 mr-1 animate-spin" />
@@ -143,10 +176,7 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
                             <Mail className="h-4 w-4 mr-1" />
                           )}
                           <span className="hidden sm:inline">
-                            {enviandoEmailId === cobranca.id ? 'Enviando...' : 'Enviar E-mail'}
-                          </span>
-                          <span className="sm:hidden">
-                            {enviandoEmailId === cobranca.id ? '...' : 'Enviar'}
+                            {enviandoEmailId === cobranca.id ? 'Enviando...' : 'Enviar'}
                           </span>
                         </Button>
                         {!cobranca.emailEnviado && onCancelar && (
@@ -155,30 +185,19 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onC
                             size="sm"
                             className="text-xs md:text-sm h-7 md:h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                             onClick={() => onCancelar(cobranca.id)}
-                            title="Cancelar cobrança"
+                            title="Cancelar cobranca"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         )}
-                        <Button
-                          variant="link"
-                          size="sm"
-                          className="text-so-blue text-xs md:text-sm px-1 md:px-2"
-                          onClick={() => toggleExpand(cobranca.id)}
-                        >
-                          <span className="hidden sm:inline">Detalhes</span>
-                          <span className="sm:hidden">Ver</span>
-                          {isExpanded ? (
-                            <ChevronUp className="ml-0.5 md:ml-1 h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="ml-0.5 md:ml-1 h-4 w-4" />
-                          )}
-                        </Button>
+                        <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>
                   {isExpanded && (
-                    <TableRow>
+                    <TableRow className="animate-in fade-in slide-in-from-top-1 duration-200">
                       <TableCell colSpan={7} className="p-0 bg-muted/20">
                         <CobrancaDetails cobranca={cobranca} />
                       </TableCell>
