@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Header } from '@/components/Header'
+import { ToastContainer } from '@/components/ui/toast'
 import LoginPage from '@/pages/LoginPage'
 import CobrancasPage from '@/pages/CobrancasPage'
 import ClientesPage from '@/pages/ClientesPage'
@@ -27,6 +28,7 @@ function DashboardLayout({ children }) {
 function App() {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 
