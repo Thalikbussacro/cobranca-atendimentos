@@ -1,4 +1,4 @@
-import { findAllCobrancas, findCobrancaById, createCobranca } from '../repositories/cobrancaRepository.js'
+import { findAllCobrancas, findCobrancaById, createCobranca, deleteCobranca, deleteCobrancasNaoEnviadas } from '../repositories/cobrancaRepository.js'
 import { findAtendimentosByClienteAndPeriodo, findAtendimentosByCobranca } from '../repositories/atendimentoRepository.js'
 import { criarAtendimento } from '../models/Atendimento.js'
 import { criarCobranca } from '../models/Cobranca.js'
@@ -97,6 +97,21 @@ export async function gerarPreview(clienteIdParam, dataInicial, dataFinal) {
   }
 
   return preview
+}
+
+export async function cancelarCobranca(id) {
+  const row = await findCobrancaById(id)
+  if (!row) {
+    throw Object.assign(new Error('Cobrança não encontrada'), { statusCode: 404 })
+  }
+  if (row.emailEnviado) {
+    throw Object.assign(new Error('Não é possível cancelar cobrança com e-mail já enviado'), { statusCode: 400 })
+  }
+  await deleteCobranca(id)
+}
+
+export async function cancelarTodasNaoEnviadas() {
+  return deleteCobrancasNaoEnviadas()
 }
 
 export async function gerarCobrancas(clienteIds, inicio, fim, precoHora) {

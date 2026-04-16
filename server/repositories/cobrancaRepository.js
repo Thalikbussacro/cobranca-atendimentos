@@ -148,3 +148,25 @@ export async function createCobranca({ clienteId, dataInicial, dataFinal, precoH
 export async function markEmailSent(id) {
   await db.execute(`UPDATE Cad_Cobranca SET EmailEnviado = 1 WHERE CodCobranca = @id`, { id })
 }
+
+export async function deleteCobranca(id) {
+  return db.transaction(async (transaction) => {
+    await transaction.request().input('id', id)
+      .query('DELETE FROM Cad_Cobranca_Item WHERE CodCobranca = @id')
+    await transaction.request().input('id', id)
+      .query('DELETE FROM Cad_Cobranca WHERE CodCobranca = @id')
+  })
+}
+
+export async function deleteCobrancasNaoEnviadas() {
+  return db.transaction(async (transaction) => {
+    await transaction.request().query(`
+      DELETE FROM Cad_Cobranca_Item
+      WHERE CodCobranca IN (SELECT CodCobranca FROM Cad_Cobranca WHERE EmailEnviado = 0)
+    `)
+    const result = await transaction.request().query(
+      'DELETE FROM Cad_Cobranca WHERE EmailEnviado = 0'
+    )
+    return result.rowsAffected[0]
+  })
+}

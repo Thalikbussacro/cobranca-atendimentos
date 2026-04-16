@@ -1,4 +1,4 @@
-import { listarCobrancas, gerarPreview, gerarCobrancas } from '../services/cobrancaService.js'
+import { listarCobrancas, gerarPreview, gerarCobrancas, cancelarCobranca, cancelarTodasNaoEnviadas } from '../services/cobrancaService.js'
 import { enviarCobranca, enviarTodasPendentes } from '../services/emailService.js'
 
 export async function listar(req, res) {
@@ -63,6 +63,32 @@ export async function enviar(req, res) {
     return res
       .status(statusCode)
       .json({ success: false, message: error.message || 'Erro ao enviar e-mail' })
+  }
+}
+
+export async function cancelar(req, res) {
+  try {
+    const id = parseInt(req.params.id)
+    await cancelarCobranca(id)
+    return res.json({ success: true, message: 'Cobrança cancelada com sucesso' })
+  } catch (error) {
+    console.error('Erro ao cancelar cobrança:', error)
+    const statusCode = error.statusCode || 500
+    return res.status(statusCode).json({ success: false, message: error.message || 'Erro ao cancelar cobrança' })
+  }
+}
+
+export async function cancelarTodas(req, res) {
+  try {
+    const canceladas = await cancelarTodasNaoEnviadas()
+    return res.json({
+      success: true,
+      message: `${canceladas} cobrança(s) cancelada(s) com sucesso`,
+      canceladas,
+    })
+  } catch (error) {
+    console.error('Erro ao cancelar cobranças:', error)
+    return res.status(500).json({ success: false, message: error.message || 'Erro ao cancelar cobranças' })
   }
 }
 
