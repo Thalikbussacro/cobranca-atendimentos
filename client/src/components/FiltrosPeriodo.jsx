@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/select'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Loader2, ChevronDown, ChevronUp } from 'lucide-react'
-import { getAllClientes, getPreview, gerarCobrancas } from '@/services/api'
+import { getAllClientes, gerarCobrancas } from '@/services/api'
 import { PreviewPanel } from '@/components/PreviewPanel'
+import { usePreview } from '@/hooks/usePreview'
 
 export function FiltrosPeriodo({ onGerado }) {
   const [aberto, setAberto] = useState(false)
@@ -25,8 +26,7 @@ export function FiltrosPeriodo({ onGerado }) {
     dataFinal: '',
     precoHora: '',
   })
-  const [preview, setPreview] = useState(null)
-  const [loadingPreview, setLoadingPreview] = useState(false)
+  const { preview, loadingPreview, carregarPreview, limparPreview } = usePreview()
   const [gerando, setGerando] = useState(false)
   const [erro, setErro] = useState('')
 
@@ -57,21 +57,12 @@ export function FiltrosPeriodo({ onGerado }) {
       return
     }
 
-    setLoadingPreview(true)
-    setPreview(null)
-
-    try {
-      const data = await getPreview({
-        clienteId: form.clienteId,
-        dataInicial: form.dataInicial,
-        dataFinal: form.dataFinal,
-      })
-      setPreview(data.preview)
-    } catch (error) {
-      setErro(error.message || 'Erro ao carregar preview')
-    } finally {
-      setLoadingPreview(false)
-    }
+    const { erro: previewErro } = await carregarPreview({
+      clienteId: form.clienteId,
+      dataInicial: form.dataInicial,
+      dataFinal: form.dataFinal,
+    })
+    if (previewErro) setErro(previewErro)
   }
 
   const handleGerar = async () => {
@@ -88,7 +79,7 @@ export function FiltrosPeriodo({ onGerado }) {
         precoHora: parseFloat(form.precoHora),
       })
 
-      setPreview(null)
+      limparPreview()
       setForm({ clienteId: 'todos', dataInicial: '', dataFinal: '', precoHora: '' })
       setAberto(false)
       onGerado?.()
@@ -126,7 +117,7 @@ export function FiltrosPeriodo({ onGerado }) {
                     value={form.clienteId}
                     onValueChange={(value) => {
                       setForm({ ...form, clienteId: value })
-                      setPreview(null)
+                      limparPreview()
                     }}
                   >
                     <SelectTrigger>
@@ -151,7 +142,7 @@ export function FiltrosPeriodo({ onGerado }) {
                     value={form.dataInicial}
                     onChange={(e) => {
                       setForm({ ...form, dataInicial: e.target.value })
-                      setPreview(null)
+                      limparPreview()
                     }}
                   />
                 </div>
@@ -164,7 +155,7 @@ export function FiltrosPeriodo({ onGerado }) {
                     value={form.dataFinal}
                     onChange={(e) => {
                       setForm({ ...form, dataFinal: e.target.value })
-                      setPreview(null)
+                      limparPreview()
                     }}
                   />
                 </div>
