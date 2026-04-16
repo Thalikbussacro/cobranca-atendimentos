@@ -1,22 +1,40 @@
 import { Router } from 'express'
-import {
-  findAllCobrancas,
-  findCobrancaById,
-  findAtendimentosByClienteAndPeriodo,
-  findAllClientes,
-  findClienteById,
-  createCobranca,
-  markEmailSent,
-} from '../db/queries.js'
+import { findAllClientes, findClienteById } from '../repositories/clienteRepository.js'
+import { findAtendimentosByClienteAndPeriodo, findAtendimentosByCobranca } from '../repositories/atendimentoRepository.js'
+import { findAllCobrancas, findCobrancaById, createCobranca, markEmailSent } from '../repositories/cobrancaRepository.js'
+import { criarCliente } from '../models/Cliente.js'
+import { criarAtendimento } from '../models/Atendimento.js'
+import { criarCobranca } from '../models/Cobranca.js'
+import { minutosParaHoras, formatarData, parseDataISO } from '../utils/formatters.js'
 import { enviarCobrancaEmail } from '../email/mailer.js'
 
 const router = Router()
+
+async function enriquecerCobranca(row) {
+  const cobranca = criarCobranca(row)
+  const atendimentosRaw = await findAtendimentosByCobranca(cobranca.id)
+  cobranca.itens = atendimentosRaw.map((r) => {
+    const atend = criarAtendimento(r)
+    return {
+      data: formatarData(atend.dataInicio),
+      solicitante: atend.solicitante,
+      resumo: atend.problema,
+      solucao: atend.solucao,
+      tempo: minutosParaHoras(atend.duracaoMinutos || 0),
+    }
+  })
+  return cobranca
+}
 
 // GET / — listar cobranças (filtros: search, status, inicio, fim)
 router.get('/', async (req, res) => {
   try {
     const { search, status, inicio, fim } = req.query
-    const cobrancas = await findAllCobrancas({ search, status, inicio, fim })
+    const rows = await findAllCobrancas({ search, status, inicio, fim })
+    const cobrancas = []
+    for (const row of rows) {
+      cobrancas.push(await enriquecerCobranca(row))
+    }
     return res.json({ cobrancas })
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Erro ao buscar cobranças' })
@@ -32,24 +50,21 @@ router.get('/preview', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Parâmetros inválidos' })
     }
 
-    const parseDataISO = (dateStr) => {
-      const [year, month, day] = dateStr.split('-').map(Number)
-      return new Date(year, month - 1, day, 23, 59, 59)
-    }
-
     const dtInicial = parseDataISO(dataInicial)
     const dtFinal = parseDataISO(dataFinal)
     const preview = []
 
     if (clienteIdParam === 'todos') {
-      const clientes = await findAllClientes()
+      const clientesRaw = await findAllClientes()
+      const clientes = clientesRaw.map(criarCliente)
 
       for (const cliente of clientes) {
-        const atendimentos = await findAtendimentosByClienteAndPeriodo(
+        const atendimentosRaw = await findAtendimentosByClienteAndPeriodo(
           cliente.id,
           dtInicial,
           dtFinal
         )
+        const atendimentos = atendimentosRaw.map(criarAtendimento)
 
         if (atendimentos.length > 0) {
           const totalMinutos = atendimentos.reduce(
@@ -69,17 +84,19 @@ router.get('/preview', async (req, res) => {
       }
     } else {
       const clienteId = parseInt(clienteIdParam)
-      const cliente = await findClienteById(clienteId)
+      const clienteRow = await findClienteById(clienteId)
 
-      if (!cliente) {
+      if (!clienteRow) {
         return res.status(404).json({ success: false, message: 'Cliente não encontrado' })
       }
 
-      const atendimentos = await findAtendimentosByClienteAndPeriodo(
+      const cliente = criarCliente(clienteRow)
+      const atendimentosRaw = await findAtendimentosByClienteAndPeriodo(
         clienteId,
         dtInicial,
         dtFinal
       )
+      const atendimentos = atendimentosRaw.map(criarAtendimento)
 
       const totalMinutos = atendimentos.reduce(
         (acc, atend) => acc + (atend.duracaoMinutos || 0),
@@ -117,13 +134,15 @@ router.post('/gerar', async (req, res) => {
     const cobrancasCriadas = []
 
     for (const clienteId of clienteIds) {
-      const cobranca = await createCobranca({
+      const novoCodigo = await createCobranca({
         clienteId,
         dataInicial: inicio,
         dataFinal: fim,
         precoHora,
       })
-      cobrancasCriadas.push(cobranca)
+      const row = await findCobrancaById(novoCodigo)
+      if (!row) throw new Error('Erro ao buscar cobrança criada')
+      cobrancasCriadas.push(await enriquecerCobranca(row))
     }
 
     return res.json({ success: true, cobrancas: cobrancasCriadas })
@@ -139,11 +158,13 @@ router.post('/gerar', async (req, res) => {
 router.post('/enviar/:id', async (req, res) => {
   try {
     const cobrancaId = parseInt(req.params.id)
-    const cobranca = await findCobrancaById(cobrancaId)
+    const row = await findCobrancaById(cobrancaId)
 
-    if (!cobranca) {
+    if (!row) {
       return res.status(404).json({ success: false, message: 'Cobrança não encontrada' })
     }
+
+    const cobranca = await enriquecerCobranca(row)
 
     if (!cobranca.clienteEmails || cobranca.clienteEmails.trim() === '') {
       return res
@@ -166,7 +187,11 @@ router.post('/enviar/:id', async (req, res) => {
 // POST /enviar-todas — enviar email de todas as cobranças pendentes
 router.post('/enviar-todas', async (req, res) => {
   try {
-    const cobrancas = await findAllCobrancas({ status: 'nao-enviado' })
+    const rows = await findAllCobrancas({ status: 'nao-enviado' })
+    const cobrancas = []
+    for (const row of rows) {
+      cobrancas.push(await enriquecerCobranca(row))
+    }
 
     if (cobrancas.length === 0) {
       return res.json({ success: true, message: 'Nenhuma cobrança pendente', enviadas: 0 })
