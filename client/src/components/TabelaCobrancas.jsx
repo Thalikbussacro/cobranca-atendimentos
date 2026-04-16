@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/table'
 import { ChevronDown, ChevronUp, Mail, ArrowUpDown, ArrowUp, ArrowDown, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { horasParaDecimal } from '@/utils/formatters'
+import { sortCobrancas } from '@/utils/sorting'
 
 // === StatusBadge ===
 function StatusBadge({ emailEnviado }) {
@@ -50,12 +52,6 @@ function SortableHeader({ children, field, currentField, currentDirection, onSor
 }
 
 // === CobrancaDetails ===
-function horasParaDecimal(horasStr) {
-  const match = horasStr.match(/(\d+)h\s*(\d+)m/)
-  if (!match) return 0
-  return parseInt(match[1]) + parseInt(match[2]) / 60
-}
-
 function CobrancaDetails({ cobranca }) {
   const horasDecimais = horasParaDecimal(cobranca.horas)
   const precoTotal = horasDecimais * cobranca.precoHora
@@ -209,34 +205,6 @@ function CobrancaDetails({ cobranca }) {
 }
 
 // === TabelaCobrancas ===
-function sortCobrancas(cobrancas, sortState) {
-  if (!sortState.field || !sortState.direction) return cobrancas
-
-  return [...cobrancas].sort((a, b) => {
-    let comparison = 0
-
-    switch (sortState.field) {
-      case 'id':
-        comparison = a.id - b.id
-        break
-      case 'cliente':
-        comparison = a.cliente.localeCompare(b.cliente)
-        break
-      case 'periodo':
-        comparison = a.periodo.localeCompare(b.periodo)
-        break
-      case 'atendimentos':
-        comparison = a.atendimentos - b.atendimentos
-        break
-      case 'emailEnviado':
-        comparison = (a.emailEnviado ? 1 : 0) - (b.emailEnviado ? 1 : 0)
-        break
-    }
-
-    return sortState.direction === 'asc' ? comparison : -comparison
-  })
-}
-
 export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId }) {
   const [expandedId, setExpandedId] = useState(null)
   const [sortState, setSortState] = useState({ field: null, direction: null })
