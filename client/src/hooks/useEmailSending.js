@@ -1,20 +1,21 @@
 import { useState, useRef, useCallback } from 'react'
 import { enviarEmail } from '@/services/api'
+import { useToastStore } from '@/stores/useToastStore'
 
 export function useEmailSending({ cobrancas, onSuccess }) {
   const [enviandoEmailId, setEnviandoEmailId] = useState(null)
   const [progresso, setProgresso] = useState(null)
-  const [alerta, setAlerta] = useState(null)
   const abortRef = useRef(null)
+  const addToast = useToastStore((s) => s.addToast)
 
   const handleEnviarEmail = async (cobrancaId) => {
     try {
       setEnviandoEmailId(cobrancaId)
       const data = await enviarEmail(cobrancaId)
-      setAlerta(data.message || 'E-mail enviado com sucesso!')
+      addToast('success', data.message || 'E-mail enviado com sucesso!')
       await onSuccess?.()
     } catch (error) {
-      setAlerta(`Erro: ${error.message}`)
+      addToast('error', error.message || 'Erro ao enviar e-mail')
     } finally {
       setEnviandoEmailId(null)
     }
@@ -26,7 +27,7 @@ export function useEmailSending({ cobrancas, onSuccess }) {
     )
 
     if (pendentes.length === 0) {
-      setAlerta('Nenhuma cobrança pendente para enviar.')
+      addToast('info', 'Nenhuma cobrança pendente para enviar.')
       return
     }
 
@@ -72,8 +73,6 @@ export function useEmailSending({ cobrancas, onSuccess }) {
     enviandoEmailId,
     enviandoTodas,
     progresso,
-    alerta,
-    setAlerta,
     handleEnviarEmail,
     handleEnviarTodas,
     handleCancelarEnvio,
