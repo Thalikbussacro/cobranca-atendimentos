@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useCobrancas } from '@/hooks/useCobrancas'
 import { useEmailSending } from '@/hooks/useEmailSending'
 import { cancelarCobranca, cancelarTodasCobrancas } from '@/services/api'
@@ -5,6 +6,7 @@ import { useToastStore } from '@/stores/useToastStore'
 import { TabelaCobrancas } from '@/components/TabelaCobrancas'
 import { FiltrosPeriodo } from '@/components/FiltrosPeriodo'
 import { ProgressModal } from '@/components/ProgressModal'
+import { ConfirmModal } from '@/components/ConfirmModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,10 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Send, Search, Trash2 } from 'lucide-react'
+import { Send, Search, Trash2, FileText, Mail, Clock } from 'lucide-react'
 
 export default function CobrancasPage() {
-  const { cobrancas, filters, setFilters, refresh } = useCobrancas()
+  const { cobrancas, loading, filters, setFilters, refresh } = useCobrancas()
   const addToast = useToastStore((s) => s.addToast)
   const {
     enviandoEmailId,
@@ -30,40 +32,63 @@ export default function CobrancasPage() {
     fecharProgresso,
   } = useEmailSending({ cobrancas, onSuccess: refresh })
 
-  const handleCancelarCobranca = async (id) => {
-    if (!window.confirm('Tem certeza que deseja cancelar esta cobrança?')) return
-    try {
-      await cancelarCobranca(id)
-      addToast('success', 'Cobrança cancelada com sucesso')
-      await refresh()
-    } catch (error) {
-      addToast('error', error.message || 'Erro ao cancelar cobrança')
-    }
+  const [confirmState, setConfirmState] = useState({ open: false, title: '', message: '', onConfirm: null })
+
+  const closeConfirm = () => setConfirmState({ open: false, title: '', message: '', onConfirm: null })
+
+  const handleCancelarCobranca = (id) => {
+    setConfirmState({
+      open: true,
+      title: 'Cancelar cobrança',
+      message: 'Tem certeza que deseja cancelar esta cobrança? Esta ação não pode ser desfeita.',
+      onConfirm: async () => {
+        closeConfirm()
+        try {
+          await cancelarCobranca(id)
+          addToast('success', 'Cobrança cancelada com sucesso')
+          await refresh()
+        } catch (error) {
+          addToast('error', error.message || 'Erro ao cancelar cobrança')
+        }
+      },
+    })
   }
 
-  const handleCancelarTodas = async () => {
+  const handleCancelarTodas = () => {
     const pendentes = cobrancas.filter((c) => !c.emailEnviado).length
     if (pendentes === 0) {
       addToast('info', 'Nenhuma cobrança pendente para cancelar.')
       return
     }
-    if (!window.confirm(`Cancelar ${pendentes} cobrança(s) pendente(s)?`)) return
-    try {
-      const data = await cancelarTodasCobrancas()
-      addToast('success', data.message || 'Cobranças canceladas com sucesso')
-      await refresh()
-    } catch (error) {
-      addToast('error', error.message || 'Erro ao cancelar cobranças')
-    }
+    setConfirmState({
+      open: true,
+      title: 'Cancelar todas pendentes',
+      message: `Tem certeza que deseja cancelar ${pendentes} cobrança(s) pendente(s)? Esta ação não pode ser desfeita.`,
+      onConfirm: async () => {
+        closeConfirm()
+        try {
+          const data = await cancelarTodasCobrancas()
+          addToast('success', data.message || 'Cobranças canceladas com sucesso')
+          await refresh()
+        } catch (error) {
+          addToast('error', error.message || 'Erro ao cancelar cobranças')
+        }
+      },
+    })
   }
+
+  // Stats
+  const totalCobrancas = cobrancas.length
+  const enviadas = cobrancas.filter((c) => c.emailEnviado).length
+  const pendentes = totalCobrancas - enviadas
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 flex flex-col overflow-hidden p-4 md:p-6">
-        <div className="mb-4 md:mb-6 flex items-start justify-between">
+        <div className="mb-6 flex items-start justify-between">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-gray-800">Cobranças</h1>
-            <p className="text-sm text-gray-600 mt-1">Gerencie as cobranças de atendimento</p>
+            <p className="text-sm text-gray-500 mt-1">Gerencie as cobranças de atendimento</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -88,6 +113,39 @@ export default function CobrancasPage() {
             </Button>
           </div>
         </div>
+
+        {/* Stats cards */}
+        {totalCobrancas > 0 && (
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="flex items-center gap-3 bg-white border rounded-lg px-4 py-3">
+              <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                <FileText className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-gray-800">{totalCobrancas}</p>
+                <p className="text-xs text-gray-500">Total</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-white border rounded-lg px-4 py-3">
+              <div className="h-9 w-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                <Mail className="h-4 w-4 text-green-600" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-gray-800">{enviadas}</p>
+                <p className="text-xs text-gray-500">Enviadas</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-white border rounded-lg px-4 py-3">
+              <div className="h-9 w-9 rounded-lg bg-yellow-50 flex items-center justify-center shrink-0">
+                <Clock className="h-4 w-4 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-gray-800">{pendentes}</p>
+                <p className="text-xs text-gray-500">Pendentes</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <FiltrosPeriodo onGerado={refresh} />
 
@@ -126,6 +184,7 @@ export default function CobrancasPage() {
         <div className="flex-1 overflow-auto">
           <TabelaCobrancas
             cobrancas={cobrancas}
+            loading={loading}
             onEnviarEmail={handleEnviarEmail}
             enviandoEmailId={enviandoEmailId}
             onCancelar={handleCancelarCobranca}
@@ -137,6 +196,15 @@ export default function CobrancasPage() {
         progresso={progresso}
         onCancelar={handleCancelarEnvio}
         onFechar={fecharProgresso}
+      />
+
+      <ConfirmModal
+        open={confirmState.open}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmLabel="Sim, cancelar"
+        onConfirm={confirmState.onConfirm}
+        onCancel={closeConfirm}
       />
     </div>
   )
