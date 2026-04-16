@@ -1,5 +1,6 @@
 import { useCobrancas } from '@/hooks/useCobrancas'
 import { useEmailSending } from '@/hooks/useEmailSending'
+import { cancelarCobranca, cancelarTodasCobrancas } from '@/services/api'
 import { TabelaCobrancas } from '@/components/TabelaCobrancas'
 import { FiltrosPeriodo } from '@/components/FiltrosPeriodo'
 import { Button } from '@/components/ui/button'
@@ -12,18 +13,53 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Send, Search, X } from 'lucide-react'
+import { Send, Search, X, Trash2 } from 'lucide-react'
 
 export default function CobrancasPage() {
   const { cobrancas, filters, setFilters, refresh } = useCobrancas()
   const {
     enviandoEmailId,
     enviandoTodas,
+    progresso,
     alerta,
     setAlerta,
     handleEnviarEmail,
     handleEnviarTodas,
-  } = useEmailSending({ onSuccess: refresh })
+    handleCancelarEnvio,
+    fecharProgresso,
+  } = useEmailSending({ cobrancas, onSuccess: refresh })
+
+  const handleCancelarCobranca = async (id) => {
+    if (!window.confirm('Tem certeza que deseja cancelar esta cobrança?')) return
+    try {
+      await cancelarCobranca(id)
+      setAlerta('Cobrança cancelada com sucesso')
+      await refresh()
+    } catch (error) {
+      setAlerta(`Erro: ${error.message}`)
+    }
+  }
+
+  const handleCancelarTodas = async () => {
+    const pendentes = cobrancas.filter((c) => !c.emailEnviado).length
+    if (pendentes === 0) {
+      setAlerta('Nenhuma cobrança pendente para cancelar.')
+      return
+    }
+    if (!window.confirm(`Cancelar ${pendentes} cobrança(s) pendente(s)?`)) return
+    try {
+      const data = await cancelarTodasCobrancas()
+      setAlerta(data.message || 'Cobranças canceladas com sucesso')
+      await refresh()
+    } catch (error) {
+      setAlerta(`Erro: ${error.message}`)
+    }
+  }
+
+  const progressoFinalizado = progresso && progresso.atual === null
+  const progressoPct = progresso
+    ? Math.round(((progresso.enviadas + progresso.erros) / progresso.total) * 100)
+    : 0
 
   return (
     <div className="flex flex-col h-full">
@@ -45,17 +81,69 @@ export default function CobrancasPage() {
             <h1 className="text-xl md:text-2xl font-bold text-gray-800">Cobranças</h1>
             <p className="text-sm text-gray-600 mt-1">Gerencie as cobranças de atendimento</p>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleEnviarTodas}
-            disabled={enviandoTodas || enviandoEmailId !== null}
-            className="text-xs md:text-sm h-9 md:h-10"
-          >
-            <Send className="h-4 w-4 mr-1.5 md:mr-2" />
-            <span className="hidden sm:inline">Enviar Todos Pendentes</span>
-            <span className="sm:hidden">Enviar Todos</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelarTodas}
+              disabled={enviandoTodas || enviandoEmailId !== null}
+              className="text-xs md:text-sm h-9 md:h-10 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-1.5 md:mr-2" />
+              <span className="hidden sm:inline">Cancelar Pendentes</span>
+              <span className="sm:hidden">Cancelar</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleEnviarTodas}
+              disabled={enviandoTodas || enviandoEmailId !== null}
+              className="text-xs md:text-sm h-9 md:h-10"
+            >
+              <Send className="h-4 w-4 mr-1.5 md:mr-2" />
+              <span className="hidden sm:inline">Enviar Todos Pendentes</span>
+              <span className="sm:hidden">Enviar Todos</span>
+            </Button>
+          </div>
         </div>
+
+        {progresso && (
+          <div className="mb-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-blue-800">
+                {progressoFinalizado
+                  ? `Concluído: ${progresso.enviadas} enviado(s)${progresso.erros > 0 ? `, ${progresso.erros} erro(s)` : ''}`
+                  : `Enviando ${progresso.enviadas + progresso.erros + 1} de ${progresso.total}...`}
+              </span>
+              {progressoFinalizado ? (
+                <button
+                  onClick={fecharProgresso}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={handleCancelarEnvio}
+                >
+                  Cancelar
+                </Button>
+              )}
+            </div>
+            {progresso.atual && (
+              <p className="text-xs text-blue-600 mb-2 truncate">
+                {progresso.atual}
+              </p>
+            )}
+            <div className="w-full bg-blue-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progressoPct}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         <FiltrosPeriodo onGerado={refresh} />
 
@@ -96,6 +184,7 @@ export default function CobrancasPage() {
             cobrancas={cobrancas}
             onEnviarEmail={handleEnviarEmail}
             enviandoEmailId={enviandoEmailId}
+            onCancelar={handleCancelarCobranca}
           />
         </div>
       </div>

@@ -8,13 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ChevronDown, ChevronUp, Mail, Loader2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Mail, Loader2, Trash2 } from 'lucide-react'
 import { sortCobrancas } from '@/utils/sorting'
 import { StatusBadge } from '@/components/StatusBadge'
 import { SortableHeader } from '@/components/SortableHeader'
 import { CobrancaDetails } from '@/components/CobrancaDetails'
 
-export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId }) {
+export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId, onCancelar }) {
   const [expandedId, setExpandedId] = useState(null)
   const [sortState, setSortState] = useState({ field: null, direction: null })
 
@@ -149,6 +149,17 @@ export function TabelaCobrancas({ cobrancas, onEnviarEmail, enviandoEmailId }) {
                             {enviandoEmailId === cobranca.id ? '...' : 'Enviar'}
                           </span>
                         </Button>
+                        {!cobranca.emailEnviado && onCancelar && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs md:text-sm h-7 md:h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => onCancelar(cobranca.id)}
+                            title="Cancelar cobrança"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="link"
                           size="sm"

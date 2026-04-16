@@ -13,12 +13,18 @@ async function get(endpoint) {
   return handleResponse(response)
 }
 
-async function post(endpoint, data) {
+async function post(endpoint, data, { signal } = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: data ? JSON.stringify(data) : undefined,
+    signal,
   })
+  return handleResponse(response)
+}
+
+async function del(endpoint) {
+  const response = await fetch(`${API_URL}${endpoint}`, { method: 'DELETE' })
   return handleResponse(response)
 }
 
@@ -56,10 +62,18 @@ export async function gerarCobrancas({ clienteIds, inicio, fim, precoHora }) {
   return post('/cobrancas/gerar', { clienteIds, inicio, fim, precoHora })
 }
 
-export async function enviarEmail(id) {
-  return post(`/cobrancas/enviar/${id}`)
+export async function enviarEmail(id, { signal } = {}) {
+  return post(`/cobrancas/enviar/${id}`, undefined, { signal })
 }
 
 export async function enviarTodas() {
   return post('/cobrancas/enviar-todas')
+}
+
+export async function cancelarCobranca(id) {
+  return del(`/cobrancas/${id}`)
+}
+
+export async function cancelarTodasCobrancas() {
+  return del('/cobrancas')
 }
