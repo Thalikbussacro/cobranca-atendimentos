@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { useCobrancas } from '@/hooks/useCobrancas'
+import { useEmailSending } from '@/hooks/useEmailSending'
 import { TabelaCobrancas } from '@/components/TabelaCobrancas'
 import { FiltrosPeriodo } from '@/components/FiltrosPeriodo'
 import { Button } from '@/components/ui/button'
@@ -13,39 +13,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Send, Search, X } from 'lucide-react'
-import { enviarEmail, enviarTodas } from '@/services/api'
 
 export default function CobrancasPage() {
   const { cobrancas, filters, setFilters, refresh } = useCobrancas()
-  const [alerta, setAlerta] = useState(null)
-  const [enviandoEmailId, setEnviandoEmailId] = useState(null)
-  const [enviandoTodas, setEnviandoTodas] = useState(false)
-
-  const handleEnviarEmail = async (cobrancaId) => {
-    try {
-      setEnviandoEmailId(cobrancaId)
-      const data = await enviarEmail(cobrancaId)
-      setAlerta(data.message || 'E-mail enviado com sucesso!')
-      await refresh()
-    } catch (error) {
-      setAlerta(`Erro: ${error.message}`)
-    } finally {
-      setEnviandoEmailId(null)
-    }
-  }
-
-  const handleEnviarTodas = async () => {
-    try {
-      setEnviandoTodas(true)
-      const data = await enviarTodas()
-      setAlerta(data.message || 'E-mails enviados com sucesso!')
-      await refresh()
-    } catch (error) {
-      setAlerta(`Erro: ${error.message}`)
-    } finally {
-      setEnviandoTodas(false)
-    }
-  }
+  const {
+    enviandoEmailId,
+    enviandoTodas,
+    alerta,
+    setAlerta,
+    handleEnviarEmail,
+    handleEnviarTodas,
+  } = useEmailSending({ onSuccess: refresh })
 
   return (
     <div className="flex flex-col h-full">
