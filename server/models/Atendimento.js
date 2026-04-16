@@ -8,5 +8,12 @@ export function criarAtendimento(row) {
     solucao: row.solucao || '',
     solicitante: row.solicitante || '',
     duracaoMinutos: row.duracaoMinutos || 0,
+    cobrar: row.cobrar || 'SIM',
+    protocolo: row.protocolo || '',
+    sistema: row.sistema || '',
+    tipoAtendimento: row.tipoAtendimento || '',
+    departamento: row.departamento || '',
+    prioridade: row.prioridade || 'Normal',
+    status: row.status || 'Finalizado',
   }
 }

@@ -7,7 +7,8 @@ export async function findAllClientes() {
       Descricao as nome,
       CNPJ as cnpj,
       EMail as emails,
-      Telefone as telefone
+      Telefone as telefone,
+      Cidade as cidade
     FROM Cad_Cliente
     ORDER BY Descricao
   `)
@@ -21,7 +22,8 @@ export async function findClienteById(id) {
       Descricao as nome,
       CNPJ as cnpj,
       EMail as emails,
-      Telefone as telefone
+      Telefone as telefone,
+      Cidade as cidade
     FROM Cad_Cliente
     WHERE CodCliente = @id
   `,

@@ -11,6 +11,13 @@ export async function findAtendimentosByClienteAndPeriodo(clienteId, dataInicio,
       a.ProblemaRelatado as problema,
       a.SolucaoRepassada as solucao,
       a.Solicitante as solicitante,
+      a.CobrarAtendimento as cobrar,
+      a.Protocolo as protocolo,
+      a.Sistema as sistema,
+      a.TipoAtendimento as tipoAtendimento,
+      a.Departamento as departamento,
+      a.Prioridade as prioridade,
+      a.Status as status,
       DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal) as duracaoMinutos
     FROM Opr_Atendimento a
     WHERE a.CodCliente = @clienteId
@@ -38,6 +45,13 @@ export async function findAtendimentosByCobranca(cobrancaId) {
       a.ProblemaRelatado as problema,
       a.SolucaoRepassada as solucao,
       a.Solicitante as solicitante,
+      a.CobrarAtendimento as cobrar,
+      a.Protocolo as protocolo,
+      a.Sistema as sistema,
+      a.TipoAtendimento as tipoAtendimento,
+      a.Departamento as departamento,
+      a.Prioridade as prioridade,
+      a.Status as status,
       DATEDIFF(MINUTE, a.DataHoraInicial, a.DataHoraFinal) as duracaoMinutos
     FROM Opr_Atendimento a
     INNER JOIN Cad_Cobranca_Item ci ON ci.CodAtendimento = a.CodAtendimento

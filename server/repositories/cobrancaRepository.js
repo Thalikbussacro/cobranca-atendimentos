@@ -9,6 +9,7 @@ export async function findAllCobrancas(filters = {}) {
       cl.Descricao as cliente,
       cl.CNPJ as clienteCnpj,
       cl.EMail as clienteEmails,
+      cl.Cidade as clienteCidade,
       c.PrecoHora as precoHora,
       c.DataHoraInicial,
       c.DataHoraFinal,
@@ -49,7 +50,7 @@ export async function findAllCobrancas(filters = {}) {
 
   query += `
     GROUP BY
-      c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.EMail,
+      c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.EMail, cl.Cidade,
       c.PrecoHora, c.DataHoraInicial, c.DataHoraFinal, c.EmailEnviado
     ORDER BY c.DataHoraFinal DESC
   `
@@ -66,6 +67,7 @@ export async function findCobrancaById(id) {
       cl.Descricao as cliente,
       cl.CNPJ as clienteCnpj,
       cl.EMail as clienteEmails,
+      cl.Cidade as clienteCidade,
       c.PrecoHora as precoHora,
       c.DataHoraInicial,
       c.DataHoraFinal,
@@ -78,7 +80,7 @@ export async function findCobrancaById(id) {
     LEFT JOIN Opr_Atendimento a ON a.CodAtendimento = ci.CodAtendimento
     WHERE c.CodCobranca = @id
     GROUP BY
-      c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.EMail,
+      c.CodCobranca, c.CodCliente, cl.Descricao, cl.CNPJ, cl.EMail, cl.Cidade,
       c.PrecoHora, c.DataHoraInicial, c.DataHoraFinal, c.EmailEnviado
   `,
     { id }

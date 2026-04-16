@@ -11,11 +11,22 @@ async function enriquecerCobranca(row) {
   cobranca.itens = atendimentosRaw.map((r) => {
     const atend = criarAtendimento(r)
     return {
+      id: atend.id,
       data: formatarData(atend.dataInicio),
+      dataInicio: atend.dataInicio,
+      dataFim: atend.dataFim,
       solicitante: atend.solicitante,
       resumo: atend.problema,
       solucao: atend.solucao,
       tempo: minutosParaHoras(atend.duracaoMinutos || 0),
+      duracaoMinutos: atend.duracaoMinutos,
+      cobrar: atend.cobrar,
+      protocolo: atend.protocolo,
+      sistema: atend.sistema,
+      tipoAtendimento: atend.tipoAtendimento,
+      departamento: atend.departamento,
+      prioridade: atend.prioridade,
+      status: atend.status,
     }
   })
   return cobranca

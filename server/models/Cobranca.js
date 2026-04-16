@@ -7,6 +7,7 @@ export function criarCobranca(row) {
     clienteId: row.clienteId,
     clienteCnpj: row.clienteCnpj || '',
     clienteEmails: row.clienteEmails || '',
+    clienteCidade: row.clienteCidade || '',
     periodo: formatarPeriodo(new Date(row.DataHoraInicial), new Date(row.DataHoraFinal)),
     atendimentos: row.totalAtendimentos || 0,
     horas: minutosParaHoras(row.totalMinutos || 0),

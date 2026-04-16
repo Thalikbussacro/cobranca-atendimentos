@@ -2,16 +2,16 @@ import 'dotenv/config'
 import { db, sql } from './connection.js'
 
 const clientes = [
-  { id: 1, nome: 'Pecuaria Boa Vista', cnpj: '12.345.678/0001-01' },
-  { id: 2, nome: 'Granja Sao Jorge', cnpj: '23.456.789/0001-02' },
-  { id: 3, nome: 'Nutricao Animal Vale Verde', cnpj: '34.567.890/0001-03' },
-  { id: 4, nome: 'Racao Premium Sul', cnpj: '45.678.901/0001-04' },
-  { id: 5, nome: 'Agropecuaria Serra Dourada', cnpj: '56.789.012/0001-05' },
-  { id: 6, nome: 'Fabrica de Racao Tres Rios', cnpj: '67.890.123/0001-06' },
-  { id: 7, nome: 'Cooperativa Agroindustrial Oeste', cnpj: '78.901.234/0001-07' },
-  { id: 8, nome: 'Suinocultura Santa Clara', cnpj: '89.012.345/0001-08' },
-  { id: 9, nome: 'Avicultura Planalto', cnpj: '90.123.456/0001-09' },
-  { id: 10, nome: 'Confinamento Boi Gordo', cnpj: '01.234.567/0001-10' },
+  { id: 1, nome: 'Pecuaria Boa Vista', cnpj: '12.345.678/0001-01', cidade: 'Joaçaba (SC)' },
+  { id: 2, nome: 'Granja Sao Jorge', cnpj: '23.456.789/0001-02', cidade: 'Piraí do Sul (PR)' },
+  { id: 3, nome: 'Nutricao Animal Vale Verde', cnpj: '34.567.890/0001-03', cidade: 'Herval d\'Oeste (SC)' },
+  { id: 4, nome: 'Racao Premium Sul', cnpj: '45.678.901/0001-04', cidade: 'Chapecó (SC)' },
+  { id: 5, nome: 'Agropecuaria Serra Dourada', cnpj: '56.789.012/0001-05', cidade: 'Cascavel (PR)' },
+  { id: 6, nome: 'Fabrica de Racao Tres Rios', cnpj: '67.890.123/0001-06', cidade: 'Concórdia (SC)' },
+  { id: 7, nome: 'Cooperativa Agroindustrial Oeste', cnpj: '78.901.234/0001-07', cidade: 'Videira (SC)' },
+  { id: 8, nome: 'Suinocultura Santa Clara', cnpj: '89.012.345/0001-08', cidade: 'Toledo (PR)' },
+  { id: 9, nome: 'Avicultura Planalto', cnpj: '90.123.456/0001-09', cidade: 'Lages (SC)' },
+  { id: 10, nome: 'Confinamento Boi Gordo', cnpj: '01.234.567/0001-10', cidade: 'Carambeí (PR)' },
 ]
 
 const solicitantes = [
@@ -19,6 +19,12 @@ const solicitantes = [
   'Marcos Antônio', 'Patrícia Souza', 'Anderson Lima', 'Camila Ribeiro',
   'Roberto Nascimento', 'Luciana Alves', 'Diego Ferreira', 'Tatiane Costa',
   'João Pedro', 'Mariana Campos', 'Gustavo Henrique', 'Adriana Martins',
+]
+
+const tiposAtendimento = [
+  'Erro do Cliente', 'Manutenção Preventiva', 'Suporte Remoto',
+  'Instalação', 'Atualização de Sistema', 'Configuração',
+  'Treinamento', 'Correção de Bug',
 ]
 
 const problemas = [
@@ -96,6 +102,15 @@ function formatDateSQL(date) {
   return `${y}-${m}-${d}T${h}:${min}:00`
 }
 
+function gerarProtocolo(dataBase, clienteId, atendId) {
+  const y = dataBase.getFullYear()
+  const m = String(dataBase.getMonth() + 1).padStart(2, '0')
+  const d = String(dataBase.getDate()).padStart(2, '0')
+  const h = String(dataBase.getHours()).padStart(2, '0')
+  const min = String(dataBase.getMinutes()).padStart(2, '0')
+  return `${y}${m}${d}${h}${min}${String(clienteId).padStart(3, '0')}${String(atendId).padStart(5, '0')}`
+}
+
 function gerarAtendimentos() {
   const atendimentos = []
   let codAtendimento = 1
@@ -109,13 +124,14 @@ function gerarAtendimentos() {
       dataBase.setMinutes(randomInt(0, 3) * 15)
       dataBase.setSeconds(0)
 
-      const duracaoMinutos = randomInt(2, 16) * 15 // 30min a 4h em intervalos de 15min
+      const duracaoMinutos = randomInt(2, 16) * 15
       const dataFim = new Date(dataBase.getTime() + duracaoMinutos * 60000)
 
       const cobrar = Math.random() < 0.9 ? 'SIM' : 'NAO'
+      const id = codAtendimento++
 
       atendimentos.push({
-        id: codAtendimento++,
+        id,
         clienteId: cliente.id,
         dataInicio: formatDateSQL(dataBase),
         dataFim: formatDateSQL(dataFim),
@@ -123,6 +139,12 @@ function gerarAtendimentos() {
         solucao: solucoes[randomInt(0, solucoes.length - 1)],
         solicitante: solicitantes[randomInt(0, solicitantes.length - 1)],
         cobrar,
+        protocolo: gerarProtocolo(dataBase, cliente.id, id),
+        sistema: 'SIGAFRAN',
+        tipoAtendimento: tiposAtendimento[randomInt(0, tiposAtendimento.length - 1)],
+        departamento: 'Programação/TI',
+        prioridade: 'Normal',
+        status: 'Finalizado',
       })
     }
   }
@@ -134,14 +156,12 @@ async function seed() {
   console.log('Iniciando seed...')
 
   await db.transaction(async (tx) => {
-    // limpar tabelas na ordem correta (dependencias)
     console.log('Limpando tabelas...')
     await tx.request().query('DELETE FROM Cad_Cobranca_Item')
     await tx.request().query('DELETE FROM Cad_Cobranca')
     await tx.request().query('DELETE FROM Opr_Atendimento')
     await tx.request().query('DELETE FROM Cad_Cliente')
 
-    // inserir clientes
     console.log('Inserindo clientes...')
     for (const c of clientes) {
       await tx.request()
@@ -150,14 +170,14 @@ async function seed() {
         .input('cnpj', sql.NVarChar, c.cnpj)
         .input('email', sql.NVarChar, 'thalikbussacro@gmail.com')
         .input('telefone', sql.NVarChar, '(49)99486398')
+        .input('cidade', sql.NVarChar, c.cidade)
         .query(`
-          INSERT INTO Cad_Cliente (CodCliente, Descricao, CNPJ, EMail, Telefone)
-          VALUES (@id, @nome, @cnpj, @email, @telefone)
+          INSERT INTO Cad_Cliente (CodCliente, Descricao, CNPJ, EMail, Telefone, Cidade)
+          VALUES (@id, @nome, @cnpj, @email, @telefone, @cidade)
         `)
     }
     console.log(`  ${clientes.length} clientes inseridos`)
 
-    // inserir atendimentos
     const atendimentos = gerarAtendimentos()
     console.log('Inserindo atendimentos...')
     for (const a of atendimentos) {
@@ -170,9 +190,15 @@ async function seed() {
         .input('solucao', sql.NVarChar, a.solucao)
         .input('solicitante', sql.NVarChar, a.solicitante)
         .input('cobrar', sql.NVarChar, a.cobrar)
+        .input('protocolo', sql.NVarChar, a.protocolo)
+        .input('sistema', sql.NVarChar, a.sistema)
+        .input('tipoAtendimento', sql.NVarChar, a.tipoAtendimento)
+        .input('departamento', sql.NVarChar, a.departamento)
+        .input('prioridade', sql.NVarChar, a.prioridade)
+        .input('status', sql.NVarChar, a.status)
         .query(`
-          INSERT INTO Opr_Atendimento (CodAtendimento, CodCliente, DataHoraInicial, DataHoraFinal, ProblemaRelatado, SolucaoRepassada, Solicitante, CobrarAtendimento)
-          VALUES (@id, @clienteId, @dataInicio, @dataFim, @problema, @solucao, @solicitante, @cobrar)
+          INSERT INTO Opr_Atendimento (CodAtendimento, CodCliente, DataHoraInicial, DataHoraFinal, ProblemaRelatado, SolucaoRepassada, Solicitante, CobrarAtendimento, Protocolo, Sistema, TipoAtendimento, Departamento, Prioridade, Status)
+          VALUES (@id, @clienteId, @dataInicio, @dataFim, @problema, @solucao, @solicitante, @cobrar, @protocolo, @sistema, @tipoAtendimento, @departamento, @prioridade, @status)
         `)
     }
     console.log(`  ${atendimentos.length} atendimentos inseridos`)
