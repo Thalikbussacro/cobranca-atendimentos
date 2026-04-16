@@ -38,3 +38,6 @@ yarn-error.log*
 # Backup files
 *.bak
 *~
+
+# Refactoring plan
+REFACTORING_PLAN.md
