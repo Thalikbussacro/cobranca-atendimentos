@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
-import { Loader2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Loader2, ChevronDown, ChevronUp, Calendar, DollarSign, Users, Eye, FileText } from 'lucide-react'
 import { getAllClientes, gerarCobrancas } from '@/services/api'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { usePreview } from '@/hooks/usePreview'
@@ -91,17 +91,25 @@ export function FiltrosPeriodo({ onGerado }) {
   }
 
   return (
-    <Card className="mb-4 md:mb-6">
+    <Card className="mb-6">
       <CardHeader
         className="cursor-pointer py-3 px-4 md:px-6 flex flex-row items-center justify-between"
         onClick={() => setAberto(!aberto)}
       >
-        <CardTitle className="text-base md:text-lg">Gerar Cobranças</CardTitle>
-        {aberto ? (
-          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-        ) : (
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-so-blue/10 flex items-center justify-center">
+            <FileText className="h-4 w-4 text-so-blue" />
+          </div>
+          <div>
+            <CardTitle className="text-base md:text-lg">Gerar Cobranças</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
+              Selecione o período e cliente para gerar cobranças
+            </p>
+          </div>
+        </div>
+        <div className={`transition-transform duration-200 ${aberto ? 'rotate-180' : ''}`}>
           <ChevronDown className="h-5 w-5 text-muted-foreground" />
-        )}
+        </div>
       </CardHeader>
 
       {aberto && (
@@ -112,7 +120,10 @@ export function FiltrosPeriodo({ onGerado }) {
             <form onSubmit={handleVerPreview} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Cliente</Label>
+                  <Label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Users className="h-3.5 w-3.5" />
+                    Cliente
+                  </Label>
                   <Select
                     value={form.clienteId}
                     onValueChange={(value) => {
@@ -135,7 +146,10 @@ export function FiltrosPeriodo({ onGerado }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="dataInicial">Data Inicial</Label>
+                  <Label htmlFor="dataInicial" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Data Inicial
+                  </Label>
                   <Input
                     id="dataInicial"
                     type="date"
@@ -148,7 +162,10 @@ export function FiltrosPeriodo({ onGerado }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="dataFinal">Data Final</Label>
+                  <Label htmlFor="dataFinal" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Data Final
+                  </Label>
                   <Input
                     id="dataFinal"
                     type="date"
@@ -161,7 +178,10 @@ export function FiltrosPeriodo({ onGerado }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="precoHora">Preço/Hora (R$)</Label>
+                  <Label htmlFor="precoHora" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <DollarSign className="h-3.5 w-3.5" />
+                    Preço/Hora (R$)
+                  </Label>
                   <Input
                     id="precoHora"
                     type="number"
@@ -180,27 +200,33 @@ export function FiltrosPeriodo({ onGerado }) {
                 </div>
               )}
 
-              <div className="flex gap-2">
-                <Button type="submit" variant="outline" disabled={loadingPreview}>
+              <div className="flex items-center gap-2 pt-1">
+                <Button type="submit" variant="outline" disabled={loadingPreview} className="gap-2">
                   {loadingPreview ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Carregando...
                     </>
                   ) : (
-                    'Ver Preview'
+                    <>
+                      <Eye className="h-4 w-4" />
+                      Ver Preview
+                    </>
                   )}
                 </Button>
 
                 {preview && preview.length > 0 && (
-                  <Button onClick={handleGerar} disabled={gerando}>
+                  <Button onClick={handleGerar} disabled={gerando} className="gap-2 bg-so-blue hover:bg-so-blue-dark animate-in fade-in slide-in-from-left-2 duration-200">
                     {gerando ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Gerando...
                       </>
                     ) : (
-                      `Gerar ${preview.length} Cobrança(s)`
+                      <>
+                        <FileText className="h-4 w-4" />
+                        Gerar {preview.length} Cobrança(s)
+                      </>
                     )}
                   </Button>
                 )}

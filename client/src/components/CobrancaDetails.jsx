@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { horasParaDecimal } from '@/utils/formatters'
+import { horasParaDecimal, formatCnpj } from '@/utils/formatters'
 
 export function CobrancaDetails({ cobranca }) {
   const horasDecimais = horasParaDecimal(cobranca.horas)
@@ -24,7 +24,7 @@ export function CobrancaDetails({ cobranca }) {
               <div className="space-y-1.5">
                 <div>
                   <span className="text-xs text-muted-foreground">CNPJ:</span>
-                  <p className="text-sm font-medium">{cobranca.clienteCnpj}</p>
+                  <p className="text-sm font-medium">{formatCnpj(cobranca.clienteCnpj)}</p>
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground">E-mails:</span>
